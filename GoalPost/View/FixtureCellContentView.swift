@@ -31,6 +31,9 @@ class FixtureCellContentView: UIView, UIContentView {
     var homeTeamStack = UIStackView(.horizontal)
     var awayTeamStack = UIStackView(.horizontal)
     
+    var homeImage = UIView()
+    var awayImage = UIView()
+    
     var homeImageView = UIImageView()
     var awayImageView = UIImageView()
     
@@ -90,22 +93,35 @@ private extension FixtureCellContentView {
         
         
         // MARK: Set up stacks
-        mainStack.add(children: [(imageStack, nil), (UIView(), nil), (labelStack, 0.7)])
-        imageStack.add(children: [(UIView(), nil), (homeImageView, 0.3), (UIView(), 0.05), (vsLabel, 0.05), (UIView(), 0.05), (awayImageView, 0.3), (UIView(), nil)])
-        //mainStack.add(children: [(UIView(), nil), (homeImageView, nil), (UIView(), nil), (vsLabel, nil), (UIView(), nil), (awayImageView, nil), (UIView(), nil), (labelStack, 0.7)])
+        //mainStack.add(children: [(imageStack, nil), (UIView(), nil), (labelStack, 0.7)])
+        //imageStack.add(children: [(UIView(), nil), (homeImageView, 0.3), (UIView(), 0.05), (vsLabel, 0.05), (UIView(), 0.05), (awayImageView, 0.3), (UIView(), nil)])
+        mainStack.add(children: [(homeImage, nil), (vsLabel, nil), (awayImage, nil), (labelStack, 0.7)])
+        mainStack.setCustomSpacing(4, after: homeImage)
+        mainStack.setCustomSpacing(4, after: vsLabel)
+        mainStack.setCustomSpacing(7, after: awayImage)
         labelStack.add([homeTeamStack, awayTeamStack])
         homeTeamStack.add(children: [(homeTeamLabel, 0.9), (homeTeamScore, nil)])
         awayTeamStack.add(children: [(awayTeamLabel, 0.9), (awayTeamScore, nil)])
         
         // MARK: Format labels
-        allLabels.forEach { $0.textColor = .black }
+        allLabels.forEach { $0.textColor = Colors.darkColor }
         
         // MARK: Set up image stack
-        homeImageView.heightAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.1).isActive = true
-        homeImageView.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.1).isActive = true
+        //homeImageView.heightAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.1).isActive = true
+        //homeImageView.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.1).isActive = true
         
-        awayImageView.heightAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.1).isActive = true
-        awayImageView.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.1).isActive = true
+        //awayImageView.heightAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.1).isActive = true
+        //awayImageView.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.1).isActive = true
+        
+        homeImage.constrain(homeImageView, using: .scale, widthScale: 1, heightScale: 1, padding: 0, except: [.height], safeAreaLayout: false, debugName: "Home Image View")
+        
+        
+        awayImage.constrain(awayImageView, using: .scale, widthScale: 1, heightScale: 1, padding: 0, except: [.height], safeAreaLayout: false, debugName: "Away Image View")
+        
+        homeImageView.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        homeImageView.widthAnchor.constraint(equalToConstant: 40).isActive = true
+        awayImageView.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        awayImageView.widthAnchor.constraint(equalToConstant: 40).isActive = true
         
         imageStack.alignment = .center
     }

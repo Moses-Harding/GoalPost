@@ -16,11 +16,11 @@ class FixtureCell: UICollectionViewListCell {
         
         // Remove gray background when selected:
         var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
-        backgroundConfiguration.backgroundColor = UIColor.clear
-        backgroundConfiguration.cornerRadius = 0
-        backgroundConfiguration.strokeColor = .black
-        backgroundConfiguration.strokeWidth = 1
-        backgroundConfiguration.backgroundInsets = NSDirectionalEdgeInsets(top: 0, leading: 2, bottom: 0, trailing: 2)
+        backgroundConfiguration.backgroundColor = .white
+        //backgroundConfiguration.cornerRadius = 0
+        //backgroundConfiguration.strokeColor = .black
+        //backgroundConfiguration.strokeWidth = 1
+        //backgroundConfiguration.backgroundInsets = NSDirectionalEdgeInsets(top: 0, leading: 2, bottom: 0, trailing: 2)
         self.backgroundConfiguration = backgroundConfiguration
             
         // Create new configuration object and update it base on state

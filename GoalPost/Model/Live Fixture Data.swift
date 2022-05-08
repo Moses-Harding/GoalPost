@@ -49,14 +49,18 @@ class LiveFixtureDataContainer {
     }
     
     func getNextDay(from date: Date) -> Date {
-        let newDate = Calendar.current.nextDate(after: date, matching: DateComponents.init(calendar: Calendar.current), matchingPolicy: Calendar.MatchingPolicy.nextTime, direction: .forward) ?? date
-        print(newDate)
+        var dateComponent = DateComponents()
+        dateComponent.day = 1
+        
+        let newDate = Calendar.current.date(byAdding: dateComponent, to: date) ?? date
         return newDate
     }
     
     func getPreviousDay(from date: Date) -> Date {
-        let newDate = Calendar.current.nextDate(after: date, matching: DateComponents.init(calendar: Calendar.current), matchingPolicy: Calendar.MatchingPolicy.previousTimePreservingSmallerComponents, direction: .backward) ?? date
-        print(newDate)
+        var dateComponent = DateComponents()
+        dateComponent.day = -1
+        
+        let newDate = Calendar.current.date(byAdding: dateComponent, to: date) ?? date
         return newDate
     }
     
@@ -70,7 +74,7 @@ class LiveFixtureDataContainer {
         
         let headers = [
             "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
-            "X-RapidAPI-Key": "c1164f49eamsh738fee22e3cadc3p1b9a2djsnca6241604f73"
+            "X-RapidAPI-Key": Secure.rapidAPIKey
         ]
 
         let request = NSMutableURLRequest(url: NSURL(string: "https://api-football-v1.p.rapidapi.com/v3/fixtures?date=\(formattedDate)")! as URL,
@@ -116,7 +120,6 @@ class LiveFixtureDataContainer {
             let leagueCountry = result.league.country
             let leagueName = result.league.name
             
-            /*
             if !favoriteCountries.contains(leagueCountry) {
                 continue
             }
@@ -124,7 +127,6 @@ class LiveFixtureDataContainer {
             if !favoriteLeagues.contains(leagueName) {
                 continue
             }
-             */
             
             let homeTeam = FixtureTeamData(name: result.teams.home.name, score: result.goals.home ?? 0)
             let awayTeam = FixtureTeamData(name: result.teams.away.name, score: result.goals.away ?? 0)

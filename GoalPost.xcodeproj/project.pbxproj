@@ -32,6 +32,8 @@
 		15C6215C28145A97005A13E7 /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215B28145A97005A13E7 /* UIView.swift */; };
 		15C6215E281460C9005A13E7 /* LeagueCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215D281460C9005A13E7 /* LeagueCell.swift */; };
 		15C6216028146379005A13E7 /* Custom Classes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215F28146379005A13E7 /* Custom Classes.swift */; };
+		15DAA8DC2826FBBA005492F0 /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DAA8DB2826FBBA005492F0 /* Subclasses.swift */; };
+		15DAA8DE28277DEC005492F0 /* SecretKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DAA8DD28277DEC005492F0 /* SecretKeys.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,7 +41,7 @@
 		15189FEC281B2527002E6DB4 /* FixtureCellContentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixtureCellContentConfiguration.swift; sourceTree = "<group>"; };
 		15189FEE281B3DE6002E6DB4 /* LeagueCellContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeagueCellContentView.swift; sourceTree = "<group>"; };
 		15189FF0281B3E29002E6DB4 /* LeagueCellContentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeagueCellContentConfiguration.swift; sourceTree = "<group>"; };
-		1548A15228236F3A00741179 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		1548A15228236F3A00741179 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		1548A154282377D000741179 /* TestingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingManager.swift; sourceTree = "<group>"; };
 		1578B84E282217AC00B71838 /* FixtureGet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixtureGet.swift; sourceTree = "<group>"; };
 		1578B85028222B7200B71838 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
@@ -62,6 +64,8 @@
 		15C6215B28145A97005A13E7 /* UIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
 		15C6215D281460C9005A13E7 /* LeagueCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeagueCell.swift; sourceTree = "<group>"; };
 		15C6215F28146379005A13E7 /* Custom Classes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Custom Classes.swift"; sourceTree = "<group>"; };
+		15DAA8DB2826FBBA005492F0 /* Subclasses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
+		15DAA8DD28277DEC005492F0 /* SecretKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretKeys.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +121,7 @@
 				1578B84E282217AC00B71838 /* FixtureGet.swift */,
 				1578B8542822EC3900B71838 /* LeagueGet.swift */,
 				1578B8522822D98000B71838 /* UserSettings.swift */,
+				15DAA8DD28277DEC005492F0 /* SecretKeys.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -160,6 +165,7 @@
 				1578B85028222B7200B71838 /* Protocols.swift */,
 				1548A15228236F3A00741179 /* Colors.swift */,
 				1548A154282377D000741179 /* TestingManager.swift */,
+				15DAA8DB2826FBBA005492F0 /* Subclasses.swift */,
 			);
 			path = "Support Files";
 			sourceTree = "<group>";
@@ -240,6 +246,8 @@
 				15C6213B2814592D005A13E7 /* ViewController.swift in Sources */,
 				1578B85128222B7200B71838 /* Protocols.swift in Sources */,
 				15C6215E281460C9005A13E7 /* LeagueCell.swift in Sources */,
+				15DAA8DE28277DEC005492F0 /* SecretKeys.swift in Sources */,
+				15DAA8DC2826FBBA005492F0 /* Subclasses.swift in Sources */,
 				1578B84F282217AC00B71838 /* FixtureGet.swift in Sources */,
 				15C6215A28145A7A005A13E7 /* UIStackView.swift in Sources */,
 				15189FF1281B3E29002E6DB4 /* LeagueCellContentConfiguration.swift in Sources */,

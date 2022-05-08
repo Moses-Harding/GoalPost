@@ -72,7 +72,7 @@ private extension LeagueCellContentView {
         // MARK: Set up stacks
         mainStack.addArrangedSubview(leagueLabel)
         leagueLabel.textAlignment = .center
-        leagueLabel.textColor = Colors.green.hex7AE7C7
+        leagueLabel.textColor = Colors.lightColor
         leagueLabel.font = UIFont.boldSystemFont(ofSize: 16)
 
         

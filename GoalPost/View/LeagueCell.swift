@@ -16,11 +16,8 @@ class LeagueCell: UICollectionViewListCell {
         
         // Create background configuration for cell
         var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
-        backgroundConfiguration.backgroundColor = UIColor.black
-        backgroundConfiguration.cornerRadius = 0
-        backgroundConfiguration.strokeColor = .black
-        backgroundConfiguration.strokeWidth = 2
-        backgroundConfiguration.backgroundInsets = NSDirectionalEdgeInsets(top: 1, leading: 2, bottom: 0, trailing: 2)
+        backgroundConfiguration.backgroundColor = Colors.darkColor
+        //backgroundConfiguration.backgroundInsets = NSDirectionalEdgeInsets(top: 1, leading: 2, bottom: 0, trailing: 2)
         self.backgroundConfiguration = backgroundConfiguration
             
         // Create new configuration object and update it base on state

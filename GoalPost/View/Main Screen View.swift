@@ -36,7 +36,7 @@ class MainScreenView: UIView {
         let button = UIButton()
         let image = UIImage(systemName: "arrow.right", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25))
         button.setImage(image, for: .normal)
-        button.tintColor = Colors.green.hex7AE7C7
+        button.tintColor = Colors.lightColor
         button.addTarget(self, action: #selector(nextDay), for: .touchUpInside)
         return button
     } ()
@@ -45,7 +45,7 @@ class MainScreenView: UIView {
         let button = UIButton()
         let image = UIImage(systemName: "arrow.left", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25))
         button.setImage(image, for: .normal)
-        button.tintColor = Colors.green.hex7AE7C7
+        button.tintColor = Colors.lightColor
         button.addTarget(self, action: #selector(previousDay), for: .touchUpInside)
         return button
     } ()
@@ -63,10 +63,15 @@ class MainScreenView: UIView {
     
     // MARK: Gestures
     
-    let swipeRecognizer = UISwipeGestureRecognizer()
+    var swipeLeft = UISwipeGestureRecognizer()
+    var swipeRight = UISwipeGestureRecognizer()
     
     init() {
         super.init(frame: CGRect.zero)
+        
+        self.backgroundColor = Colors.darkColor
+        mainStack.backgroundColor = Colors.darkColor
+        collectionArea.backgroundColor = Colors.darkColor
         
         setUpMainStack()
         setUpDate()
@@ -74,6 +79,7 @@ class MainScreenView: UIView {
         setUpCollectionView()
         setUpDataSourceSnapshots()
         setUpColors()
+        setUpGestures()
         
         liveFixtureData.delegate = self
     }
@@ -91,7 +97,7 @@ class MainScreenView: UIView {
     
     func setUpDate() {
         dateLabel.text = DateFormatter.localizedString(from: currentDate, dateStyle: .medium, timeStyle: .none)
-        dateLabel.font = UIFont.systemFont(ofSize: 40)
+        dateLabel.font = UIFont.systemFont(ofSize: 20)
         dateLabel.textAlignment = .center
         dateArea.add(children: [(previousDayButton, 0.2), (dateLabel, 0.6), (nextDayButton, nil)])
     }
@@ -104,10 +110,11 @@ class MainScreenView: UIView {
         // MARK: Create list layout
         var layoutConfig = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         layoutConfig.headerTopPadding = 0
-        layoutConfig.backgroundColor = Colors.green.hex7AE7C7
+        layoutConfig.backgroundColor = Colors.lightColor
         layoutConfig.showsSeparators = true
         layoutConfig.separatorConfiguration = UIListSeparatorConfiguration(listAppearance: .grouped)
         let listLayout = UICollectionViewCompositionalLayout.list(using: layoutConfig)
+        //listLayout.layoutAttributesForDecorationView(ofKind: <#T##String#>, at: <#T##IndexPath#>)
         
         // MARK: Configure Collection View
         collectionView = UICollectionView(frame: self.bounds, collectionViewLayout: listLayout)
@@ -120,7 +127,7 @@ class MainScreenView: UIView {
             cell.league = league
             
             // With this accessory, the header cell's children will expand / collapse when the header cell is tapped.
-            let headerDisclosureOption = UICellAccessory.OutlineDisclosureOptions(style: .header, isHidden: false, reservedLayoutWidth: .custom(0.001), tintColor: .black)
+            let headerDisclosureOption = UICellAccessory.OutlineDisclosureOptions(style: .header, isHidden: false, reservedLayoutWidth: .custom(0.001), tintColor: Colors.lightColor)
             cell.accessories = [.outlineDisclosure(options:headerDisclosureOption)]
         }
         
@@ -185,11 +192,30 @@ class MainScreenView: UIView {
     
     // NOTE: CollectionView backgroundColor is set up by changing the layout color in setUpCollectionView
     func setUpColors() {
-        dateLabel.textColor = Colors.green.hex7AE7C7
-        dateArea.backgroundColor = .black
-        buttonArea.backgroundColor = .black
+        dateLabel.textColor = Colors.lightColor
+        dateArea.backgroundColor = Colors.darkColor
+        buttonArea.backgroundColor = Colors.darkColor
+        collectionView.backgroundView?.backgroundColor = .clear
     }
+    
+    func setUpGestures() {
+
+        swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(nextDay))
+        addGestureRecognizer(swipeLeft)
+        swipeLeft.delegate = self
+        swipeLeft.direction = .left
+        
+        swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(previousDay))
+        addGestureRecognizer(swipeRight)
+        swipeRight.delegate = self
+        swipeRight.direction = .right
+    }
+    
     //NOTE: Configuration of cell body: https://swiftsenpai.com/development/uicollectionview-list-custom-cell/
+}
+
+extension MainScreenView: UICollectionViewDelegate {
+
 }
 
 //MARK: Button Actions
@@ -231,4 +257,9 @@ extension MainScreenView: Refreshable {
     func refresh() {
         setUpDataSourceSnapshots()
     }
+}
+
+// MARK: Extensions
+extension MainScreenView: UIGestureRecognizerDelegate {
+    
 }
