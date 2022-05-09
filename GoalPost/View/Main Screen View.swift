@@ -77,7 +77,7 @@ class MainScreenView: UIView {
         setUpDate()
         setUpButtons()
         setUpCollectionView()
-        setUpDataSourceSnapshots()
+        //setUpDataSourceSnapshots()
         setUpColors()
         setUpGestures()
         
@@ -158,35 +158,46 @@ class MainScreenView: UIView {
         }
     }
     
-    func setUpDataSourceSnapshots() {
-        // MARK: Setup snapshots
+    func setUpDataSourceSnapshots(from date: Date) {
+        // MARK: Setup snap shots
+        
+        // Create new datasource snapshot
         var dataSourceSnapshot = NSDiffableDataSourceSnapshot<LeagueData, ListItem>()
-
-        // Create collection view section based on number of HeaderItem in modelObjects
-        var leaguesList = [LeagueData]()
-        liveFixtureData.leagues.forEach { leaguesList.append($0.value) }
+        
+        // Get only the fixtures for the current date
+        let currentFixtures = Cached.dailyFixtures[date.asKey] ?? [:]
+        
+        // Create a list of each league for that date
+        var leaguesList = currentFixtures.map { $0.value }
+        
+        // Sort the leagues alphabetically
+        leaguesList.sort { $0.name < $1.name }
+        
+        // Add sections to the snapshot (just adding an array)
         dataSourceSnapshot.appendSections(leaguesList)
+        
+        // Apply the snapshot to the datasource
         dataSource.apply(dataSourceSnapshot)
         
-        // Loop through each header item so that we can create a section snapshot for each respective header item.
+        // Create a section snapshot for each league
         for league in leaguesList {
             
-            // Create a section snapshot
+            // Create new section snapshot
             var sectionSnapshot = NSDiffableDataSourceSectionSnapshot<ListItem>()
             
-            // Create a header ListItem & append as parent
+            // Create a new "ListItem" object, and assign the current league to it. Then append it to the snapshot
             let leagueListItem = ListItem.league(league)
             sectionSnapshot.append([leagueListItem])
             
-            // Create an array of symbol ListItem & append as child of headerListItem
-            let symbolListItemArray = league.fixtures.map { ListItem.fixture($0) }
-            sectionSnapshot.append(symbolListItemArray, to: leagueListItem)
+            // Create an array of "ListItem" objects and assign each fixture for a given league to it. Then append that list to its "parent"
+            let fixtureItems = league.fixtures.map { ListItem.fixture($0) }
+            sectionSnapshot.append(fixtureItems, to: leagueListItem)
             
             // Expand this section by default
             sectionSnapshot.expand([leagueListItem])
             
             // Apply section snapshot to the respective collection view section
-            dataSource.apply(sectionSnapshot, to: league, animatingDifferences: false)
+            dataSource.apply(sectionSnapshot, to: league, animatingDifferences: true)
         }
     }
     
@@ -230,7 +241,7 @@ extension MainScreenView {
         // dateLabel set and retrieveData triggered by currentDate willSet
         currentDate = liveFixtureData.getNextDay(from: currentDate)
         dateLabel.text = DateFormatter.localizedString(from: currentDate, dateStyle: .medium, timeStyle: .none)
-        liveFixtureData.retrieveFixtureData(for: currentDate)
+        refresh()
         
     }
     
@@ -239,7 +250,7 @@ extension MainScreenView {
         // dateLabel set and retrieveData triggered by currentDate willSet
         currentDate = liveFixtureData.getPreviousDay(from: currentDate)
         dateLabel.text = DateFormatter.localizedString(from: currentDate, dateStyle: .medium, timeStyle: .none)
-        liveFixtureData.retrieveFixtureData(for: currentDate)
+        refresh()
     }
 }
 
@@ -255,7 +266,7 @@ extension MainScreenView {
 
 extension MainScreenView: Refreshable {
     func refresh() {
-        setUpDataSourceSnapshots()
+        setUpDataSourceSnapshots(from: currentDate)
     }
 }
 

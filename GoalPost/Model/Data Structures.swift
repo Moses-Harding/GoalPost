@@ -17,10 +17,25 @@ struct LeagueData: Codable, Hashable {
 struct FixtureData: Codable, Hashable {
     var homeTeam: FixtureTeamData
     var awayTeam: FixtureTeamData
-    var timeElapsed: Float
+    var timeElapsed: Int?
+    var timeStamp: Date
 }
 
 struct FixtureTeamData: Codable, Hashable {
     var name: String
-    var score: Int
+    var id: Int
+    var logoURL: String
+    var score: Int?
 }
+
+/*
+struct TeamData: Codable, Hashable {
+    var id: Int
+    var name: String
+    var code: String
+    var country: String
+    var founded: Int
+    var national: Bool
+    var logoURL: String
+}
+*/

@@ -11,41 +11,23 @@ import Foundation
 
 class LiveFixtureDataContainer {
     
-    var leagues = [Int:LeagueData]()
-    
-    var numberOfLeagues: Int {
-        return leagues.count
-    }
-    
-    var numberOfFixtures: Int {
-        var number = 0
-        for league in leagues {
-            number += league.value.fixtures.count
-        }
-        return number
-    }
-    
     var delegate: Refreshable?
+    
+    var dailyFixtureData = Cached.dailyFixtures
     
     var favoriteCountries = ["England", "Spain", "Italy", "France", "Germany", "Portugal"]
     var favoriteLeagues = ["La Liga", "Ligue 1", "Serie A", "Bundesliga 1", "Championship", "Premier League"]
     
     init() {
-        retrieveFixtureData(for: Date.now)
-    }
-    
-    func testData() {
-        
-        /* DUMMY DATA */
-        let laLiga = LeagueData(name: "La Liga", fixtures: [FixtureData(homeTeam: FixtureTeamData(name: "Barcelona", score: 4), awayTeam: FixtureTeamData(name: "Real Madrid", score: 0), timeElapsed: 5), FixtureData(homeTeam: FixtureTeamData(name: "Atletico Madrid", score: 2), awayTeam: FixtureTeamData(name: "Real Betis", score: 1), timeElapsed: 45), FixtureData(homeTeam: FixtureTeamData(name: "Cadiz", score: 0), awayTeam: FixtureTeamData(name: "Atletico Madrid", score: 0), timeElapsed: 90)])
-        let premierLeague = LeagueData(name: "Premier League", fixtures: [FixtureData(homeTeam: FixtureTeamData(name: "Liverpool", score: 2), awayTeam: FixtureTeamData(name: "Chelsea", score: 0), timeElapsed: 35), FixtureData(homeTeam: FixtureTeamData(name: "Tottenham Hotspur", score: 1), awayTeam: FixtureTeamData(name: "Manchester City", score: 3), timeElapsed: 10), FixtureData(homeTeam: FixtureTeamData(name: "Crystal Palace", score: 3), awayTeam: FixtureTeamData(name: "Southampton", score: 2), timeElapsed: 7)])
-        
-        leagues[0] = laLiga
-        leagues[1] = premierLeague
+        configureFavoriteLeagues()
+        if Testing.manager.webServiceCallsEnabled { retrieveFixturesFromFavoriteLeagues() }
     }
     
     func configureFavoriteLeagues() {
-        
+        if Saved.leagues.isEmpty {
+            Saved.leagues = [39, 61, 78, 135, 140]
+
+        }
     }
     
     func getNextDay(from date: Date) -> Date {
@@ -66,30 +48,44 @@ class LiveFixtureDataContainer {
     
     // MARK: Retrieve Data
     
-    func retrieveFixtureData(for date: Date) {
+    func retrieveFixturesFromFavoriteLeagues() {
+        Saved.leagues.forEach { retrieveFixtureData(for: $0, date: Date.now) }
+    }
+    
+    func retrieveFixtureData(for leagueID: Int, date: Date) {
         
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        var formattedDate = formatter.string(from: date)
+        // The API requires a four digit season. There's no easy way to tell what the current season is, but the season typically changes between June - August, so if it's after July, then the season is the current year.
+        
+        var season: Int
+        let month = Calendar.current.component(.month, from: date)
+        let year = Calendar.current.component(.year, from: date)
+        
+        if month > 7 {
+            season = year
+        } else {
+            season = year - 1
+        }
+        
+        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?league=\(String(leagueID))&season=\(season)"
+
         
         let headers = [
             "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
             "X-RapidAPI-Key": Secure.rapidAPIKey
         ]
-
-        let request = NSMutableURLRequest(url: NSURL(string: "https://api-football-v1.p.rapidapi.com/v3/fixtures?date=\(formattedDate)")! as URL,
-                                                cachePolicy: .useProtocolCachePolicy,
-                                            timeoutInterval: 10.0)
+        
+        let request = NSMutableURLRequest(url: NSURL(string: requestURL)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
+                                          
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
 
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             if (error != nil) {
-                print("Live Fixture Data - Retrieve Fixture Data - Error calling /fixtures \(error)")
+                print("Live Fixture Data - Retrieve Fixture Data - Error calling /fixtures \(String(describing: error))")
             } else {
                 let httpResponse = response as? HTTPURLResponse
-                if Testing.manager.verboseWebServiceCalls { print(httpResponse) }
+                if Testing.manager.verboseWebServiceCalls { print(httpResponse as Any) }
                 self.convert(data: data)
             }
         })
@@ -98,9 +94,7 @@ class LiveFixtureDataContainer {
     }
     
     func convert(data: Data?) {
-        
-        var leagueData = [Int:LeagueData]()
-        
+
         var results: FixtureResults?
         
         guard let data = data else {
@@ -116,33 +110,57 @@ class LiveFixtureDataContainer {
         
         for result in responses {
             
+            // Get Date
+            let fixtureDate = Date(timeIntervalSince1970: TimeInterval(result.fixture.timestamp))
+            let timeElapsed = result.fixture.status.elapsed
+             
+            // Get league Details
             let leagueId = result.league.id
             let leagueCountry = result.league.country
             let leagueName = result.league.name
-            
-            if !favoriteCountries.contains(leagueCountry) {
-                continue
-            }
-            
-            if !favoriteLeagues.contains(leagueName) {
-                continue
-            }
-            
-            let homeTeam = FixtureTeamData(name: result.teams.home.name, score: result.goals.home ?? 0)
-            let awayTeam = FixtureTeamData(name: result.teams.away.name, score: result.goals.away ?? 0)
-            let fixtureData = FixtureData(homeTeam: homeTeam, awayTeam: awayTeam, timeElapsed: Float(result.fixture.status.elapsed ?? 0))
 
-            if let foundLeague = leagueData[leagueId] {
-                var fixtures = foundLeague.fixtures
-                fixtures.append(fixtureData)
-                leagueData[leagueId]?.fixtures = fixtures
-            } else {
-                let league = LeagueData(name: leagueName, country: leagueCountry, id: leagueId, fixtures: [fixtureData])
-                leagueData[leagueId] = league
-            }
+            
+            // Get team details
+            let homeTeamName = result.teams.home.name
+            let homeTeamId = result.teams.home.id
+            let homeTeamLogo = result.teams.home.logo
+            let homeTeamScore = result.goals.home
+            let awayTeamName = result.teams.away.name
+            let awayTeamID = result.teams.away.id
+            let awayTeamLogo = result.teams.away.logo
+            let awayTeamScore = result.goals.away
+            
+            // Create data structures
+            let homeTeam = FixtureTeamData(name: homeTeamName, id: homeTeamId, logoURL: homeTeamLogo, score:
+                                            homeTeamScore)
+            let awayTeam = FixtureTeamData(name: awayTeamName, id: awayTeamID, logoURL: awayTeamLogo, score:
+                                            awayTeamScore)
+            
+            let fixtureData = FixtureData(homeTeam: homeTeam, awayTeam: awayTeam, timeElapsed: timeElapsed, timeStamp: fixtureDate)
+            
+            // If fixturesByDay already has that day, pull that day up, if not create a new one
+            var foundDay = dailyFixtureData[fixtureDate.asKey] ?? [Int:LeagueData]()
+            
+            //print("foundDay  - \(foundDay) - \(fixtureDate)")
+            
+            // If foundDay already has that league, pull that league up, if not, create a new one
+            var foundLeague = foundDay[leagueId] ?? LeagueData(name: leagueName, country: leagueCountry, id: leagueId, fixtures: [])
+            
+            // print("foundLeague - Fixtures - count  - \(foundLeague.fixtures.count)")
+            
+            // Add fixturedata to league's fixutres
+            let fixtures = foundLeague.fixtures + [fixtureData]
+            foundLeague.fixtures = fixtures
+            
+            // print("foundLeague - Fixtures - count  - \(foundLeague.fixtures.count)")
+            
+            foundDay[leagueId] = foundLeague
+            dailyFixtureData[fixtureDate.asKey] = foundDay
+            
+            //print("foundDayForLeagueID  - \(foundDay[leagueId])")
+            
+            Cached.dailyFixtures = dailyFixtureData
         }
-        
-        leagues = leagueData
         
         guard let delegate = delegate else {
             fatalError("Delegate not passed to Live Fixture Data")

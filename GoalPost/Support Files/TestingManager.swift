@@ -10,5 +10,7 @@ import Foundation
 struct Testing {
     static var manager = Testing()
     
-    var verboseWebServiceCalls = true
+    var verboseWebServiceCalls = false
+    
+    var webServiceCallsEnabled = false
 }

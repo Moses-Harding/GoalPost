@@ -24,7 +24,7 @@
 		15C621402814592F005A13E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 15C6213F2814592F005A13E7 /* Assets.xcassets */; };
 		15C621432814592F005A13E7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 15C621412814592F005A13E7 /* LaunchScreen.storyboard */; };
 		15C6215028145A01005A13E7 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6214F28145A01005A13E7 /* Enums.swift */; };
-		15C6215228145A15005A13E7 /* Data Containers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215128145A15005A13E7 /* Data Containers.swift */; };
+		15C6215228145A15005A13E7 /* Data Structures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215128145A15005A13E7 /* Data Structures.swift */; };
 		15C6215428145A2C005A13E7 /* Live Fixture Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215328145A2C005A13E7 /* Live Fixture Data.swift */; };
 		15C6215628145A48005A13E7 /* Main Screen View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215528145A48005A13E7 /* Main Screen View.swift */; };
 		15C6215828145A62005A13E7 /* FixtureCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215728145A62005A13E7 /* FixtureCell.swift */; };
@@ -33,6 +33,9 @@
 		15C6215E281460C9005A13E7 /* LeagueCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215D281460C9005A13E7 /* LeagueCell.swift */; };
 		15C6216028146379005A13E7 /* Custom Classes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215F28146379005A13E7 /* Custom Classes.swift */; };
 		15DAA8DC2826FBBA005492F0 /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DAA8DB2826FBBA005492F0 /* Subclasses.swift */; };
+		15DAA8E028277FC5005492F0 /* Secure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DAA8DF28277FC5005492F0 /* Secure.swift */; };
+		15DAA8E228284953005492F0 /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DAA8E128284953005492F0 /* Date.swift */; };
+		15DAA8E428285260005492F0 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DAA8E328285260005492F0 /* String.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,7 +58,7 @@
 		15C621422814592F005A13E7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		15C621442814592F005A13E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		15C6214F28145A01005A13E7 /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
-		15C6215128145A15005A13E7 /* Data Containers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data Containers.swift"; sourceTree = "<group>"; };
+		15C6215128145A15005A13E7 /* Data Structures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data Structures.swift"; sourceTree = "<group>"; };
 		15C6215328145A2C005A13E7 /* Live Fixture Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Live Fixture Data.swift"; sourceTree = "<group>"; };
 		15C6215528145A48005A13E7 /* Main Screen View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Main Screen View.swift"; sourceTree = "<group>"; };
 		15C6215728145A62005A13E7 /* FixtureCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixtureCell.swift; sourceTree = "<group>"; };
@@ -64,6 +67,9 @@
 		15C6215D281460C9005A13E7 /* LeagueCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeagueCell.swift; sourceTree = "<group>"; };
 		15C6215F28146379005A13E7 /* Custom Classes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Custom Classes.swift"; sourceTree = "<group>"; };
 		15DAA8DB2826FBBA005492F0 /* Subclasses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
+		15DAA8DF28277FC5005492F0 /* Secure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secure.swift; sourceTree = "<group>"; };
+		15DAA8E128284953005492F0 /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
+		15DAA8E328285260005492F0 /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,11 +120,12 @@
 		15C6214A28145989005A13E7 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				15C6215128145A15005A13E7 /* Data Containers.swift */,
+				15C6215128145A15005A13E7 /* Data Structures.swift */,
 				15C6215328145A2C005A13E7 /* Live Fixture Data.swift */,
 				1578B84E282217AC00B71838 /* FixtureGet.swift */,
 				1578B8542822EC3900B71838 /* LeagueGet.swift */,
 				1578B8522822D98000B71838 /* UserSettings.swift */,
+				15DAA8DF28277FC5005492F0 /* Secure.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -150,6 +157,8 @@
 			children = (
 				15C6215928145A7A005A13E7 /* UIStackView.swift */,
 				15C6215B28145A97005A13E7 /* UIView.swift */,
+				15DAA8E128284953005492F0 /* Date.swift */,
+				15DAA8E328285260005492F0 /* String.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -244,6 +253,7 @@
 				1578B85128222B7200B71838 /* Protocols.swift in Sources */,
 				15C6215E281460C9005A13E7 /* LeagueCell.swift in Sources */,
 				15DAA8DC2826FBBA005492F0 /* Subclasses.swift in Sources */,
+				15DAA8E228284953005492F0 /* Date.swift in Sources */,
 				1578B84F282217AC00B71838 /* FixtureGet.swift in Sources */,
 				15C6215A28145A7A005A13E7 /* UIStackView.swift in Sources */,
 				15189FF1281B3E29002E6DB4 /* LeagueCellContentConfiguration.swift in Sources */,
@@ -251,6 +261,7 @@
 				1578B8532822D98000B71838 /* UserSettings.swift in Sources */,
 				15189FED281B2527002E6DB4 /* FixtureCellContentConfiguration.swift in Sources */,
 				1548A15328236F3A00741179 /* Colors.swift in Sources */,
+				15DAA8E428285260005492F0 /* String.swift in Sources */,
 				15189FEF281B3DE6002E6DB4 /* LeagueCellContentView.swift in Sources */,
 				15C621372814592D005A13E7 /* AppDelegate.swift in Sources */,
 				1548A155282377D000741179 /* TestingManager.swift in Sources */,
@@ -259,7 +270,8 @@
 				15189FEB281B2503002E6DB4 /* FixtureCellContentView.swift in Sources */,
 				1578B8552822EC3900B71838 /* LeagueGet.swift in Sources */,
 				15C6215028145A01005A13E7 /* Enums.swift in Sources */,
-				15C6215228145A15005A13E7 /* Data Containers.swift in Sources */,
+				15C6215228145A15005A13E7 /* Data Structures.swift in Sources */,
+				15DAA8E028277FC5005492F0 /* Secure.swift in Sources */,
 				15C621392814592D005A13E7 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

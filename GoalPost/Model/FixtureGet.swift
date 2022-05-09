@@ -7,9 +7,9 @@ import Foundation
 
 // MARK: - FixtureResults
 struct FixtureResults: Codable {
-    let get: String
+    //let get: String
     let parameters: Parameters
-    let errors: [String]
+    //let errors: [String:String]?
     let results: Int
     let paging: Paging
     let response: [Response]
@@ -22,7 +22,7 @@ struct Paging: Codable {
 
 // MARK: - Parameters
 struct Parameters: Codable {
-    let date: String
+    let date: String?
 }
 
 // MARK: - Response
