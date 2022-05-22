@@ -1,12 +1,65 @@
 //
-//  LeagueCellContentView.swift
+//  LeagueCell.swift
 //  GoalPost
 //
-//  Created by Moses Harding on 4/28/22.
+//  Created by Moses Harding on 4/23/22.
 //
 
 import Foundation
 import UIKit
+
+class LeagueCell: UICollectionViewListCell {
+    
+    var league: MatchLeagueData?
+    
+    override func updateConfiguration(using state: UICellConfigurationState) {
+        
+        // Create background configuration for cell
+        var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
+        backgroundConfiguration.backgroundColor = Colors.headerColor
+        //backgroundConfiguration.backgroundInsets = NSDirectionalEdgeInsets(top: 1, leading: 2, bottom: 0, trailing: 2)
+        self.backgroundConfiguration = backgroundConfiguration
+            
+        // Create new configuration object and update it base on state
+        var newConfiguration = LeagueCellContentConfiguration().updated(for: state)
+        
+        // Update any configuration parameters related to data item
+        newConfiguration.league = league
+
+        // Set content configuration in order to update custom content view
+        contentConfiguration = newConfiguration
+    }
+}
+
+struct LeagueCellContentConfiguration: UIContentConfiguration, Hashable {
+    
+    var league: MatchLeagueData?
+    
+    func makeContentView() -> UIView & UIContentView {
+        return LeagueCellContentView(configuration: self)
+    }
+    
+    func updated(for state: UIConfigurationState) -> Self {
+        
+        // Perform update on parameters that are not related to cell's data itesm
+        
+        // Make sure we are dealing with instance of UICellConfigurationState
+        guard let state = state as? UICellConfigurationState else {
+            return self
+        }
+        
+        // Updater self based on the current state
+        var updatedConfiguration = self
+        
+        if state.isSelected {
+            // Selected state
+        } else {
+            // Other states
+        }
+
+        return updatedConfiguration
+    }
+}
 
 class LeagueCellContentView: UIView, UIContentView {
     
@@ -72,7 +125,7 @@ private extension LeagueCellContentView {
         // MARK: Set up stacks
         mainStack.addArrangedSubview(leagueLabel)
         leagueLabel.textAlignment = .center
-        leagueLabel.textColor = Colors.lightColor
+        leagueLabel.textColor = Colors.headerTextColor
         leagueLabel.font = UIFont.boldSystemFont(ofSize: 16)
 
         
@@ -89,6 +142,6 @@ private extension LeagueCellContentView {
         currentConfiguration = configuration
         
         // Set data to UI elements
-        leagueLabel.text = league.name + " - " + league.country
+        leagueLabel.text = league.id != FavoriteTeamLeague.identifer.rawValue ? league.name + " - " + league.country : league.name
     }
 }

@@ -48,26 +48,11 @@ struct Storage<T: Codable> {
 
 // Keeps all saved preferences
 struct Saved {
-    // Save an array of "FavoriteLeague" items with the key "Leagues" by initializing an empty array as a default value
-    @Storage(key: "Leagues", defaultValue: [Int]()) static var leagues: [Int]
-    // Save an array of "FavoriteTeam" items with the key "Teams" by initializing an empty array as a default value
-    @Storage(key: "Teams", defaultValue: [Int]()) static var teams: [Int]
+    @Storage(key: "First Run", defaultValue: true) static var firstRun: Bool
+    @Storage(key: "Last Leagues Update", defaultValue: Date.now) static var lastLeaguesUpdate: Date
 }
 
 
-
-// MARK: Saved data structures
-struct FavoriteLeague: Codable {
-    var leagueName: String
-    var leagueCountry: String?
-    var leagueID: Int
-}
-
-struct FavoriteTeam: Codable {
-    var teamName: String
-    var teamLeague: String
-    var teamID: Int
-}
 
 //Caching
 @propertyWrapper
@@ -119,6 +104,48 @@ struct Cache<T: Codable> {
 
 // Keeps all saved preferences
 struct Cached {
+    
+    static var data = Cached()
+    
     // Save an array of "FavoriteLeague" items with the key "Leagues" by initializing an empty array as a default value
-    @Cache(key: "Leagues", defaultValue: [String: Dictionary<Int,LeagueData>]()) static var dailyFixtures: [String: Dictionary<Int,LeagueData>]
+    @Cache(key: "Leagues", defaultValue: []) static var leagues: [Int]
+    // Save an array of "FavoriteTeam" items with the key "Teams" by initializing an empty array as a default value
+    @Cache(key: "Teams", defaultValue: []) static var teams: [Int]
+    
+    // Save an array of "FavoriteLeague" items with the key "Leagues" by initializing an empty array as a default value
+    @Cache(key: "Matches", defaultValue: [:]) static var matches: [String: Dictionary<Int,MatchLeagueData>]
+    @Cache(key: "Favorite Team Matches", defaultValue: [:]) static var favoriteTeamMatches: [String:MatchLeagueData]
+    @Cache(key: "Team Dictionary", defaultValue: [:]) static var teamDictionary: [Int:TeamSearchData]
+    @Cache(key: "League Dictionary", defaultValue: [:]) static var leagueDictionary: [Int:LeagueSearchData]
+
+    
+    func retrieveImage(from string: String) -> UIImage? {
+        
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = documents.appendingPathComponent(string)
+        
+        // If a value exists, return it as Data, else return nil
+        guard let data = try? Data(contentsOf: url) else {
+            return nil
+        }
+        
+        // Convert it from Data to whatever type it is
+        return UIImage(data: data)
+    }
+    
+    func save(image: UIImage, uniqueName: String) {
+        
+        guard let data = image.pngData() else { return }
+        
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = documents.appendingPathComponent(uniqueName)
+        
+        do {
+            // Write to Disk
+            try data.write(to: url)
+            
+        } catch {
+            print("Unable to Write Data to Disk (\(error))")
+        }
+    }
 }

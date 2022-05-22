@@ -22,7 +22,7 @@ class AutoSizedCollectionView: UICollectionView {
     }
 }
 
-
+// This was created to solve problems related to expanding cells in a collecitonview
 class CustomStack: UIView {
     
     var axis: NSLayoutConstraint.Axis

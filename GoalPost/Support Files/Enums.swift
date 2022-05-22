@@ -21,7 +21,12 @@ enum ConstraintMethod {
 
 //MARK: CollectionView
 
-enum ListItem: Hashable {
-    case league(LeagueData)
-    case fixture(FixtureData)
+enum MatchesCellType: Codable, Hashable {
+    case league(MatchLeagueData)
+    case fixture(MatchData)
+    case ad(AdData)
+}
+
+enum FavoriteTeamLeague: Int {
+    case identifer = 100000000000
 }
