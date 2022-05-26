@@ -11,6 +11,7 @@ class TeamSearchDataContainer {
     
     var delegate: TeamSearchDelegate?
     
+    /*
     func search(for team: String) {
         
         if let delegate = delegate {
@@ -44,13 +45,23 @@ class TeamSearchDataContainer {
         
         dataTask.resume()
     }
+     */
     
-    
-    func convertSearch(data: Data?) {
+    func search(for team: String) {
         
-        if Cached.teamDictionary == nil {
-            Cached.teamDictionary = [:]
+        if let delegate = delegate {
+            delegate.addSpinner()
         }
+        
+        let encodedTeam = team.replacingOccurrences(of: " ", with: "+")
+
+        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/teams?search=\(encodedTeam)"
+        
+        WebServiceCall().retrieveResults(requestURL: requestURL) { self.convert(data: $0) }
+    }
+    
+    
+    func convert(data: Data?) {
 
         var results: TeamSearchStructure?
 
@@ -83,28 +94,4 @@ class TeamSearchDataContainer {
             delegate.returnSearchResults(teamResult: searchResults)
         }
     }
-}
-
-
-// MARK: Structures used in TeamSearchDataContainer
-
-struct TeamSearchData: Codable, Hashable {
-    let id: Int
-    let name: String
-    let code: String?
-    let country: String?
-    let founded: Int?
-    let national: Bool
-    let logo: String?
-    let venue: TeamSearchVenue
-}
-
-struct TeamSearchVenue: Codable, Hashable {
-    let id: Int?
-    let name: String?
-    let address: String?
-    let city: String?
-    let capacity: Int?
-    let surface: String?
-    let image: String?
 }

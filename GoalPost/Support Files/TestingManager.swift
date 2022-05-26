@@ -12,6 +12,6 @@ struct Testing {
     
     var verboseWebServiceCalls = false
     
-    var getMatchesForFavoriteLeagues = false
+    var getMatchesForFavoriteLeagues = true
     var getLiveTestData = true
 }

@@ -23,7 +23,7 @@ enum ConstraintMethod {
 
 enum MatchesCellType: Codable, Hashable {
     case league(MatchLeagueData)
-    case fixture(MatchData)
+    case match(MatchData)
     case ad(AdData)
 }
 

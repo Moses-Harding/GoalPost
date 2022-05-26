@@ -43,7 +43,7 @@ class RootController: UITabBarController {
             // Run the initial data gathering checks
             
             LeagueSearchDataContainer.helper.search()
-            MatchesDataContainer.helper.retrieveFixturesFromFavoriteLeagues(update: false)
+            MatchesDataContainer.helper.retrieveMatchesFromFavoriteLeagues(update: false)
             
             Saved.lastLeaguesUpdate = Date.now
             Saved.firstRun = false
@@ -54,7 +54,7 @@ class RootController: UITabBarController {
             if Date.now.timeIntervalSince(Saved.lastLeaguesUpdate) >= 86400 {
                 print("\n\n***\n***\n***Running league update since time interval was - \(Date.now.timeIntervalSince(Saved.lastLeaguesUpdate))\n***\n***\n***")
                 LeagueSearchDataContainer.helper.search()
-                MatchesDataContainer.helper.retrieveFixturesFromFavoriteLeagues(update: false)
+                MatchesDataContainer.helper.retrieveMatchesFromFavoriteLeagues(update: false)
                 
                 Saved.lastLeaguesUpdate = Date.now
             }

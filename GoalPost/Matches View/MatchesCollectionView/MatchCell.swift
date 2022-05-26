@@ -1,5 +1,5 @@
 //
-//  FixtureCell.swift
+//  MatchCell.swift
 //  GoalPost
 //
 //  Created by Moses Harding on 4/23/22.
@@ -8,9 +8,9 @@
 import Foundation
 import UIKit
 
-class FixtureCell: UICollectionViewListCell {
+class MatchCell: UICollectionViewListCell {
     
-    var fixture: MatchData?
+    var match: MatchData?
     
     override func updateConfiguration(using state: UICellConfigurationState) {
         
@@ -20,22 +20,22 @@ class FixtureCell: UICollectionViewListCell {
         self.backgroundConfiguration = backgroundConfiguration
             
         // Create new configuration object and update it base on state
-        var newConfiguration = FixtureCellContentConfiguration().updated(for: state)
+        var newConfiguration = MatchCellContentConfiguration().updated(for: state)
         
         // Update any configuration parameters related to data item
-        newConfiguration.fixture = fixture
+        newConfiguration.match = match
 
         // Set content configuration in order to update custom content view
         contentConfiguration = newConfiguration
     }
 }
 
-struct FixtureCellContentConfiguration: UIContentConfiguration, Hashable {
+struct MatchCellContentConfiguration: UIContentConfiguration, Hashable {
     
-    var fixture: MatchData?
+    var match: MatchData?
     
     func makeContentView() -> UIView & UIContentView {
-        return FixtureCellContentView(configuration: self)
+        return MatchCellContentView(configuration: self)
     }
     
     func updated(for state: UIConfigurationState) -> Self {
@@ -60,7 +60,7 @@ struct FixtureCellContentConfiguration: UIContentConfiguration, Hashable {
     
 }
 
-class FixtureCellContentView: UIView, UIContentView {
+class MatchCellContentView: UIView, UIContentView {
     
     //MARK: Labels
     
@@ -110,7 +110,7 @@ class FixtureCellContentView: UIView, UIContentView {
     
     var line = UIView()
 
-    private var currentConfiguration: FixtureCellContentConfiguration!
+    private var currentConfiguration: MatchCellContentConfiguration!
     
     //Allows easy application of a new configuration or retrieval of existing configuration
     var configuration: UIContentConfiguration {
@@ -118,7 +118,7 @@ class FixtureCellContentView: UIView, UIContentView {
             currentConfiguration
         }
         set {
-            guard let newConfiguration = newValue as? FixtureCellContentConfiguration else {
+            guard let newConfiguration = newValue as? MatchCellContentConfiguration else {
                 return
             }
             
@@ -127,7 +127,7 @@ class FixtureCellContentView: UIView, UIContentView {
     }
     
 
-    init(configuration: FixtureCellContentConfiguration) {
+    init(configuration: MatchCellContentConfiguration) {
         super.init(frame: .zero)
         
         // Create the content view UI
@@ -144,7 +144,7 @@ class FixtureCellContentView: UIView, UIContentView {
     
 }
 
-private extension FixtureCellContentView {
+private extension MatchCellContentView {
     
     private func setupAllViews() {
 
@@ -200,7 +200,7 @@ private extension FixtureCellContentView {
         imageStack.alignment = .center
     }
     
-    private func setStatus(from status: FixtureStatusCode, time: Int?) {
+    private func setStatus(from status: MatchStatusCode, time: Int?) {
         
         if status == .notStarted {
             statusOutline.isHidden = true
@@ -246,10 +246,10 @@ private extension FixtureCellContentView {
         }
     }
     
-    private func apply(configuration: FixtureCellContentConfiguration) {
+    private func apply(configuration: MatchCellContentConfiguration) {
     
         // Only apply configuration if new configuration and current configuration are not the same
-        guard currentConfiguration != configuration, let fixture = configuration.fixture else {
+        guard currentConfiguration != configuration, let match = configuration.match else {
             return
         }
         
@@ -257,19 +257,19 @@ private extension FixtureCellContentView {
         currentConfiguration = configuration
         
         // Set data to UI elements
-        homeTeamLabel.text = fixture.homeTeam.name
-        awayTeamLabel.text = fixture.awayTeam.name
-        startTimeLabel.text = fixture.timeStamp.formatted(date: .omitted, time: .shortened)
-        homeTeamScore.text = String(fixture.homeTeam.score)
-        awayTeamScore.text = String(fixture.awayTeam.score)
-        setStatus(from: fixture.status, time: fixture.timeElapsed)
+        homeTeamLabel.text = match.homeTeam.name
+        awayTeamLabel.text = match.awayTeam.name
+        startTimeLabel.text = match.timeStamp.formatted(date: .omitted, time: .shortened)
+        homeTeamScore.text = String(match.homeTeam.score)
+        awayTeamScore.text = String(match.awayTeam.score)
+        setStatus(from: match.status, time: match.timeElapsed)
         
         vsLabel.text = "-"
         vsLabel.sizeToFit()
         //imageStack.layoutSubviews()
         
-        loadImage(for: fixture.homeTeam, teamType: .home)
-        loadImage(for: fixture.awayTeam, teamType: .away)
+        loadImage(for: match.homeTeam, teamType: .home)
+        loadImage(for: match.awayTeam, teamType: .away)
     }
     
     enum TeamType {

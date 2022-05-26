@@ -1,11 +1,11 @@
 // This file was generated from JSON Schema using quicktype, do not modify it directly.
 // To parse the JSON, add this file to your project and do:
 //
-//   let fixtureResults = try? newJSONDecoder().decode(FixtureResults.self, from: jsonData)
+//   let matchResults = try? newJSONDecoder().decode(MatchResults.self, from: jsonData)
 
 import Foundation
 
-// MARK: - FixtureResults
+// MARK: - MatchResults
 struct GetMatchesStructure: Codable {
     let response: [GetMatchInformation]
 }
@@ -13,43 +13,43 @@ struct GetMatchesStructure: Codable {
 
 // MARK: - Response
 struct GetMatchInformation: Codable {
-    let fixture: GetMatchInformation_Fixture
+    let match: GetMatchInformation_Match
     let league: GetMatchInformation_League
     let teams: GetMatchInformation_Teams
     let goals: GetMatchInformation_Goals
     let score: GetMatchInformation_Score
 }
 
-// MARK: - Response -  Fixture
-struct GetMatchInformation_Fixture: Codable {
+// MARK: - Response -  Match
+struct GetMatchInformation_Match: Codable {
     let id: Int
     let referee: String?
     let timezone: String
     let date: String
     let timestamp: Int
-    let periods: GetMatchInformation_Fixture_Periods
-    let venue: GetMatchInformation_Fixture_Venue
-    let status: GetMatchInformation_Fixture_Status
+    let periods: GetMatchInformation_Match_Periods
+    let venue: GetMatchInformation_Match_Venue
+    let status: GetMatchInformation_Match_Status
 }
 
-struct GetMatchInformation_Fixture_Periods: Codable {
+struct GetMatchInformation_Match_Periods: Codable {
     let first: Int?
     let second: Int?
 }
 
-struct GetMatchInformation_Fixture_Venue: Codable {
+struct GetMatchInformation_Match_Venue: Codable {
     let id: Int?
     let name: String?
     let city: String?
 }
 
-struct GetMatchInformation_Fixture_Status: Codable {
+struct GetMatchInformation_Match_Status: Codable {
     let long: String
-    let short: FixtureStatusCode
+    let short: MatchStatusCode
     let elapsed: Int?
 }
 
-enum FixtureStatusCode: String, Codable {
+enum MatchStatusCode: String, Codable {
     case tbd = "TBD" // Time To Be Defined
     case notStarted = "NS" // Not Started
     case firstHalf = "1H" // First Half, Kick Off

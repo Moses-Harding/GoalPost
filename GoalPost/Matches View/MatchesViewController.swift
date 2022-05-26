@@ -20,8 +20,8 @@ class MatchesViewController: UIViewController {
         
         //matchesView.setUpDataSourceSnapshots(from: matchesView.currentDate)
         
-        for fixtureAd in GAD.helper.fixtureAds {
-            GAD.helper.bannerViews[fixtureAd]?.rootViewController = self
+        for matchAd in GAD.helper.matchAds {
+            GAD.helper.bannerViews[matchAd]?.rootViewController = self
         }
     }
     

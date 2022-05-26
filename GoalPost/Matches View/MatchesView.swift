@@ -117,10 +117,10 @@ class MatchesView: UIView {
             cell.accessories = [.outlineDisclosure(options:headerDisclosureOption)]
         })
         
-        let fixtureCellRegistration = UICollectionView.CellRegistration<FixtureCell, MatchData>(handler: {
-            (cell, indexPath, fixture) in
+        let matchCellRegistration = UICollectionView.CellRegistration<MatchCell, MatchData>(handler: {
+            (cell, indexPath, match) in
             
-            cell.fixture = fixture
+            cell.match = match
         })
         
         let adCellRegistration = UICollectionView.CellRegistration<AdCell, AdData>(handler: {
@@ -139,9 +139,9 @@ class MatchesView: UIView {
                 let cell = collectionView.dequeueConfiguredReusableCell(using: leagueCellRegistration, for: indexPath, item: league)
                 return cell
                 
-            case .fixture(let fixture):
+            case .match(let match):
                 
-                let cell = collectionView.dequeueConfiguredReusableCell(using: fixtureCellRegistration, for: indexPath, item: fixture)
+                let cell = collectionView.dequeueConfiguredReusableCell(using: matchCellRegistration, for: indexPath, item: match)
                 return cell
                 
             case .ad(let ad):
@@ -171,40 +171,40 @@ class MatchesView: UIView {
         // Create new datasource snapshot
         var dataSourceSnapshot = NSDiffableDataSourceSnapshot<MatchesSectionDataContainer, MatchesCellType>()
         
-        // Get only the fixtures for the current date
-        let currentFixtures = Cached.matches[date.asKey] ?? [:]
+        // Get only the matches for the current date
+        let currentMatches = Cached.matches[date.asKey] ?? [:]
         
         // Create a list of each league for that date and sort the leagues alphabetically
-        var preferredLeagues = currentFixtures.map { MatchesSectionDataContainer(.league($0.value)) }.sorted { $0.name < $1.name }
+        var preferredLeagues = currentMatches.map { MatchesSectionDataContainer(.league($0.value)) }.sorted { $0.name < $1.name }
         
         
         let safeWidth = Float(self.frame.inset(by: self.safeAreaInsets).width)
         
         
         if preferredLeagues.isEmpty {
-            preferredLeagues.append(MatchesSectionDataContainer(.ad(AdData(adViewName: .fixtureAd1, viewWidth: safeWidth))))
+            preferredLeagues.append(MatchesSectionDataContainer(.ad(AdData(adViewName: .matchAd1, viewWidth: safeWidth))))
         } else {
-            preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .fixtureAd1, viewWidth: safeWidth))), at: 1)
+            preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .matchAd1, viewWidth: safeWidth))), at: 1)
             
             if preferredLeagues.count > 4 {
-                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .fixtureAd2, viewWidth: safeWidth))), at: 3)
+                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .matchAd2, viewWidth: safeWidth))), at: 3)
             }
             
             if preferredLeagues.count > 6 {
-                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .fixtureAd3, viewWidth: safeWidth))), at: 5)
+                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .matchAd3, viewWidth: safeWidth))), at: 5)
             }
             
             if preferredLeagues.count > 8 {
-                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .fixtureAd4, viewWidth: safeWidth))), at: 7)
+                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .matchAd4, viewWidth: safeWidth))), at: 7)
             }
             
             if preferredLeagues.count > 10 {
-                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .fixtureAd5, viewWidth: safeWidth))), at: 9)
+                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .matchAd5, viewWidth: safeWidth))), at: 9)
             }
         }
         
         // NOTE: User Teams
-        let myTeams = Cached.favoriteTeamMatches[date.asKey] ?? MatchLeagueData(name: "My Teams", country: "NA", id: FavoriteTeamLeague.identifer.rawValue, fixtures: [:])
+        let myTeams = Cached.favoriteTeamMatches[date.asKey] ?? MatchLeagueData(name: "My Teams", country: "NA", id: FavoriteTeamLeague.identifer.rawValue, matches: [:])
         let leaguesList = [MatchesSectionDataContainer(.league(myTeams))] + preferredLeagues
         
         // Add sections to the snapshot (just adding an array)
@@ -226,16 +226,16 @@ class MatchesView: UIView {
                 let leagueListItem = MatchesCellType.league(league)
                 sectionSnapshot.append([leagueListItem])
                 
-                // Create an array of "ListItem" objects and assign each fixture for a given league to it. Then append that list to its "parent"
-                let fixtureItems = league.fixtures.sorted(by: {
+                // Create an array of "ListItem" objects and assign each match for a given league to it. Then append that list to its "parent"
+                let matchItems = league.matches.sorted(by: {
                     if $0.value.timeStamp < $1.value.timeStamp {
                         return true
                     } else if $0.value.timeStamp == $1.value.timeStamp {
                         return $0.value.homeTeam.name < $1.value.homeTeam.name
                     } else {
                         return false
-                    } }).map { MatchesCellType.fixture($0.value) }
-                sectionSnapshot.append(fixtureItems, to: leagueListItem)
+                    } }).map { MatchesCellType.match($0.value) }
+                sectionSnapshot.append(matchItems, to: leagueListItem)
                 
                 // Expand this section by default
                 sectionSnapshot.expand([leagueListItem])
@@ -246,7 +246,7 @@ class MatchesView: UIView {
                 let adItem = MatchesCellType.ad(adData)
                 sectionSnapshot.append([adItem])
                 dataSource.apply(sectionSnapshot, to: sectionItem, animatingDifferences: true)
-            case .fixture(let fixture):
+            case .match(let match):
                 return
             }
             
@@ -269,7 +269,7 @@ class MatchesView: UIView {
             case .league(let league):
 
                 var currentLeagueDictionary = Cached.matches[date.asKey] ?? [:]
-                currentLeagueDictionary[FavoriteTeamLeague.identifer.rawValue] = Cached.favoriteTeamMatches[date.asKey] ?? MatchLeagueData(name: "My Teams", country: "NA", id: FavoriteTeamLeague.identifer.rawValue, fixtures: [:])
+                currentLeagueDictionary[FavoriteTeamLeague.identifer.rawValue] = Cached.favoriteTeamMatches[date.asKey] ?? MatchLeagueData(name: "My Teams", country: "NA", id: FavoriteTeamLeague.identifer.rawValue, matches: [:])
                 
                 guard let currentLeague = currentLeagueDictionary[league.id] else {
                     updatedSnapshot.deleteSections([section])
@@ -277,24 +277,24 @@ class MatchesView: UIView {
                     continue
                 }
 
-                var currentFixtures = currentLeague.fixtures.sorted(by: {
+                var currentMatches = currentLeague.matches.sorted(by: {
                     if $0.value.timeStamp < $1.value.timeStamp {
                         return true
                     } else if $0.value.timeStamp == $1.value.timeStamp {
                         return $0.value.homeTeam.name < $1.value.homeTeam.name
                     } else {
                         return false
-                    } }).map { MatchesCellType.fixture($0.value) }
+                    } }).map { MatchesCellType.match($0.value) }
                 
-                var fixtureItems = league.fixtures.map { MatchesCellType.fixture($0.value) }
+                var matchItems = league.matches.map { MatchesCellType.match($0.value) }
                 
-                print(fixtureItems.count, currentFixtures.count)
+                print(matchItems.count, currentMatches.count)
                 
                 // https://developer.apple.com/documentation/uikit/views_and_controls/collection_views/updating_collection_views_using_diffable_data_sources
                 
-                updatedSnapshot.deleteItems(fixtureItems)
-                updatedSnapshot.appendItems(currentFixtures, toSection: section)
-                //updatedSnapshot.reconfigureItems(currentFixtures)
+                updatedSnapshot.deleteItems(matchItems)
+                updatedSnapshot.appendItems(currentMatches, toSection: section)
+                //updatedSnapshot.reconfigureItems(currentMatches)
                 
                 dataSource.apply(updatedSnapshot, animatingDifferences: true)
             default:
@@ -360,7 +360,7 @@ extension MatchesView {
     }
     
     @objc func refreshWithCurrentData() {
-        MatchesDataContainer.helper.retrieveAllFixturesForCurrentDate(update: true)
+        MatchesDataContainer.helper.retrieveAllMatchesForCurrentDate(update: true)
         refreshControl.endRefreshing()
     }
     
