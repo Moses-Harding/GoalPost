@@ -7,9 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		15275C7D282DA6810005565E /* TeamsSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15275C7C282DA6810005565E /* TeamsSearchViewController.swift */; };
+		15275C7D282DA6810005565E /* TeamSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15275C7C282DA6810005565E /* TeamSearchViewController.swift */; };
 		15275C7F282DA6A90005565E /* TeamSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15275C7E282DA6A90005565E /* TeamSearchView.swift */; };
 		15275C81282DA7460005565E /* TeamSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15275C80282DA7460005565E /* TeamSearchCell.swift */; };
+		153376C22840773400C03610 /* TeamInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153376C12840773400C03610 /* TeamInfoViewController.swift */; };
+		153376C42840777000C03610 /* GAD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153376C32840777000C03610 /* GAD.swift */; };
+		153376C6284077D800C03610 /* TeamInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153376C5284077D800C03610 /* TeamInfoView.swift */; };
 		1536897E2839928D00BBDAE7 /* LeagueSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153689742839928D00BBDAE7 /* LeagueSearchCell.swift */; };
 		1536897F2839928D00BBDAE7 /* LeagueSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153689752839928D00BBDAE7 /* LeagueSearchViewController.swift */; };
 		153689802839928D00BBDAE7 /* LeagueSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153689762839928D00BBDAE7 /* LeagueSearchView.swift */; };
@@ -18,13 +21,13 @@
 		153689832839928D00BBDAE7 /* LeagueCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1536897B2839928D00BBDAE7 /* LeagueCollectionCell.swift */; };
 		153689842839928D00BBDAE7 /* LeaguesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1536897C2839928D00BBDAE7 /* LeaguesView.swift */; };
 		153689852839928D00BBDAE7 /* LeaguesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1536897D2839928D00BBDAE7 /* LeaguesViewController.swift */; };
-		15368987283AC10700BBDAE7 /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15368986283AC10700BBDAE7 /* Keys.swift */; };
 		1548A15328236F3A00741179 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1548A15228236F3A00741179 /* Colors.swift */; };
 		1548A155282377D000741179 /* TestingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1548A154282377D000741179 /* TestingManager.swift */; };
 		156239162834961200C39EB0 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 156239152834961200C39EB0 /* GoogleMobileAds */; };
 		1578B84F282217AC00B71838 /* Match Retrieval Structure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1578B84E282217AC00B71838 /* Match Retrieval Structure.swift */; };
 		1578B85128222B7200B71838 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1578B85028222B7200B71838 /* Protocols.swift */; };
 		1578B8532822D98000B71838 /* Cached.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1578B8522822D98000B71838 /* Cached.swift */; };
+		158120FA2843D94C0060AF5F /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158120F92843D94C0060AF5F /* Keys.swift */; };
 		1581E377282B546500BC39FA /* TeamsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1581E376282B546500BC39FA /* TeamsViewController.swift */; };
 		1581E379282B549600BC39FA /* TeamsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1581E378282B549600BC39FA /* TeamsView.swift */; };
 		15A74164283DF5F30054BAD4 /* Team.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A74163283DF5F30054BAD4 /* Team.swift */; };
@@ -49,8 +52,6 @@
 		15D01B12282C3C7C003BDB30 /* RootController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15D01B11282C3C7C003BDB30 /* RootController.swift */; };
 		15D01B14282C5837003BDB30 /* Team Search Structure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15D01B13282C5837003BDB30 /* Team Search Structure.swift */; };
 		15D01B18282CA285003BDB30 /* Get Teams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15D01B17282CA285003BDB30 /* Get Teams.swift */; };
-		15DAA8DC2826FBBA005492F0 /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DAA8DB2826FBBA005492F0 /* Subclasses.swift */; };
-		15DAA8E028277FC5005492F0 /* Secure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DAA8DF28277FC5005492F0 /* Secure.swift */; };
 		15DAA8E228284953005492F0 /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DAA8E128284953005492F0 /* Date.swift */; };
 		15DAA8E428285260005492F0 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DAA8E328285260005492F0 /* String.swift */; };
 		15E6B11E2833F5B70038345A /* AdCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15E6B11D2833F5B70038345A /* AdCell.swift */; };
@@ -58,9 +59,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		15275C7C282DA6810005565E /* TeamsSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamsSearchViewController.swift; sourceTree = "<group>"; };
+		15275C7C282DA6810005565E /* TeamSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamSearchViewController.swift; sourceTree = "<group>"; };
 		15275C7E282DA6A90005565E /* TeamSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamSearchView.swift; sourceTree = "<group>"; };
 		15275C80282DA7460005565E /* TeamSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamSearchCell.swift; sourceTree = "<group>"; };
+		153376C12840773400C03610 /* TeamInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamInfoViewController.swift; sourceTree = "<group>"; };
+		153376C32840777000C03610 /* GAD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GAD.swift; sourceTree = "<group>"; };
+		153376C5284077D800C03610 /* TeamInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamInfoView.swift; sourceTree = "<group>"; };
 		153689742839928D00BBDAE7 /* LeagueSearchCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeagueSearchCell.swift; sourceTree = "<group>"; };
 		153689752839928D00BBDAE7 /* LeagueSearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeagueSearchViewController.swift; sourceTree = "<group>"; };
 		153689762839928D00BBDAE7 /* LeagueSearchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeagueSearchView.swift; sourceTree = "<group>"; };
@@ -69,12 +73,12 @@
 		1536897B2839928D00BBDAE7 /* LeagueCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeagueCollectionCell.swift; sourceTree = "<group>"; };
 		1536897C2839928D00BBDAE7 /* LeaguesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeaguesView.swift; sourceTree = "<group>"; };
 		1536897D2839928D00BBDAE7 /* LeaguesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeaguesViewController.swift; sourceTree = "<group>"; };
-		15368986283AC10700BBDAE7 /* Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keys.swift; sourceTree = "<group>"; };
 		1548A15228236F3A00741179 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		1548A154282377D000741179 /* TestingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingManager.swift; sourceTree = "<group>"; };
 		1578B84E282217AC00B71838 /* Match Retrieval Structure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Match Retrieval Structure.swift"; sourceTree = "<group>"; };
 		1578B85028222B7200B71838 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		1578B8522822D98000B71838 /* Cached.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cached.swift; sourceTree = "<group>"; };
+		158120F92843D94C0060AF5F /* Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keys.swift; sourceTree = "<group>"; };
 		1581E376282B546500BC39FA /* TeamsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamsViewController.swift; sourceTree = "<group>"; };
 		1581E378282B549600BC39FA /* TeamsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamsView.swift; sourceTree = "<group>"; };
 		15A74163283DF5F30054BAD4 /* Team.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Team.swift; sourceTree = "<group>"; };
@@ -101,8 +105,6 @@
 		15D01B11282C3C7C003BDB30 /* RootController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootController.swift; sourceTree = "<group>"; };
 		15D01B13282C5837003BDB30 /* Team Search Structure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Team Search Structure.swift"; sourceTree = "<group>"; };
 		15D01B17282CA285003BDB30 /* Get Teams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Get Teams.swift"; sourceTree = "<group>"; };
-		15DAA8DB2826FBBA005492F0 /* Subclasses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
-		15DAA8DF28277FC5005492F0 /* Secure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secure.swift; sourceTree = "<group>"; };
 		15DAA8E128284953005492F0 /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 		15DAA8E328285260005492F0 /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		15E6B11D2833F5B70038345A /* AdCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdCell.swift; sourceTree = "<group>"; };
@@ -121,22 +123,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		15275C82282DA74D0005565E /* TeamsSearchCollectionView */ = {
-			isa = PBXGroup;
-			children = (
-				15275C80282DA7460005565E /* TeamSearchCell.swift */,
-			);
-			path = TeamsSearchCollectionView;
-			sourceTree = "<group>";
-		};
 		15275C87282DA9610005565E /* Team Search View */ = {
 			isa = PBXGroup;
 			children = (
-				15275C7C282DA6810005565E /* TeamsSearchViewController.swift */,
+				15275C7C282DA6810005565E /* TeamSearchViewController.swift */,
 				15275C7E282DA6A90005565E /* TeamSearchView.swift */,
-				15275C82282DA74D0005565E /* TeamsSearchCollectionView */,
+				15275C80282DA7460005565E /* TeamSearchCell.swift */,
 			);
 			path = "Team Search View";
+			sourceTree = "<group>";
+		};
+		153376C02840770A00C03610 /* Team Info View */ = {
+			isa = PBXGroup;
+			children = (
+				153376C12840773400C03610 /* TeamInfoViewController.swift */,
+				153376C5284077D800C03610 /* TeamInfoView.swift */,
+			);
+			path = "Team Info View";
 			sourceTree = "<group>";
 		};
 		153689712839928D00BBDAE7 /* Leagues View */ = {
@@ -144,8 +147,8 @@
 			children = (
 				1536897D2839928D00BBDAE7 /* LeaguesViewController.swift */,
 				1536897C2839928D00BBDAE7 /* LeaguesView.swift */,
+				1536897B2839928D00BBDAE7 /* LeagueCollectionCell.swift */,
 				153689722839928D00BBDAE7 /* League Search View */,
-				1536897A2839928D00BBDAE7 /* LeagueCollectionView */,
 			);
 			path = "Leagues View";
 			sourceTree = "<group>";
@@ -153,34 +156,11 @@
 		153689722839928D00BBDAE7 /* League Search View */ = {
 			isa = PBXGroup;
 			children = (
-				153689732839928D00BBDAE7 /* LeagueSearchCollectionView */,
+				153689742839928D00BBDAE7 /* LeagueSearchCell.swift */,
 				153689752839928D00BBDAE7 /* LeagueSearchViewController.swift */,
 				153689762839928D00BBDAE7 /* LeagueSearchView.swift */,
 			);
 			path = "League Search View";
-			sourceTree = "<group>";
-		};
-		153689732839928D00BBDAE7 /* LeagueSearchCollectionView */ = {
-			isa = PBXGroup;
-			children = (
-				153689742839928D00BBDAE7 /* LeagueSearchCell.swift */,
-			);
-			path = LeagueSearchCollectionView;
-			sourceTree = "<group>";
-		};
-		153689772839928D00BBDAE7 /* League Search */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "League Search";
-			sourceTree = "<group>";
-		};
-		1536897A2839928D00BBDAE7 /* LeagueCollectionView */ = {
-			isa = PBXGroup;
-			children = (
-				1536897B2839928D00BBDAE7 /* LeagueCollectionCell.swift */,
-			);
-			path = LeagueCollectionView;
 			sourceTree = "<group>";
 		};
 		1581E374282B52C500BC39FA /* Matches View */ = {
@@ -198,7 +178,8 @@
 			children = (
 				1581E376282B546500BC39FA /* TeamsViewController.swift */,
 				1581E378282B549600BC39FA /* TeamsView.swift */,
-				15FE14652833211700DAB2A0 /* TeamCollectionView */,
+				15FE14662833213000DAB2A0 /* TeamCollectionCell.swift */,
+				153376C02840770A00C03610 /* Team Info View */,
 				15275C87282DA9610005565E /* Team Search View */,
 			);
 			path = "Teams View";
@@ -210,8 +191,6 @@
 				15A74162283DF5DD0054BAD4 /* Data Structures */,
 				15A7416B283DF6A30054BAD4 /* Web Service Calls */,
 				15A74161283DF5740054BAD4 /* JSON Structures */,
-				15D01B1A282CA395003BDB30 /* Team Search */,
-				153689772839928D00BBDAE7 /* League Search */,
 			);
 			path = "Data Model";
 			sourceTree = "<group>";
@@ -313,27 +292,11 @@
 				15C6215F28146379005A13E7 /* Custom Classes.swift */,
 				15C6214F28145A01005A13E7 /* Enums.swift */,
 				1578B85028222B7200B71838 /* Protocols.swift */,
-				15DAA8DF28277FC5005492F0 /* Secure.swift */,
-				15DAA8DB2826FBBA005492F0 /* Subclasses.swift */,
 				1548A154282377D000741179 /* TestingManager.swift */,
-				15368986283AC10700BBDAE7 /* Keys.swift */,
+				153376C32840777000C03610 /* GAD.swift */,
+				158120F92843D94C0060AF5F /* Keys.swift */,
 			);
 			path = "Support Files";
-			sourceTree = "<group>";
-		};
-		15D01B1A282CA395003BDB30 /* Team Search */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "Team Search";
-			sourceTree = "<group>";
-		};
-		15FE14652833211700DAB2A0 /* TeamCollectionView */ = {
-			isa = PBXGroup;
-			children = (
-				15FE14662833213000DAB2A0 /* TeamCollectionCell.swift */,
-			);
-			path = TeamCollectionView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -417,15 +380,14 @@
 				15C6216028146379005A13E7 /* Custom Classes.swift in Sources */,
 				15C6215C28145A97005A13E7 /* UIView.swift in Sources */,
 				15C6213B2814592D005A13E7 /* MatchesViewController.swift in Sources */,
-				15368987283AC10700BBDAE7 /* Keys.swift in Sources */,
 				15A74168283DF6490054BAD4 /* League.swift in Sources */,
 				153689822839928D00BBDAE7 /* Get Leagues.swift in Sources */,
 				153689852839928D00BBDAE7 /* LeaguesViewController.swift in Sources */,
 				15A74164283DF5F30054BAD4 /* Team.swift in Sources */,
 				1578B85128222B7200B71838 /* Protocols.swift in Sources */,
 				15C6215E281460C9005A13E7 /* LeagueCell.swift in Sources */,
-				15DAA8DC2826FBBA005492F0 /* Subclasses.swift in Sources */,
 				15A7416A283DF6540054BAD4 /* Ad.swift in Sources */,
+				153376C42840777000C03610 /* GAD.swift in Sources */,
 				15DAA8E228284953005492F0 /* Date.swift in Sources */,
 				1581E377282B546500BC39FA /* TeamsViewController.swift in Sources */,
 				1578B84F282217AC00B71838 /* Match Retrieval Structure.swift in Sources */,
@@ -436,24 +398,26 @@
 				15FE14672833213000DAB2A0 /* TeamCollectionCell.swift in Sources */,
 				1548A15328236F3A00741179 /* Colors.swift in Sources */,
 				15DAA8E428285260005492F0 /* String.swift in Sources */,
-				15275C7D282DA6810005565E /* TeamsSearchViewController.swift in Sources */,
+				15275C7D282DA6810005565E /* TeamSearchViewController.swift in Sources */,
 				15D01B14282C5837003BDB30 /* Team Search Structure.swift in Sources */,
 				15C621372814592D005A13E7 /* AppDelegate.swift in Sources */,
 				1548A155282377D000741179 /* TestingManager.swift in Sources */,
 				15C6215828145A62005A13E7 /* MatchCell.swift in Sources */,
 				153689842839928D00BBDAE7 /* LeaguesView.swift in Sources */,
 				15D01B12282C3C7C003BDB30 /* RootController.swift in Sources */,
+				153376C6284077D800C03610 /* TeamInfoView.swift in Sources */,
 				15C6215628145A48005A13E7 /* MatchesView.swift in Sources */,
 				15275C81282DA7460005565E /* TeamSearchCell.swift in Sources */,
 				153689832839928D00BBDAE7 /* LeagueCollectionCell.swift in Sources */,
 				15E6B11E2833F5B70038345A /* AdCell.swift in Sources */,
+				158120FA2843D94C0060AF5F /* Keys.swift in Sources */,
 				15A7416D283DF71E0054BAD4 /* Web Service Call Object.swift in Sources */,
 				1536897F2839928D00BBDAE7 /* LeagueSearchViewController.swift in Sources */,
 				1536897E2839928D00BBDAE7 /* LeagueSearchCell.swift in Sources */,
 				15275C7F282DA6A90005565E /* TeamSearchView.swift in Sources */,
 				15C6215028145A01005A13E7 /* Enums.swift in Sources */,
 				1581E379282B549600BC39FA /* TeamsView.swift in Sources */,
-				15DAA8E028277FC5005492F0 /* Secure.swift in Sources */,
+				153376C22840773400C03610 /* TeamInfoViewController.swift in Sources */,
 				15C621392814592D005A13E7 /* SceneDelegate.swift in Sources */,
 				153689802839928D00BBDAE7 /* LeagueSearchView.swift in Sources */,
 				15A74166283DF6120054BAD4 /* Match.swift in Sources */,

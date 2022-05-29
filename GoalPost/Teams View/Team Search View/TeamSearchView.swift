@@ -55,7 +55,7 @@ class TeamSearchView: UIView {
     
     // MARK: Logic
     
-    var viewController: TeamsSearchViewController?
+    var viewController: TeamSearchViewController?
     
     var currentTeamNameSearch: String? = nil
     var currentCountrySearch: String? = nil

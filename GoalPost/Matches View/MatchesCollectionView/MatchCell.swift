@@ -114,37 +114,24 @@ class MatchCellContentView: UIView, UIContentView {
     
     //Allows easy application of a new configuration or retrieval of existing configuration
     var configuration: UIContentConfiguration {
-        get {
-            currentConfiguration
-        }
+        get { currentConfiguration }
         set {
-            guard let newConfiguration = newValue as? MatchCellContentConfiguration else {
-                return
-            }
-            
+            // Make sure the given configuration is correct type, then apply configuration
+            guard let newConfiguration = newValue as? MatchCellContentConfiguration else { return }
             apply(configuration: newConfiguration)
         }
     }
-    
 
     init(configuration: MatchCellContentConfiguration) {
         super.init(frame: .zero)
         
-        // Create the content view UI
         setupAllViews()
-
-        
-        // Apply the configuration (set data to UI elements / define custom content view appearance)
         apply(configuration: configuration)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-}
-
-private extension MatchCellContentView {
     
     private func setupAllViews() {
 
@@ -249,9 +236,7 @@ private extension MatchCellContentView {
     private func apply(configuration: MatchCellContentConfiguration) {
     
         // Only apply configuration if new configuration and current configuration are not the same
-        guard currentConfiguration != configuration, let match = configuration.match else {
-            return
-        }
+        guard currentConfiguration != configuration, let match = configuration.match else { return }
         
         // Replace current configuration with new configuration
         currentConfiguration = configuration

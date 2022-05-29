@@ -14,6 +14,8 @@ class WebServiceCall {
     }
     
     func retrieveResults(requestURL: String, requestHeaders: [String:String]? = nil, errorClosure: ((Error?) -> Void)? = nil, dataConversionClosure: @escaping (Data?) -> Void) {
+        
+        print("WebServiceCall - Calling request url: \(requestURL)")
 
         var headers: [String:String]
         

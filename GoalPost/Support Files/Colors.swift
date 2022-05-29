@@ -36,6 +36,12 @@ struct Colors {
     static var searchResultViewTextColor = white.hexFFFCF9
     static var searchResultViewSecondaryTextColor = green.hex5C996C
     
+    static var teamCellViewBackgroundColor = gray.hex1C1F1C
+    static var teamCellViewBorderColor = green.hex18EE88
+    static var teamCellViewTextColor = white.hexFFFCF9
+    static var teamCellViewSecondaryTextColor = green.hex5C996C
+    static var teamCellViewTertiaryTextColor = UIColor.lightGray
+    
     static var addButtonBackgroundColor = gray.hex1C1F1C
     static var addButtonTextColor = white.hexFFFCF9
     static var addButtonBorderColor = green.hex18EE88

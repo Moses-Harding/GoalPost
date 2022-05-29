@@ -30,3 +30,16 @@ enum MatchesCellType: Codable, Hashable {
 enum FavoriteTeamLeague: Int {
     case identifer = 100000000000
 }
+
+// MARK: GAD
+
+enum AdViewName: String, Codable, CaseIterable {
+    case teamsViewBanner
+    case teamInfoViewBanner
+    case leaguesViewBanner
+    case matchAd1
+    case matchAd2
+    case matchAd3
+    case matchAd4
+    case matchAd5
+}

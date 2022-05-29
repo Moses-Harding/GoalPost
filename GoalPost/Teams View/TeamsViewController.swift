@@ -60,4 +60,3 @@ class TeamsViewController: UIViewController {
       })
     }
 }
-

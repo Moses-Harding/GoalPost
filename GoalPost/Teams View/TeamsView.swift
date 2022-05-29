@@ -10,18 +10,24 @@ import UIKit
 
 class TeamsView: UIView {
     
+    enum Section {
+        case main
+    }
+    
     // MARK: Views
     
+    // Collection View
+    private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+    
+    // Stack View
     var mainStack = UIStackView(.vertical)
-    
     var titleArea = UIStackView(.horizontal)
+    var addTeamStack = UIStackView(.horizontal)
+    
+    // Other Views
     var collectionViewArea = UIView()
-    
-    var collectionView: UICollectionView!
-    
-    var addTeamArea = UIStackView(.horizontal)
     var addTeamLabelView = UIView()
-
+    
     // MARK: Buttons
     
     var addTeamButton: UIButton = {
@@ -54,100 +60,104 @@ class TeamsView: UIView {
         return label
     } ()
     
-    // MARK: Data
-    
-    var dataSource: UICollectionViewDiffableDataSource<Int, TeamSearchData>!
-    
-    // MARK: Gestures
-    
-    
-    // MARK: Constraints
-    
     // MARK: Logic
+    
     var viewController: TeamsViewController?
     
+    // MARK: Data
+    
+    private var dataSource: UICollectionViewDiffableDataSource<Section, TeamSearchData>?
     
     init() {
         super.init(frame: CGRect.zero)
-
-        setUpMainStack()
-        setUpAddTeamButton()
+        setUpStacks()
         setUpCollectionView()
+        setUpDataSource()
         setUpColors()
-        
-        self.refresh()
-        
-        testing()
-    }
-    
-    func testing() {
-        //collectionViewArea.constrain(favoriteTeamsLabel)
-        
-        //self.refresh()
+        collectionView.delegate = self
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //MARK: Set Up
+    // MARK: - Private Methods
     
-    func setUpMainStack() {
+    private func createLayout() -> UICollectionViewLayout {
+        // The item and group will share this size to allow for automatic sizing of the cell's height
+        
+        let padding: CGFloat = 20
+        
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                             heightDimension: .estimated(50))
+        
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+      
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: itemSize,
+                                                         subitems: [item])
+
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = padding
+        section.contentInsets = .init(top: padding, leading: padding, bottom: padding, trailing: padding)
+        
+        return UICollectionViewCompositionalLayout(section: section)
+    }
+    
+    private func setUpStacks() {
         self.constrain(mainStack, safeAreaLayout: true)
-        mainStack.add(children: [(titleArea, 0.075), (UIView(), 0.05), (addTeamArea, 0.1), (collectionViewArea, nil), (UIView(), 0.05)])
+        mainStack.add(children: [(titleArea, 0.075), (UIView(), 0.05), (addTeamStack, 0.1), (collectionView, nil), (UIView(), 0.05)])
         
         // Might as well set up the title area as long as we're at it
         titleArea.constrain(titleLabel, using: .scale, widthScale: 0.5, heightScale: 1, padding: 5, except: [], safeAreaLayout: true, debugName: "My Teams Title Label")
+        
+        addTeamStack.add(children: [(UIView(), 0.25), (addTeamButton, 0.5), (UIView(), nil)])
     }
     
-    func setUpAddTeamButton() {
-        
-        addTeamArea.add(children: [(UIView(), 0.25), (addTeamButton, 0.5), (UIView(), nil)])
-        
-        //addTeamLabelView.constrain(addTeamButton, using: .scale, widthScale: 0.5, heightScale: 1, padding: 5, except: [], safeAreaLayout: true, debugName: "Add Team Button")
+    private func setUpCollectionView() {
+        collectionView.register(TeamCollectionCell.self, forCellWithReuseIdentifier: String(describing: TeamCollectionCell.self))
     }
     
-    func setUpCollectionView() {
+    private func setUpDataSource() {
         
-        // MARK: Create list layout
-        var layoutConfig = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
-        layoutConfig.showsSeparators = false
-        layoutConfig.separatorConfiguration = UIListSeparatorConfiguration(listAppearance: .grouped)
-        layoutConfig.backgroundColor = Colors.backgroundColor
-        let listLayout = UICollectionViewCompositionalLayout.list(using: layoutConfig)
-
-        // MARK: Configure Collection View
-        collectionView = UICollectionView(frame: self.bounds, collectionViewLayout: listLayout)
-        collectionViewArea.constrain(collectionView, using: .edges, padding: 20)
+        var foundTeams = [TeamSearchData]()
         
-        // MARK: Cell registration - What does the collectionview do to set up a cell - in this case simply passes data
-        let cellRegistration = UICollectionView.CellRegistration<TeamCollectionCell, TeamSearchData>(handler: {
-            (cell, indexPath, teamInformation) in
-            
-            cell.teamInformation = teamInformation
-        })
-            
-        // MARK: Initialize data source - In order to initialize a datasource, you must pass a "Cell Provider" closure. This closure instructs the datasource what to do for each index
-        dataSource = UICollectionViewDiffableDataSource<Int, TeamSearchData>(collectionView: collectionView) {
-            (collectionView, indexPath, teamInformation) -> UICollectionViewCell? in
-            
-            return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: teamInformation)
+        for team in Cached.teams {
+            if let teamSearchData = Cached.teamDictionary[team] {
+                foundTeams.append(teamSearchData)
+            }
         }
+        
+        dataSource = UICollectionViewDiffableDataSource<Section, TeamSearchData>(collectionView: collectionView) {
+            (collectionView, indexPath, teamInformation) -> UICollectionViewCell? in
+            guard let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: String(describing: TeamCollectionCell.self),
+                for: indexPath) as? TeamCollectionCell else {
+                    fatalError("Could not cast cell as \(TeamCollectionCell.self)")
+            }
+            cell.teamInformation = teamInformation
+            return cell
+        }
+        collectionView.dataSource = dataSource
+        
+        var snapshot = NSDiffableDataSourceSnapshot<Section, TeamSearchData>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(foundTeams)
+        dataSource?.apply(snapshot)
     }
     
     func setUpDataSourceSnapshots(searchResult: [TeamSearchData]?) {
         // MARK: Setup snap shots
         
         
-        guard let result = searchResult else { return }
+        guard let result = searchResult, let dataSource = dataSource else { return }
         
         let teams = result.map { $0 }
 
         
         // Create a snapshot that define the current state of data source's data
-        var snapshot = NSDiffableDataSourceSnapshot<Int, TeamSearchData>()
-        snapshot.appendSections([0])
-        snapshot.appendItems(teams, toSection: 0)
+        var snapshot = NSDiffableDataSourceSnapshot<Section, TeamSearchData>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(teams, toSection: .main)
         
         // Display data on the collection view by applying the snapshot to data source
         dataSource.apply(snapshot, animatingDifferences: false)
@@ -170,26 +180,23 @@ class TeamsView: UIView {
     }
 }
 
-// Actions
+// MARK: Actions
 
 extension TeamsView {
     @objc func presentTeamSearchViewController() {
         
         if let controller = viewController {
-            let teamsViewController = TeamsSearchViewController()
+            let teamsViewController = TeamSearchViewController()
             teamsViewController.refreshableParent = self
             controller.present(teamsViewController, animated: true)
         }
     }
 }
 
-
 extension TeamsView: Refreshable  {
     
     // Refresh
     func refresh() {
-        
-        print("Refreshing")
         
         var foundTeams = [TeamSearchData]()
         
@@ -199,6 +206,35 @@ extension TeamsView: Refreshable  {
             }
         }
         
-        setUpDataSourceSnapshots(searchResult: foundTeams)
+        //setUpDataSourceSnapshots(searchResult: foundTeams)
+    }
+}
+
+// MARK: - Collection View Delegate
+
+extension TeamsView: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView,
+                        shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        guard let dataSource = dataSource else { return false }
+        
+        // Allows for closing an already open cell
+        if collectionView.indexPathsForSelectedItems?.contains(indexPath) ?? false {
+            collectionView.deselectItem(at: indexPath, animated: true)
+        } else {
+            collectionView.selectItem(at: indexPath, animated: true, scrollPosition: [])
+        }
+        
+        dataSource.refresh()
+        
+        return false // The selecting or deselecting is already performed above
+    }
+}
+
+extension UICollectionViewDiffableDataSource {
+    /// Reapplies the current snapshot to the data source, animating the differences.
+    /// - Parameters:
+    ///   - completion: A closure to be called on completion of reapplying the snapshot.
+    func refresh(completion: (() -> Void)? = nil) {
+        self.apply(self.snapshot(), animatingDifferences: true, completion: completion)
     }
 }

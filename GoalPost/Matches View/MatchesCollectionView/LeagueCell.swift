@@ -75,17 +75,10 @@ class LeagueCellContentView: UIView, UIContentView {
     
     //Allows easy application of a new configuration or retrieval of existing configuration
     var configuration: UIContentConfiguration {
-        get {
-            currentConfiguration
-        }
+        get { currentConfiguration }
         set {
-            // Make sure the given configuration is correct type
-            guard let newConfiguration = newValue as? LeagueCellContentConfiguration else {
-                return
-            }
-            
-            // Apply the new configuration to SFSymbolVerticalContentView
-            // also update currentConfiguration to newConfiguration
+            // Make sure the given configuration is correct type, then apply configuration
+            guard let newConfiguration = newValue as? LeagueCellContentConfiguration else { return }
             apply(configuration: newConfiguration)
         }
     }
@@ -105,10 +98,6 @@ class LeagueCellContentView: UIView, UIContentView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-}
-
-private extension LeagueCellContentView {
     
     private func setupAllViews() {
 

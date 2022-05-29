@@ -111,10 +111,6 @@ class AdCellContentView: UIView, UIContentView {
         fatalError("init(coder:) has not been implemented")
     }
     
-}
-
-private extension AdCellContentView {
-    
     private func setupAllViews() {
         
         self.constrain(mainStack)

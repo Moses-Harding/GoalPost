@@ -8,9 +8,9 @@
 import Foundation
 import UIKit
 
-class TeamsSearchViewController: UIViewController {
+class TeamSearchViewController: UIViewController {
     
-    var teamsSearchView = TeamSearchView()
+    var teamSearchView = TeamSearchView()
     
     var refreshableParent: Refreshable?
 
@@ -18,8 +18,8 @@ class TeamsSearchViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        self.view.constrain(teamsSearchView)
+        self.view.constrain(teamSearchView)
         
-        teamsSearchView.viewController = self
+        teamSearchView.viewController = self
     }
 }

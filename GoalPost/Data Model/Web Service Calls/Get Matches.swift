@@ -114,6 +114,8 @@ class MatchesDataContainer {
         
         // The API requires a four digit season. There's no easy way to tell what the current season is, but the season typically changes between June - August, so if it's after July, then the season is the current year.
         
+        //print("Retrieving match data for \(Cached.leagueDictionary[leagueID]?.name ?? "League " + String(leagueID)) on \(date) - \(update ? "- Updating Cells" : "Inserting Cells")")
+        
         var season: Int
         let month = Calendar.current.component(.month, from: date)
         let year = Calendar.current.component(.year, from: date)
@@ -162,9 +164,9 @@ class MatchesDataContainer {
         for result in responses {
             
             // Get Date
-            let matchDate = Date(timeIntervalSince1970: TimeInterval(result.match.timestamp))
-            let timeElapsed = result.match.status.elapsed
-            let status = result.match.status.short
+            let matchDate = Date(timeIntervalSince1970: TimeInterval(result.fixture.timestamp))
+            let timeElapsed = result.fixture.status.elapsed
+            let status = result.fixture.status.short
              
             // Get league Details
             let leagueId = result.league.id
@@ -172,7 +174,7 @@ class MatchesDataContainer {
             let leagueName = result.league.name
             
             // Get match details
-            let matchID = result.match.id
+            let matchID = result.fixture.id
             let homeTeamName = result.teams.home.name
             let homeTeamId = result.teams.home.id
             let homeTeamLogo = result.teams.home.logo

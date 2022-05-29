@@ -13,7 +13,7 @@ struct GetMatchesStructure: Codable {
 
 // MARK: - Response
 struct GetMatchInformation: Codable {
-    let match: GetMatchInformation_Match
+    let fixture: GetMatchInformation_Fixture
     let league: GetMatchInformation_League
     let teams: GetMatchInformation_Teams
     let goals: GetMatchInformation_Goals
@@ -21,7 +21,7 @@ struct GetMatchInformation: Codable {
 }
 
 // MARK: - Response -  Match
-struct GetMatchInformation_Match: Codable {
+struct GetMatchInformation_Fixture: Codable {
     let id: Int
     let referee: String?
     let timezone: String
