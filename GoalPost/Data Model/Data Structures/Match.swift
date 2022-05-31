@@ -7,32 +7,97 @@
 
 import Foundation
 
+class MatchObject: Codable {
+    
+    var id: MatchID
 
-
-// MARK: Structures used in MatchesDataContainer
-
-struct MatchData: Codable, Hashable {
-    var homeTeam: MatchTeamData
-    var awayTeam: MatchTeamData
-    var status: MatchStatusCode
-    var timeElapsed: Int?
     var timeStamp: Date
+    var timezone: String?
+    var timeElapsed: Int?
+    
+    var homeTeam: TeamObject? {
+        if let id = homeTeamId {
+            return Cached.teamDictionary[id]
+        } else {
+            return nil
+        }
+    }
+    var homeTeamId: TeamID?
+    var homeTeamScore: Int?
+    
+    var awayTeam: TeamObject? {
+        if let id = awayTeamId {
+            return Cached.teamDictionary[id]
+        } else {
+            return nil
+        }
+    }
+    var awayTeamId: TeamID?
+    var awayTeamScore: Int?
+    
+    var status: MatchStatusCode
+    
     var favoriteTeam: Bool
-    var id: Int
+
+    var league: LeagueObject? {
+        if let id = leagueId {
+            return Cached.leagueDictionary[id]
+        } else {
+            return nil
+        }
+    }
+    var leagueId: LeagueID?
+    
+    init(id: MatchID, favoriteTeam: Bool = false, timeStamp: Date, timeElapsed: Int? = nil, status: MatchStatusCode? = nil, leagueId: LeagueID? = nil, homeTeamId: TeamID? = nil, awayTeamId: TeamID? = nil, homeTeamScore: Int? = nil, awayTeamScore: Int? = nil) {
+        
+        self.id = id
+        self.favoriteTeam = favoriteTeam
+        self.timeStamp = timeStamp
+        self.homeTeamId = homeTeamId
+        self.awayTeamId = awayTeamId
+        self.homeTeamScore = homeTeamScore
+        self.awayTeamScore = awayTeamScore
+        self.status = status ?? .notStarted
+        self.leagueId = leagueId
+    }
+    
+    convenience init(getMatchesStructure: GetMatchInformation, favoriteTeam: Bool) {
+        
+        let matchDate = Date(timeIntervalSince1970: TimeInterval(getMatchesStructure.fixture.timestamp))
+        let timeElapsed = getMatchesStructure.fixture.status.elapsed
+        let status = getMatchesStructure.fixture.status.short
+        let matchID = getMatchesStructure.fixture.id
+        
+        self.init(id: matchID, favoriteTeam: favoriteTeam, timeStamp: matchDate, timeElapsed: timeElapsed, status: status, leagueId: getMatchesStructure.league.id, homeTeamId: getMatchesStructure.teams.home.id, awayTeamId: getMatchesStructure.teams.away.id, homeTeamScore: getMatchesStructure.goals.home, awayTeamScore: getMatchesStructure.goals.away)
+        
+        // If there are no copies of the home / away teams in the dictionary, add them for each search
+        
+        if Cached.teamDictionary[getMatchesStructure.teams.home.id] == nil {
+            Cached.teamDictionary[getMatchesStructure.teams.home.id] = TeamObject(getMatchInfoTeam: getMatchesStructure.teams.home)
+        }
+        
+        if Cached.teamDictionary[getMatchesStructure.teams.away.id] == nil {
+            Cached.teamDictionary[getMatchesStructure.teams.away.id] = TeamObject(getMatchInfoTeam: getMatchesStructure.teams.away)
+        }
+        
+        if Cached.leagueDictionary[getMatchesStructure.league.id] == nil {
+            Cached.leagueDictionary[getMatchesStructure.league.id] = LeagueObject(getMatchInformationLeague: getMatchesStructure.league)
+        }
+    }
+    
+    convenience init(getInjuriesInformationFixture fixture: GetInjuriesInformation_Fixture) {
+        self.init(id: fixture.id, timeStamp: Date(timeIntervalSince1970: TimeInterval(fixture.timestamp)))
+    }
 }
 
-struct MatchLeagueData: Codable, Hashable {
-    var name: String
-    var country: String
-    var id: Int
-    var matches: [Int:MatchData]
-}
-
-struct MatchTeamData: Codable, Hashable {
-    var name: String
-    var id: Int
-    var logoURL: String
-    var score: Int?
+extension MatchObject: Hashable {
+    static func == (lhs: MatchObject, rhs: MatchObject) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 // MARK: Section Data Container
@@ -51,7 +116,8 @@ struct MatchesSectionDataContainer: Codable, Hashable {
         case .league(let matchLeagueData):
             self.name = matchLeagueData.name
         case .match(let matchData):
-            self.name = String(matchData.homeTeam.id) + String(matchData.awayTeam.id) + DateFormatter().string(from: matchData.timeStamp)
+            guard let homeTeam = matchData.homeTeam, let awayTeam = matchData.awayTeam else { fatalError("Home team and away team not passed to match \(matchData)") }
+            self.name = String(homeTeam.id) + String(awayTeam.id) + DateFormatter().string(from: matchData.timeStamp)
         case .ad(let adData):
             self.name = adData.name
         }

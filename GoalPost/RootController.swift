@@ -10,13 +10,15 @@ import UIKit
 
 class RootController: UITabBarController {
     
-    let matchesViewController = MatchesViewController()
-    let teamsViewController = TeamsViewController()
-    let leaguesViewController = LeaguesViewController()
+    lazy var matchesViewController = MatchesViewController()
+    lazy var teamsViewController = TeamsViewController()
+    lazy var leaguesViewController = LeaguesViewController()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        //clearData()
         
         self.setViewControllers([matchesViewController, teamsViewController, leaguesViewController], animated: true)
         self.tabBar.tintColor = Colors.green.hex18EE88
@@ -26,8 +28,7 @@ class RootController: UITabBarController {
         leaguesViewController.tabBarItem = UITabBarItem(title: "Leagues", image: UIImage(systemName: "rosette"), tag: 2)
 
         self.selectedIndex = 1
-        
-        //clearData()
+
         
         gatherData()
     }
@@ -37,13 +38,15 @@ class RootController: UITabBarController {
         // Populate default data if first run
         
         if Saved.firstRun {
+            
+            print("\n\n***\n***\n***RUNNING LEAGUE search since first run\n***\n***\n***\n")
         
             Cached.leagues  = [39, 61, 78, 135, 140]
             
             // Run the initial data gathering checks
             
-            LeagueSearchDataContainer.helper.search()
-            MatchesDataContainer.helper.retrieveMatchesFromFavoriteLeagues(update: false)
+            GetLeagues.helper.getAllLeagues()
+            DataFetcher.helper.getDataforFavoriteLeagues()
             
             Saved.lastLeaguesUpdate = Date.now
             Saved.firstRun = false
@@ -51,21 +54,29 @@ class RootController: UITabBarController {
             return
         } else {
             // If not, retrieve data if valid time frame
-            if Date.now.timeIntervalSince(Saved.lastLeaguesUpdate) >= 86400 {
-                print("\n\n***\n***\n***Running league update since time interval was - \(Date.now.timeIntervalSince(Saved.lastLeaguesUpdate))\n***\n***\n***")
-                LeagueSearchDataContainer.helper.search()
-                MatchesDataContainer.helper.retrieveMatchesFromFavoriteLeagues(update: false)
-                
-                Saved.lastLeaguesUpdate = Date.now
-            }
+            DataFetcher.helper.fetchDataIfValid()
         }
     }
     
     func clearData() {
+        
         Saved.firstRun = true
-        Cached.matches = [:]
-        Cached.favoriteTeamMatches = [:]
+        
         Cached.leagues = []
         Cached.teams = []
+        
+
+        Cached.teamDictionary = [:]
+        Cached.leagueDictionary = [:]
+        Cached.matchesDictionary = [:]
+        Cached.injuryDictionary = [:]
+        Cached.playerDictionary = [:]
+        
+        Cached.injuriesByTeam = [:]
+        Cached.matchesByTeam = [:]
+        
+        Cached.matchesByDay = [:]
+        Cached.favoriteTeamMatchesByDay = [:]
+
     }
 }

@@ -10,7 +10,7 @@ import UIKit
 
 class TeamSearchCell: UICollectionViewListCell {
     
-    var teamInformation: TeamSearchData?
+    var teamInformation: TeamObject?
     
     override func updateConfiguration(using state: UICellConfigurationState) {
         
@@ -33,7 +33,7 @@ class TeamSearchCell: UICollectionViewListCell {
 
 struct TeamSearchContentConfiguration: UIContentConfiguration, Hashable {
     
-    var teamInformation: TeamSearchData?
+    var teamInformation: TeamObject?
     
     func makeContentView() -> UIView & UIContentView {
         return TeamSearchContentView(configuration: self)
@@ -173,7 +173,7 @@ private extension TeamSearchContentView {
         loadImage(for: teamInformation)
     }
     
-    private func loadImage(for team: TeamSearchData) {
+    private func loadImage(for team: TeamObject) {
         
         let imageName = "\(team.name) - \(team.id).png"
         

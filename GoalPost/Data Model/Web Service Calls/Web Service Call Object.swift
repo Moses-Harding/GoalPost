@@ -39,6 +39,8 @@ class WebServiceCall {
             } else {
                 let httpResponse = response as? HTTPURLResponse
                 if Testing.manager.verboseWebServiceCalls { print(httpResponse as Any) }
+                
+                print("\nConverting data for \(requestURL)\n")
                 dataConversionClosure(data)
             }
         })

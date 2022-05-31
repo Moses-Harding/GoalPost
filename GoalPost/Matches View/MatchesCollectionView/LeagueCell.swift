@@ -10,7 +10,7 @@ import UIKit
 
 class LeagueCell: UICollectionViewListCell {
     
-    var league: MatchLeagueData?
+    var league: LeagueObject?
     
     override func updateConfiguration(using state: UICellConfigurationState) {
         
@@ -33,7 +33,7 @@ class LeagueCell: UICollectionViewListCell {
 
 struct LeagueCellContentConfiguration: UIContentConfiguration, Hashable {
     
-    var league: MatchLeagueData?
+    var league: LeagueObject?
     
     func makeContentView() -> UIView & UIContentView {
         return LeagueCellContentView(configuration: self)

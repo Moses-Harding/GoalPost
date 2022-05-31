@@ -44,9 +44,7 @@ class TeamSearchView: UIView {
 
     
     // MARK: Data
-    
-    var teamSearchDataContainer = TeamSearchDataContainer()
-    var dataSource: UICollectionViewDiffableDataSource<Int, TeamSearchData>!
+    var dataSource: UICollectionViewDiffableDataSource<Int, TeamObject>!
     
     // MARK: Gestures
     
@@ -71,7 +69,7 @@ class TeamSearchView: UIView {
         
         testing()
         
-        teamSearchDataContainer.delegate = self
+        GetTeams.helper.delegate = self
         teamSearchInputField.delegate = self
         countrySearchInputField.delegate = self
         collectionView.delegate = self
@@ -133,21 +131,21 @@ class TeamSearchView: UIView {
         collectionViewArea.constrain(collectionView, using: .edges, padding: 20)
         
         // MARK: Cell registration - What does the collectionview do to set up a cell - in this case simply passes data
-        let cellRegistration = UICollectionView.CellRegistration<TeamSearchCell, TeamSearchData>(handler: {
+        let cellRegistration = UICollectionView.CellRegistration<TeamSearchCell, TeamObject>(handler: {
             (cell, indexPath, teamInformation) in
             
             cell.teamInformation = teamInformation
         })
             
         // MARK: Initialize data source - In order to initialize a datasource, you must pass a "Cell Provider" closure. This closure instructs the datasource what to do for each index
-        dataSource = UICollectionViewDiffableDataSource<Int, TeamSearchData>(collectionView: collectionView) {
+        dataSource = UICollectionViewDiffableDataSource<Int, TeamObject>(collectionView: collectionView) {
             (collectionView, indexPath, teamInformation) -> UICollectionViewCell? in
             
             return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: teamInformation)
         }
     }
     
-    func setUpDataSourceSnapshots(searchResult: [TeamSearchData]?) {
+    func setUpDataSourceSnapshots(searchResult: [TeamObject]?) {
         // MARK: Setup snap shots
         
         
@@ -157,7 +155,7 @@ class TeamSearchView: UIView {
 
         
         // Create a snapshot that define the current state of data source's data
-        var snapshot = NSDiffableDataSourceSnapshot<Int, TeamSearchData>()
+        var snapshot = NSDiffableDataSourceSnapshot<Int, TeamObject>()
         snapshot.appendSections([0])
         snapshot.appendItems(teams, toSection: 0)
         
@@ -199,7 +197,7 @@ extension TeamSearchView: UITextFieldDelegate {
         
         guard let text = textField.text else { return false }
         
-        teamSearchDataContainer.search(for: text)
+        GetTeams.helper.search(for: text)
         
         textField.resignFirstResponder()
         
@@ -208,7 +206,7 @@ extension TeamSearchView: UITextFieldDelegate {
     
     private func searchForTeams() {
         
-        var searchResults = [TeamSearchData]()
+        var searchResults = [TeamObject]()
         
         for searchData in Cached.teamDictionary.values {
             if let country = currentCountrySearch, let team = currentTeamNameSearch {
@@ -249,14 +247,14 @@ extension TeamSearchView: TeamSearchDelegate {
     }
     
     
-    func returnSearchResults(teamResult: [TeamSearchData]) {
+    func returnSearchResults(teamResult: [TeamObject]) {
 
         DispatchQueue.main.async {
             self.setUpDataSourceSnapshots(searchResult: teamResult)
         }
     }
     
-    func add(team: TeamSearchData) {
+    func add(team: TeamObject) {
 
         // Create a blur effect
         let blurEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
@@ -309,6 +307,8 @@ extension TeamSearchView: UICollectionViewDelegate {
         guard let cell = collectionView.cellForItem(at: indexPath) as? TeamSearchCell, let teamInformation = cell.teamInformation else { return }
         
         self.add(team: teamInformation)
+        
+        DataFetcher.helper.getDataFor(team: teamInformation)
         Cached.teams.append(teamInformation.id)
     }
 }

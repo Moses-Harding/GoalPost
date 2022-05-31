@@ -10,17 +10,15 @@ import Foundation
 
 // MARK: Ad Data Contianer
 
-struct AdData: Codable, Hashable {
+struct AdObject: Codable, Hashable {
     
     static var countOfAds = 0
     var name: String
     var adViewName: AdViewName
-    var viewWidth: Float
     
-    init(adViewName: AdViewName, viewWidth: Float) {
+    init(adViewName: AdViewName) {
         self.adViewName = adViewName
-        self.name = "Ad " + String(AdData.countOfAds) + " - " + adViewName.rawValue
-        self.viewWidth = viewWidth
-        AdData.countOfAds += 1
+        self.name = "Ad " + String(AdObject.countOfAds) + " - " + adViewName.rawValue
+        AdObject.countOfAds += 1
     }
 }

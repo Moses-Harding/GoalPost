@@ -68,7 +68,7 @@ class MatchesView: UIView {
         setUpColors()
         setUpGestures()
         
-        MatchesDataContainer.helper.delegate = self
+        GetMatches.helper.delegate = self
     }
     
     func testing() {
@@ -108,7 +108,7 @@ class MatchesView: UIView {
         collectionArea.constrain(collectionView)
         
         // MARK: Cell registration
-        let leagueCellRegistration = UICollectionView.CellRegistration<LeagueCell, MatchLeagueData>(handler: {
+        let leagueCellRegistration = UICollectionView.CellRegistration<LeagueCell, LeagueObject>(handler: {
             (cell, indexPath, league) in
             
             cell.league = league
@@ -117,13 +117,13 @@ class MatchesView: UIView {
             cell.accessories = [.outlineDisclosure(options:headerDisclosureOption)]
         })
         
-        let matchCellRegistration = UICollectionView.CellRegistration<MatchCell, MatchData>(handler: {
+        let matchCellRegistration = UICollectionView.CellRegistration<MatchCell, MatchObject>(handler: {
             (cell, indexPath, match) in
             
             cell.match = match
         })
         
-        let adCellRegistration = UICollectionView.CellRegistration<AdCell, AdData>(handler: {
+        let adCellRegistration = UICollectionView.CellRegistration<AdCell, AdObject>(handler: {
             (cell, indexPath, ad) in
             
             cell.ad = ad
@@ -172,7 +172,7 @@ class MatchesView: UIView {
         var dataSourceSnapshot = NSDiffableDataSourceSnapshot<MatchesSectionDataContainer, MatchesCellType>()
         
         // Get only the matches for the current date
-        let currentMatches = Cached.matches[date.asKey] ?? [:]
+        let currentMatches = Cached.matchesByDay[date.asKey] ?? [:]
         
         // Create a list of each league for that date and sort the leagues alphabetically
         var preferredLeagues = currentMatches.map { MatchesSectionDataContainer(.league($0.value)) }.sorted { $0.name < $1.name }
@@ -182,29 +182,29 @@ class MatchesView: UIView {
         
         
         if preferredLeagues.isEmpty {
-            preferredLeagues.append(MatchesSectionDataContainer(.ad(AdData(adViewName: .matchAd1, viewWidth: safeWidth))))
+            preferredLeagues.append(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd1))))
         } else {
-            preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .matchAd1, viewWidth: safeWidth))), at: 1)
+            preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd1))), at: 1)
             
             if preferredLeagues.count > 4 {
-                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .matchAd2, viewWidth: safeWidth))), at: 3)
+                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd2))), at: 3)
             }
             
             if preferredLeagues.count > 6 {
-                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .matchAd3, viewWidth: safeWidth))), at: 5)
+                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd3))), at: 5)
             }
             
             if preferredLeagues.count > 8 {
-                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .matchAd4, viewWidth: safeWidth))), at: 7)
+                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd4))), at: 7)
             }
-            
+             
             if preferredLeagues.count > 10 {
-                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdData(adViewName: .matchAd5, viewWidth: safeWidth))), at: 9)
+                preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd5))), at: 9)
             }
         }
         
         // NOTE: User Teams
-        let myTeams = Cached.favoriteTeamMatches[date.asKey] ?? MatchLeagueData(name: "My Teams", country: "NA", id: FavoriteTeamLeague.identifer.rawValue, matches: [:])
+        let myTeams = Cached.favoriteTeamMatchesByDay[date.asKey] ?? LeagueObject(id: FavoriteTeamLeague.identifer.rawValue, name: "My Teams", country: "NA", matches: [:])
         let leaguesList = [MatchesSectionDataContainer(.league(myTeams))] + preferredLeagues
         
         // Add sections to the snapshot (just adding an array)
@@ -231,7 +231,7 @@ class MatchesView: UIView {
                     if $0.value.timeStamp < $1.value.timeStamp {
                         return true
                     } else if $0.value.timeStamp == $1.value.timeStamp {
-                        return $0.value.homeTeam.name < $1.value.homeTeam.name
+                        return $0.value.homeTeam?.name ?? "" < $1.value.homeTeam?.name ?? ""
                     } else {
                         return false
                     } }).map { MatchesCellType.match($0.value) }
@@ -246,60 +246,10 @@ class MatchesView: UIView {
                 let adItem = MatchesCellType.ad(adData)
                 sectionSnapshot.append([adItem])
                 dataSource.apply(sectionSnapshot, to: sectionItem, animatingDifferences: true)
-            case .match(let match):
+            case .match(_):
                 return
             }
             
-        }
-    }
-    
-    func updateDataSourceSnapshot() {
-        // MARK: Setup snap shots
-        
-        print("Update data source snapshot")
-        
-        let date = currentDate
-        
-        // Create new datasource snapshot
-        var updatedSnapshot = dataSource.snapshot()
-
-        for section in updatedSnapshot.sectionIdentifiers {
-            //print(section.sectionType)
-            switch section.sectionType {
-            case .league(let league):
-
-                var currentLeagueDictionary = Cached.matches[date.asKey] ?? [:]
-                currentLeagueDictionary[FavoriteTeamLeague.identifer.rawValue] = Cached.favoriteTeamMatches[date.asKey] ?? MatchLeagueData(name: "My Teams", country: "NA", id: FavoriteTeamLeague.identifer.rawValue, matches: [:])
-                
-                guard let currentLeague = currentLeagueDictionary[league.id] else {
-                    updatedSnapshot.deleteSections([section])
-                    print("League not found")
-                    continue
-                }
-
-                var currentMatches = currentLeague.matches.sorted(by: {
-                    if $0.value.timeStamp < $1.value.timeStamp {
-                        return true
-                    } else if $0.value.timeStamp == $1.value.timeStamp {
-                        return $0.value.homeTeam.name < $1.value.homeTeam.name
-                    } else {
-                        return false
-                    } }).map { MatchesCellType.match($0.value) }
-                
-                var matchItems = league.matches.map { MatchesCellType.match($0.value) }
-                
-                print(matchItems.count, currentMatches.count)
-                
-                // https://developer.apple.com/documentation/uikit/views_and_controls/collection_views/updating_collection_views_using_diffable_data_sources
-                
-                updatedSnapshot.deleteItems(matchItems)
-                updatedSnapshot.appendItems(currentMatches, toSection: section)
-                //updatedSnapshot.reconfigureItems(currentMatches)
-                
-                dataSource.apply(updatedSnapshot, animatingDifferences: true)
-            default:
-                continue
-            }
         }
     }
     
@@ -346,7 +296,7 @@ extension MatchesView {
         currentDate = getNextDay(from: currentDate)
         dateLabel.text = DateFormatter.localizedString(from: currentDate, dateStyle: .medium, timeStyle: .none)
         clearCells()
-        refresh(update: false)
+        refresh()
         
     }
     
@@ -356,11 +306,11 @@ extension MatchesView {
         currentDate = getPreviousDay(from: currentDate)
         dateLabel.text = DateFormatter.localizedString(from: currentDate, dateStyle: .medium, timeStyle: .none)
         clearCells()
-        refresh(update: false)
+        refresh()
     }
     
     @objc func refreshWithCurrentData() {
-        MatchesDataContainer.helper.retrieveAllMatchesForCurrentDate(update: true)
+        GetMatches.helper.getAllMatchesForCurrentDate()
         refreshControl.endRefreshing()
     }
     
@@ -392,12 +342,8 @@ extension MatchesView {
 // MARK: Protocols
 
 extension MatchesView: MatchesViewDelegate {
-    func refresh(update: Bool) {
-        if update {
-            updateDataSourceSnapshot()
-        } else {
-            setUpDataSourceSnapshots(from: currentDate)
-        }
+    func refresh() {
+        setUpDataSourceSnapshots(from: currentDate)
     }
 }
 

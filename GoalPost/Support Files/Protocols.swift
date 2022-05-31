@@ -13,19 +13,23 @@ protocol Refreshable {
 }
 
 protocol MatchesViewDelegate {
-    func refresh(update: Bool)
+    func refresh()
 }
 
 protocol TeamSearchDelegate {
     var spinner: UIActivityIndicatorView? { get set }
     
-    func returnSearchResults(teamResult: [TeamSearchData])
-    func add(team: TeamSearchData)
+    func returnSearchResults(teamResult: [TeamObject])
+    func add(team: TeamObject)
     func addSpinner()
     func removeSpinner()
 }
 
 protocol LeagueSearchDelegate {
-    func returnSearchResults(leagueResult: [LeagueSearchData])
-    func add(league: LeagueSearchData)
+    func returnSearchResults(leagueResult: [LeagueObject])
+    func add(league: LeagueObject)
+}
+
+protocol AccessibleObject {
+    func returnSelf() -> AccessibleObject
 }

@@ -17,7 +17,7 @@ class TeamsView: UIView {
     // MARK: Views
     
     // Collection View
-    private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+    lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCollectionViewLayout())
     
     // Stack View
     var mainStack = UIStackView(.vertical)
@@ -66,7 +66,7 @@ class TeamsView: UIView {
     
     // MARK: Data
     
-    private var dataSource: UICollectionViewDiffableDataSource<Section, TeamSearchData>?
+    var dataSource: UICollectionViewDiffableDataSource<Section, TeamObject>?
     
     init() {
         super.init(frame: CGRect.zero)
@@ -75,6 +75,8 @@ class TeamsView: UIView {
         setUpDataSource()
         setUpColors()
         collectionView.delegate = self
+        
+        self.refresh()
     }
     
     required init?(coder: NSCoder) {
@@ -83,10 +85,10 @@ class TeamsView: UIView {
     
     // MARK: - Private Methods
     
-    private func createLayout() -> UICollectionViewLayout {
+    func createCollectionViewLayout() -> UICollectionViewLayout {
         // The item and group will share this size to allow for automatic sizing of the cell's height
         
-        let padding: CGFloat = 20
+        let padding: CGFloat = 0
         
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                              heightDimension: .estimated(50))
@@ -97,8 +99,8 @@ class TeamsView: UIView {
                                                          subitems: [item])
 
         let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = padding
-        section.contentInsets = .init(top: padding, leading: padding, bottom: padding, trailing: padding)
+        section.interGroupSpacing = 20
+        section.contentInsets = .init(top: 20, leading: padding, bottom: padding, trailing: padding)
         
         return UICollectionViewCompositionalLayout(section: section)
     }
@@ -119,7 +121,7 @@ class TeamsView: UIView {
     
     private func setUpDataSource() {
         
-        var foundTeams = [TeamSearchData]()
+        var foundTeams = [TeamObject]()
         
         for team in Cached.teams {
             if let teamSearchData = Cached.teamDictionary[team] {
@@ -127,8 +129,9 @@ class TeamsView: UIView {
             }
         }
         
-        dataSource = UICollectionViewDiffableDataSource<Section, TeamSearchData>(collectionView: collectionView) {
+        dataSource = UICollectionViewDiffableDataSource<Section, TeamObject>(collectionView: collectionView) {
             (collectionView, indexPath, teamInformation) -> UICollectionViewCell? in
+
             guard let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: String(describing: TeamCollectionCell.self),
                 for: indexPath) as? TeamCollectionCell else {
@@ -139,28 +142,26 @@ class TeamsView: UIView {
         }
         collectionView.dataSource = dataSource
         
-        var snapshot = NSDiffableDataSourceSnapshot<Section, TeamSearchData>()
+        var snapshot = NSDiffableDataSourceSnapshot<Section, TeamObject>()
         snapshot.appendSections([.main])
         snapshot.appendItems(foundTeams)
         dataSource?.apply(snapshot)
     }
     
-    func setUpDataSourceSnapshots(searchResult: [TeamSearchData]?) {
+    func setUpDataSourceSnapshots(searchResult: [TeamObject]?) {
         // MARK: Setup snap shots
-        
-        
+
         guard let result = searchResult, let dataSource = dataSource else { return }
         
         let teams = result.map { $0 }
 
-        
         // Create a snapshot that define the current state of data source's data
-        var snapshot = NSDiffableDataSourceSnapshot<Section, TeamSearchData>()
+        var snapshot = NSDiffableDataSourceSnapshot<Section, TeamObject>()
         snapshot.appendSections([.main])
         snapshot.appendItems(teams, toSection: .main)
         
         // Display data on the collection view by applying the snapshot to data source
-        dataSource.apply(snapshot, animatingDifferences: false)
+        dataSource.apply(snapshot, animatingDifferences: true)
     }
     
     func setUpColors() {
@@ -198,7 +199,7 @@ extension TeamsView: Refreshable  {
     // Refresh
     func refresh() {
         
-        var foundTeams = [TeamSearchData]()
+        var foundTeams = [TeamObject]()
         
         for team in Cached.teams {
             if let teamSearchData = Cached.teamDictionary[team] {
@@ -206,7 +207,7 @@ extension TeamsView: Refreshable  {
             }
         }
         
-        //setUpDataSourceSnapshots(searchResult: foundTeams)
+        setUpDataSourceSnapshots(searchResult: foundTeams)
     }
 }
 

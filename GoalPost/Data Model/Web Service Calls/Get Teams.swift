@@ -7,45 +7,10 @@
 
 import Foundation
 
-class TeamSearchDataContainer {
+class GetTeams {
+    static var helper = GetTeams()
     
     var delegate: TeamSearchDelegate?
-    
-    /*
-    func search(for team: String) {
-        
-        if let delegate = delegate {
-            delegate.addSpinner()
-        }
-        
-        let encodedTeam = team.replacingOccurrences(of: " ", with: "+")
-
-        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/teams?search=\(encodedTeam)"
-
-        let headers = [
-            "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
-            "X-RapidAPI-Key": Secure.rapidAPIKey
-        ]
-        
-        let request = NSMutableURLRequest(url: NSURL(string: requestURL)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
-                                          
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-
-        let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-            if (error != nil) {
-                print("Live Fixture Data - Retrieve Fixture Data - Error calling /fixtures \(String(describing: error))")
-            } else {
-                let httpResponse = response as? HTTPURLResponse
-                if Testing.manager.verboseWebServiceCalls { print(httpResponse as Any) }
-                self.convertSearch(data: data)
-            }
-        })
-        
-        dataTask.resume()
-    }
-     */
     
     func search(for team: String) {
         
@@ -80,11 +45,11 @@ class TeamSearchDataContainer {
             fatalError()
         }
         
-        var searchResults = [TeamSearchData]()
+        var searchResults = [TeamObject]()
         
         for response in responses {
-            let teamSearchVenue = TeamSearchVenue(id: response.venue?.id, name: response.venue?.name, address: response.venue?.address, city: response.venue?.city, capacity: response.venue?.capacity, surface: response.venue?.surface, image: response.venue?.image)
-            let teamSearchData = TeamSearchData(id: response.team.id, name: response.team.name, code: response.team.code, country: response.team.country, founded: response.team.founded, national: response.team.national, logo: response.team.logo, venue: teamSearchVenue)
+
+            let teamSearchData = TeamObject(teamSearchInformation: response)
             Cached.teamDictionary[teamSearchData.id] = teamSearchData
             searchResults.append(teamSearchData)
         }

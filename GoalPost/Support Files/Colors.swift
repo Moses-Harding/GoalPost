@@ -42,6 +42,11 @@ struct Colors {
     static var teamCellViewSecondaryTextColor = green.hex5C996C
     static var teamCellViewTertiaryTextColor = UIColor.lightGray
     
+    static var teamDataStackBackgroundColor = gray.hex282B28
+    static var teamDataStackTextColor = white.hexFFFCF9
+    static var teamDataStackCellBackgroundColor = gray.hex1C1F1C
+    static var teamDataStackCellTextColor = white.hexFFFCF9
+    
     static var addButtonBackgroundColor = gray.hex1C1F1C
     static var addButtonTextColor = white.hexFFFCF9
     static var addButtonBorderColor = green.hex18EE88

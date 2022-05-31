@@ -27,7 +27,7 @@ class MatchesViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        matchesView.refresh(update: false)
+        matchesView.refresh()
     }
 }
 

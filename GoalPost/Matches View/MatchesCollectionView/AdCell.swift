@@ -10,7 +10,7 @@ import UIKit
 
 class AdCell: UICollectionViewListCell {
     
-    var ad: AdData?
+    var ad: AdObject?
     
     override func updateConfiguration(using state: UICellConfigurationState) {
         
@@ -35,7 +35,7 @@ class AdCell: UICollectionViewListCell {
 
 struct AdCellContentConfiguration: UIContentConfiguration, Hashable {
     
-    var ad: AdData?
+    var ad: AdObject?
     
     func makeContentView() -> UIView & UIContentView {
         return AdCellContentView(configuration: self)

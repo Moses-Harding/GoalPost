@@ -1,66 +1,20 @@
 //
-//  MatchCell.swift
+//  MatchCollectionCell.swift
 //  GoalPost
 //
-//  Created by Moses Harding on 4/23/22.
+//  Created by Moses Harding on 5/30/22.
 //
 
 import Foundation
 import UIKit
 
-class MatchCell: UICollectionViewListCell {
+class MatchCollectionCell: UICollectionViewCell {
     
-    var match: MatchObject?
+    // MARK: - Public Properties
     
-    override func updateConfiguration(using state: UICellConfigurationState) {
-        
-        // Remove gray background when selected:
-        var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
-        backgroundConfiguration.backgroundColor = Colors.cellBodyColor
-        self.backgroundConfiguration = backgroundConfiguration
-            
-        // Create new configuration object and update it base on state
-        var newConfiguration = MatchCellContentConfiguration().updated(for: state)
-        
-        // Update any configuration parameters related to data item
-        newConfiguration.match = match
-
-        // Set content configuration in order to update custom content view
-        contentConfiguration = newConfiguration
-    }
-}
-
-struct MatchCellContentConfiguration: UIContentConfiguration, Hashable {
+    var teamDataObject: TeamDataObject? { didSet { updateContent() } }
     
-    var match: MatchObject?
-    
-    func makeContentView() -> UIView & UIContentView {
-        return MatchCellContentView(configuration: self)
-    }
-    
-    func updated(for state: UIConfigurationState) -> Self {
-        
-        // Perform update on parameters that are not related to cell's data itesm
-        
-        // Make sure we are dealing with instance of UICellConfigurationState
-        guard let state = state as? UICellConfigurationState else {
-            return self
-        }
-        
-        // Updater self based on the current state
-        var updatedConfiguration = self
-        if state.isSelected {
-            // Selected state
-        } else {
-            // Other states
-        }
-
-        return updatedConfiguration
-    }
-    
-}
-
-class MatchCellContentView: UIView, UIContentView {
+    // MARK: - Private Properties
     
     //MARK: Labels
     
@@ -106,34 +60,27 @@ class MatchCellContentView: UIView, UIContentView {
     var homeImageView = UIImageView()
     var awayImageView = UIImageView()
     
+    
     //MARK: Lines
     
     var line = UIView()
+    
+    // MARK: - Init
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
 
-    private var currentConfiguration: MatchCellContentConfiguration!
-    
-    //Allows easy application of a new configuration or retrieval of existing configuration
-    var configuration: UIContentConfiguration {
-        get { currentConfiguration }
-        set {
-            // Make sure the given configuration is correct type, then apply configuration
-            guard let newConfiguration = newValue as? MatchCellContentConfiguration else { return }
-            apply(configuration: newConfiguration)
-        }
-    }
-
-    init(configuration: MatchCellContentConfiguration) {
-        super.init(frame: .zero)
-        
-        setupAllViews()
-        apply(configuration: configuration)
+        setUp()
+        setUpColors()
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        setUp()
     }
     
-    private func setupAllViews() {
+    // MARK: - Private Methods
+    private func setUp() {
 
         addSubview(mainStack)
         mainStack.translatesAutoresizingMaskIntoConstraints = false
@@ -232,16 +179,9 @@ class MatchCellContentView: UIView, UIContentView {
             timeElapsedLabel.text = " " + String(time) + " "
         }
     }
-    
-    private func apply(configuration: MatchCellContentConfiguration) {
-    
-        // Only apply configuration if new configuration and current configuration are not the same
-        guard currentConfiguration != configuration, let match = configuration.match else { return }
-        
-        // Replace current configuration with new configuration
-        currentConfiguration = configuration
-        
-        guard let homeTeam = match.homeTeam, let awayTeam = match.awayTeam else { return }
+
+    func updateContent() {
+        guard let match = teamDataObject?.match, let homeTeam = match.homeTeam, let awayTeam = match.awayTeam else { return }
         
         // Set data to UI elements
         homeTeamLabel.text = homeTeam.name
@@ -261,6 +201,12 @@ class MatchCellContentView: UIView, UIContentView {
     
     enum TeamType {
         case home, away
+    }
+    
+    func setUpColors() {
+        self.backgroundColor = Colors.teamDataStackBackgroundColor
+        self.layer.borderColor = Colors.logoTheme.cgColor
+        self.layer.borderWidth = 1
     }
     
     private func loadImage(for team: TeamObject, teamType: TeamType) {

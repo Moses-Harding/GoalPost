@@ -11,13 +11,13 @@ import Foundation
 
 // The container that stores current matches
 
-class MatchesDataContainer {
+class GetMatches {
     
-    static var helper = MatchesDataContainer()
+    static var helper = GetMatches()
     
     var delegate: MatchesViewDelegate?
     
-    var dailyMatchData = [String: Dictionary<Int,MatchLeagueData>]()
+    var dailyMatchData = [String: Dictionary<Int,LeagueObject>]()
     
     init() {
 
@@ -25,114 +25,24 @@ class MatchesDataContainer {
     
     // MARK: Retrieve Data
     
-    func retrieveMatchesFromFavoriteLeagues(update: Bool) {
+    func getMatchFor(league id: Int, on date: Date) {
         
-        print("Getting all matches for favorite leagues")
+        // If the league exists in the dictionary, get the current season, otherwise just use the current year
+        let season = Cached.leagueDictionary[id]?.currentSeason ?? Calendar.current.component(.year, from: date)
         
-        Cached.leagues.forEach { retrieveMatchData(for: $0, date: Date.now, update: update) }
+        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?league=\(String(id))&season=\(season)"
+
+        WebServiceCall().retrieveResults(requestURL: requestURL) { self.convert(data: $0) }
     }
     
-    /*
-    func retrieveMatchData(for leagueID: Int, date: Date, update: Bool) {
+    func getMatchFor(team id: Int, season: Int) {
         
-        // The API requires a four digit season. There's no easy way to tell what the current season is, but the season typically changes between June - August, so if it's after July, then the season is the current year.
-        
-        var season: Int
-        let month = Calendar.current.component(.month, from: date)
-        let year = Calendar.current.component(.year, from: date)
-        
-        if month > 7 {
-            season = year
-        } else {
-            season = year - 1
-        }
-        
-        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?league=\(String(leagueID))&season=\(season)"
+        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?league=\(String(id))&season=\(season)"
 
-        
-        let headers = [
-            "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
-            "X-RapidAPI-Key": Secure.rapidAPIKey
-        ]
-        
-        let request = NSMutableURLRequest(url: NSURL(string: requestURL)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
-                                          
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-
-        let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-            if (error != nil) {
-                print("Live Match Data - Retrieve Match Data - Error calling /matchs \(String(describing: error))")
-            } else {
-                let httpResponse = response as? HTTPURLResponse
-                if Testing.manager.verboseWebServiceCalls { print(httpResponse as Any) }
-                self.convert(data: data, update: update)
-            }
-        })
-
-        dataTask.resume()
+        WebServiceCall().retrieveResults(requestURL: requestURL) { self.convert(data: $0) }
     }
     
-    
-    func retrieveAllMatchesForCurrentDate(update: Bool) {
-
-        let today = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        let date = formatter.string(from: today)
-        
-        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?date=\(date)"
-
-        let headers = [
-            "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
-            "X-RapidAPI-Key": Secure.rapidAPIKey
-        ]
-        
-        let request = NSMutableURLRequest(url: NSURL(string: requestURL)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
-                                          
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-
-        let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-            if (error != nil) {
-                print("Live Match Data - retrieveAllMatchesForCurrentDate - Error calling /fixtures \(String(describing: error))")
-            } else {
-                let httpResponse = response as? HTTPURLResponse
-                if Testing.manager.verboseWebServiceCalls { print(httpResponse as Any) }
-                self.convert(data: data, update: update)
-            }
-        })
-
-        dataTask.resume()
-    }
-     
-     */
-    
-    func retrieveMatchData(for leagueID: Int, date: Date, update: Bool) {
-        
-        // The API requires a four digit season. There's no easy way to tell what the current season is, but the season typically changes between June - August, so if it's after July, then the season is the current year.
-        
-        //print("Retrieving match data for \(Cached.leagueDictionary[leagueID]?.name ?? "League " + String(leagueID)) on \(date) - \(update ? "- Updating Cells" : "Inserting Cells")")
-        
-        var season: Int
-        let month = Calendar.current.component(.month, from: date)
-        let year = Calendar.current.component(.year, from: date)
-        
-        if month > 7 {
-            season = year
-        } else {
-            season = year - 1
-        }
-        
-        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?league=\(String(leagueID))&season=\(season)"
-
-        WebServiceCall().retrieveResults(requestURL: requestURL) { self.convert(data: $0, update: update) }
-        
-    }
-    
-    func retrieveAllMatchesForCurrentDate(update: Bool) {
+    func getAllMatchesForCurrentDate() {
 
         let today = Date()
         let formatter = DateFormatter()
@@ -141,13 +51,11 @@ class MatchesDataContainer {
         
         let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?date=\(date)"
         
-        WebServiceCall().retrieveResults(requestURL: requestURL) { self.convert(data: $0, update: update) }
+        WebServiceCall().retrieveResults(requestURL: requestURL) { self.convert(data: $0) }
     }
     
-    func convert(data: Data?, update: Bool) {
+    func convert(data: Data?) {
         
-        print("CONVERT DATA__\n__")
-
         var results: GetMatchesStructure?
 
         guard let data = data else {
@@ -163,46 +71,30 @@ class MatchesDataContainer {
         
         for result in responses {
             
-            // Get Date
-            let matchDate = Date(timeIntervalSince1970: TimeInterval(result.fixture.timestamp))
-            let timeElapsed = result.fixture.status.elapsed
-            let status = result.fixture.status.short
-             
             // Get league Details
             let leagueId = result.league.id
+            let matchID = result.fixture.id
+            let homeTeamId = result.teams.home.id
+            let awayTeamId = result.teams.away.id
+            
+            let matchDate = Date(timeIntervalSince1970: TimeInterval(result.fixture.timestamp))
+
             let leagueCountry = result.league.country
             let leagueName = result.league.name
+
             
-            // Get match details
-            let matchID = result.fixture.id
-            let homeTeamName = result.teams.home.name
-            let homeTeamId = result.teams.home.id
-            let homeTeamLogo = result.teams.home.logo
-            let homeTeamScore = result.goals.home
-            let awayTeamName = result.teams.away.name
-            let awayTeamID = result.teams.away.id
-            let awayTeamLogo = result.teams.away.logo
-            let awayTeamScore = result.goals.away
-            
-            
-            // Create data structures
-            let homeTeam = MatchTeamData(name: homeTeamName, id: homeTeamId, logoURL: homeTeamLogo, score:
-                                            homeTeamScore)
-            let awayTeam = MatchTeamData(name: awayTeamName, id: awayTeamID, logoURL: awayTeamLogo, score:
-                                            awayTeamScore)
-            
-            let matchData = MatchData(homeTeam: homeTeam, awayTeam: awayTeam, status: status, timeElapsed: timeElapsed, timeStamp: matchDate, favoriteTeam: false, id: matchID)
+            let matchData = MatchObject(getMatchesStructure: result, favoriteTeam: false)
 
             
             if Cached.leagues.contains(leagueId) {
 
                 // If matchesByDay already has that day, pull that day up, if not create a new one
-                var foundDay = dailyMatchData[matchDate.asKey] ?? [Int:MatchLeagueData]()
+                var foundDay = dailyMatchData[matchDate.asKey] ?? [Int:LeagueObject]()
                 
                 // print("foundDay  - \(foundDay) - \(matchDate)")
                 
                 // If foundDay already has that league, pull that league up, if not, create a new one
-                var foundLeague = foundDay[leagueId] ?? MatchLeagueData(name: leagueName, country: leagueCountry, id: leagueId, matches: [:])
+                var foundLeague = foundDay[leagueId] ?? LeagueObject(id: leagueId, name: leagueName, country: leagueCountry, matches: [:])
                 
                 // print("foundLeague - Matches - count  - \(foundLeague.matches.count)")
                 
@@ -218,24 +110,34 @@ class MatchesDataContainer {
                 
                 // print("foundDayForLeagueID  - \(foundDay[leagueId])")
                 
-                Cached.matches = dailyMatchData
+                Cached.matchesByDay = dailyMatchData
             }
             
-            if Cached.teams.contains(homeTeamId) || Cached.teams.contains(awayTeamID) {
-                
-                let favoriteTeamMatchData = MatchData(homeTeam: homeTeam, awayTeam: awayTeam, status: status, timeElapsed: timeElapsed, timeStamp: matchDate, favoriteTeam: true, id: matchID)
-                
-                if Cached.favoriteTeamMatches == nil { Cached.favoriteTeamMatches = [:] }
-                
-                var favoriteTeamsMatches = Cached.favoriteTeamMatches[matchDate.asKey] ?? MatchLeagueData(name: "My Teams", country: "NA", id: FavoriteTeamLeague.identifer.rawValue, matches: [:])
+            if Cached.teams.contains(homeTeamId) || Cached.teams.contains(awayTeamId) {
 
+                let favoriteTeamMatchData = MatchObject(getMatchesStructure: result, favoriteTeam: true)
+                
+                var favoriteTeamsMatches = Cached.favoriteTeamMatchesByDay[matchDate.asKey] ?? LeagueObject(id: FavoriteTeamLeague.identifer.rawValue, name: "My Teams", country: "NA", matches: [:])
 
                 var matches = favoriteTeamsMatches.matches
                 matches[matchID] = favoriteTeamMatchData
                 favoriteTeamsMatches.matches = matches
                 
-                Cached.favoriteTeamMatches[matchDate.asKey] = favoriteTeamsMatches
+                Cached.favoriteTeamMatchesByDay[matchDate.asKey] = favoriteTeamsMatches
             }
+            
+            // Add to dictionary of all matches
+            Cached.matchesDictionary[matchID] = matchData
+            
+            // Add to set of matches
+            var homeSet = Cached.matchesByTeam[homeTeamId] ?? Set<Int>()
+            var awaySet = Cached.matchesByTeam[awayTeamId] ?? Set<Int>()
+            
+            homeSet.insert(matchID)
+            awaySet.insert(matchID)
+            
+            Cached.matchesByTeam[homeTeamId] = homeSet
+            Cached.matchesByTeam[awayTeamId] = awaySet
         }
         
         guard let delegate = delegate else {
@@ -243,7 +145,7 @@ class MatchesDataContainer {
         }
         
         DispatchQueue.main.async {
-            delegate.refresh(update: update)
+            delegate.refresh()
         }
     }
 }
