@@ -37,13 +37,14 @@ class TeamDataStack: UIStackView {
         
         self.heightAnchor.constraint(greaterThanOrEqualToConstant: 600).isActive = true
     }
-        
+    
     func setUpCollectionView() {
         
         collectionViewArea.constrain(collectionView, using: .edges, padding: 5, debugName: "CollectionView to CollectionViewArea - InjuryTeamDataStack")
         
-        collectionView.register(InjuryCollectionCell.self, forCellWithReuseIdentifier: String(describing: InjuryCollectionCell.self))
         collectionView.register(MatchCollectionCell.self, forCellWithReuseIdentifier: String(describing: MatchCollectionCell.self))
+        collectionView.register(InjuryCollectionCell.self, forCellWithReuseIdentifier: String(describing: InjuryCollectionCell.self))
+        collectionView.register(TransferCollectionCell.self, forCellWithReuseIdentifier: String(describing: TransferCollectionCell.self))
         
         
         dataSource = UICollectionViewDiffableDataSource<TeamDataObjectType, TeamDataObject>(collectionView: collectionView) {
@@ -68,10 +69,19 @@ class TeamDataStack: UIStackView {
                 
                 cell.teamDataObject = teamDataObject
                 return cell
+            case .transfer:
+                guard let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: String(describing: TransferCollectionCell.self),
+                    for: indexPath) as? TransferCollectionCell else {
+                    fatalError("Could not cast cell as \(TransferCollectionCell.self)")
+                }
+                
+                cell.teamDataObject = teamDataObject
+                return cell
             }
         }
         collectionView.dataSource = dataSource
-
+        
         let supplementaryRegistration = UICollectionView.SupplementaryRegistration
         <TitleSupplementaryView>(elementKind: ElementKind.titleElementKind.rawValue) {
             (supplementaryView, elementKind, indexPath) in
@@ -88,7 +98,7 @@ class TeamDataStack: UIStackView {
         }
         
         var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>()
-        snapshot.appendSections([.injury])
+        snapshot.appendSections([.match, .injury, .transfer])
         snapshot.appendItems([])
         dataSource?.apply(snapshot)
     }
@@ -97,95 +107,105 @@ class TeamDataStack: UIStackView {
         // The item and group will share this size to allow for automatic sizing of the cell's height
         
         let sectionProvider = { (sectionIndex: Int,
-            layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
+                                 layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                   heightDimension: .fractionalHeight(1))//.absolute(300))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
+            
             // if we have the space, adapt and go 2-up + peeking 3rd item
             let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(300),
                                                    heightDimension: .absolute(300))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-
+            
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .continuous
             section.interGroupSpacing = 5
             section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)
-
+            
             let titleSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                  heightDimension: .estimated(44))
+                                                   heightDimension: .estimated(44))
             let titleSupplementary = NSCollectionLayoutBoundarySupplementaryItem(
                 layoutSize: titleSize,
                 elementKind: ElementKind.titleElementKind.rawValue,
                 alignment: .top)
             section.boundarySupplementaryItems = [titleSupplementary]
-             
+            
             return section
         }
-
+        
         let config = UICollectionViewCompositionalLayoutConfiguration()
         config.interSectionSpacing = 20
-
+        
         let layout = UICollectionViewCompositionalLayout(
             sectionProvider: sectionProvider, configuration: config)
         return layout
-    }
-    
-    private func getInjuries() -> [TeamDataObject] {
-        
-        guard let teamID = team?.id, let injuryDict = Cached.injuriesByTeam[teamID] else { return [] }
-        
-        var foundInjuries = [TeamDataObject]()
-
-        for injuryId in injuryDict.sorted(by: { $0 > $1 } ) {
-            foundInjuries.append(TeamDataObject(injuryId: injuryId))
-        }
-        
-        //var injuries = Array(foundInjuries.sorted { $0.id > $1.id }[0 ... 15])
-        
-        //var injuries = Array(foundInjuries[0 ... 20])
-        let injuries = foundInjuries//.sorted { $0.id > $1.id }
-        
-        injuries.forEach {
-            print($0.id)
-        }
-        
-        return injuries
-        //return []
     }
     
     func getMatches() -> [TeamDataObject] {
         
         guard let teamID = team?.id, let matchIds = Cached.matchesByTeam[teamID] else { return [] }
         
+        //print(teamID)
+        
         var foundMatches = [TeamDataObject]()
         
         for id in matchIds.sorted { $0 > $1 } {
             foundMatches.append(TeamDataObject(matchId: id))
         }
-
-        //let matches = Array(foundMatches[0 ... 15])
-        
-        //return matches
-        //return []
         return foundMatches
     }
     
+    private func getInjuries() -> [TeamDataObject] {
+        
+        //print(Cached.injuriesByTeam[529])
+        
+        guard let teamID = team?.id, let injuryDict = Cached.injuriesByTeam[teamID] else { return [] }
+        
+        var foundInjuries = [TeamDataObject]()
+        
+        for injuryId in injuryDict.sorted(by: { $0 > $1 } ) {
+            foundInjuries.append(TeamDataObject(injuryId: injuryId))
+        }
+        let injuries = foundInjuries
+        
+        return injuries
+    }
+    
+    private func getTransfers() -> [TeamDataObject] {
+        
+        //print(Cached.transfersByTeam[529])
+        
+        guard let teamID = team?.id, let transferDict = Cached.transfersByTeam[teamID] else { return [] }
+        
+        var foundTransfers = [TeamDataObject]()
+        
+        for transferId in transferDict.sorted(by: { $0 > $1 } ) {
+            foundTransfers.append(TeamDataObject(transferId: transferId))
+        }
+        let transfers = foundTransfers
+        
+        
+        return transfers
+    }
+    
     func updateSnapshot() {
+        
         // MARK: Setup snap shots
         guard let dataSource = dataSource else { return }
         
-
-        
         // Create a snapshot that define the current state of data source's data
         var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>()
-        snapshot.appendSections([.injury, .match])
+        snapshot.appendSections([.injury, .match, .transfer])
         
-        let injuries = getInjuries()
         let matches = getMatches()
+        let injuries = getInjuries()
+        let transfers = getTransfers()
         
-        snapshot.appendItems(injuries, toSection: .injury)
+        //print(matches, injuries, transfers)
+        
         snapshot.appendItems(matches, toSection: .match)
+        snapshot.appendItems(injuries, toSection: .injury)
+        snapshot.appendItems(transfers, toSection: .transfer)
         
         // Display data on the collection view by applying the snapshot to data source
         dataSource.apply(snapshot, animatingDifferences: false)
@@ -201,8 +221,70 @@ class TeamDataStack: UIStackView {
     }
 }
 
-extension TeamDataStack: Refreshable {
-    func refresh() {
+extension TeamDataStack: TeamDataStackDelegate {
+    
+    func updateTransferSection(with transferIDs: Set<TransferID>?) {
+        DispatchQueue.main.async {
+            
+            print("TeamDataStack - Updating transfer section for \(self.team?.name)")
+            
+            guard let dataSource = self.dataSource, let transferIDs = transferIDs else { return }
+            
+            var snapshot = dataSource.snapshot(for: .transfer)
+            
+            var transfers = [TeamDataObject]()
+            
+            for transferId in transferIDs.sorted(by: { $0 > $1 } ) {
+                transfers.append(TeamDataObject(transferId: transferId))
+            }
+            
+            snapshot.append(transfers)
+            dataSource.apply(snapshot, to: .transfer)
+        }
+    }
+    
+    func updateMatchSection(with matchIDs: Set<MatchID>?) {
+        DispatchQueue.main.async {
+            
+            print("TeamDataStack - Updating match section for \(self.team?.name)")
+            
+            guard let dataSource = self.dataSource, let matchIDs = matchIDs else { return }
+            
+            var snapshot = dataSource.snapshot(for: .match)
+            
+            var matches = [TeamDataObject]()
+            
+            for matchId in matchIDs.sorted(by: { $0 > $1 } ) {
+                matches.append(TeamDataObject(matchId: matchId))
+            }
+            
+            snapshot.append(matches)
+            dataSource.apply(snapshot, to: .match)
+        }
+    }
+    
+    func updateInjurySection(with injuryIDs: Set<InjuryID>?) {
+        DispatchQueue.main.async {
+            
+            print("TeamDataStack - Updating injury section for \(self.team?.name)")
+            
+            guard let dataSource = self.dataSource, let injuryIDs = injuryIDs else { return }
+            
+            var snapshot = dataSource.snapshot(for: .injury)
+            
+            var injuries = [TeamDataObject]()
+            
+            for injuryId in injuryIDs.sorted(by: { $0 > $1 } ) {
+                injuries.append(TeamDataObject(injuryId: injuryId))
+            }
+            
+            snapshot.append(injuries)
+            dataSource.apply(snapshot, to: .injury)
+        }
+    }
+    
+    func manualRefresh() {
+        print("Team Data Stack - Refreshing for \(team?.name)")
         self.updateSnapshot()
     }
 }

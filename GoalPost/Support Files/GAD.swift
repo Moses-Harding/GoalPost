@@ -53,7 +53,9 @@ struct GAD {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             bannerView.backgroundColor = Colors.backgroundColor
             
-            //bannerView.load(GADRequest())
+            if !Testing.manager.disableAds {
+                bannerView.load(GADRequest())
+            }
         }
     }
 }

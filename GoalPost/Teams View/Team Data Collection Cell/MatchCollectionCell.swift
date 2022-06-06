@@ -22,20 +22,11 @@ class MatchCollectionCell: UICollectionViewCell {
     var awayTeamLabel = UILabel()
     var homeTeamScore = UILabel()
     var awayTeamScore = UILabel()
-    var vsLabel = UILabel()
-    var startTimeLabel = UILabel()
-    var timeElapsedLabel = UILabel() {
-        willSet {
-            if newValue.text == "" || newValue.text == nil{
-                statusOutline.isHidden = true
-            } else {
-                statusOutline.isHidden = false
-            }
-        }
-    }
+
+    var dateLabel = UILabel()
     
     var allLabels: [UILabel] {
-        return [homeTeamLabel, awayTeamLabel, homeTeamScore, awayTeamScore, vsLabel, startTimeLabel, timeElapsedLabel]
+        return [homeTeamLabel, awayTeamLabel, homeTeamScore, awayTeamScore, dateLabel]
     }
     
     //MARK: Views
@@ -45,15 +36,13 @@ class MatchCollectionCell: UICollectionViewCell {
     var topStack = UIStackView(.horizontal)
     var bottomStack = UIStackView(.horizontal)
     
+    var dateStack = UIStackView(.horizontal)
     var homeTeamStack = UIStackView(.horizontal)
     var awayTeamStack = UIStackView(.horizontal)
     
     var imageStack = UIStackView(.horizontal)
     var labelStack = UIStackView(.vertical)
-    var statusStack = UIStackView(.horizontal)
-    var statusOutline = UIView()
 
-    
     var homeImage = UIView()
     var awayImage = UIView()
     
@@ -91,13 +80,11 @@ class MatchCollectionCell: UICollectionViewCell {
             mainStack.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
         ])
         
-        mainStack.add([topStack, bottomStack])
+        mainStack.add([UIView(), dateStack, homeTeamStack, awayTeamStack, UIView()])
 
-        mainStack.setCustomSpacing(10, after: topStack)
+        mainStack.setCustomSpacing(10, after: dateStack)
         
-        topStack.add(children: [(homeTeamStack, 0.75), (startTimeLabel, nil)])
-        bottomStack.add(children: [(awayTeamStack, 0.75), (statusStack, nil)])
-        
+        dateStack.add([dateLabel])
         homeTeamStack.add(children: [(homeImage, nil), (homeTeamLabel, 0.8), (homeTeamScore, nil)])
         awayTeamStack.add(children: [(awayImage, nil), (awayTeamLabel, 0.8), (awayTeamScore, nil)])
         
@@ -106,18 +93,8 @@ class MatchCollectionCell: UICollectionViewCell {
         
         // MARK: Format labels
         allLabels.forEach { $0.textColor = Colors.cellBodyTextColor }
-        timeElapsedLabel.font = UIFont.systemFont(ofSize: 12)
-        startTimeLabel.textAlignment = .center
-        
-        // MARK: Format Individual Views
-        
-        statusStack.add(children: [(UIView(), nil), (statusOutline, nil), (UIView(), nil)])
-        statusStack.distribution = .equalCentering
-        statusOutline.constrain(timeElapsedLabel, using: .scale, heightScale: 1.0, padding: 0, except: [.width], safeAreaLayout: false, debugName: "Time Elapsed Outline Constraining TIme Elapsed Label")
-        statusOutline.layer.borderColor = Colors.titleAreaTextColor.cgColor
-        statusOutline.layer.borderWidth = 1
-        statusOutline.layer.cornerRadius = 10
-        statusOutline.widthAnchor.constraint(equalTo: timeElapsedLabel.widthAnchor, multiplier: 2).isActive = true
+        dateLabel.textAlignment = .center
+        dateLabel.font = UIFont.preferredFont(forTextStyle: .title2)
         
         // MARK: Set up image stack
         
@@ -133,52 +110,6 @@ class MatchCollectionCell: UICollectionViewCell {
         
         imageStack.alignment = .center
     }
-    
-    private func setStatus(from status: MatchStatusCode, time: Int?) {
-        
-        if status == .notStarted {
-            statusOutline.isHidden = true
-            return
-        } else {
-            statusOutline.isHidden = false
-        }
-        
-        let matchInterruption = { [self] in
-            statusOutline.layer.borderWidth = 0
-            statusOutline.backgroundColor = Colors.statusRed
-            timeElapsedLabel.text = status.rawValue
-        }
-        
-        let finished = { [self] in
-            statusOutline.layer.borderWidth = 0
-            statusOutline.backgroundColor = Colors.titleAreaColor
-                //timeElapsedLabel.backgroundColor = Colors.statusRed
-            timeElapsedLabel.text = "FT"
-        }
-        
-        switch status {
-        case .suspended:
-            matchInterruption()
-        case .interrupted:
-            matchInterruption()
-        case .postponed:
-            matchInterruption()
-        case .cancelled:
-            matchInterruption()
-        case .abandoned:
-            matchInterruption()
-        case .technicalLoss:
-            matchInterruption()
-        case .finished:
-            finished()
-        case .finishedAfterPenalties:
-            finished()
-        case .finishedAfterExtraTime:
-            finished()
-        default:
-            timeElapsedLabel.text = " " + String(time) + " "
-        }
-    }
 
     func updateContent() {
         guard let match = teamDataObject?.match, let homeTeam = match.homeTeam, let awayTeam = match.awayTeam else { return }
@@ -186,15 +117,10 @@ class MatchCollectionCell: UICollectionViewCell {
         // Set data to UI elements
         homeTeamLabel.text = homeTeam.name
         awayTeamLabel.text = awayTeam.name
-        startTimeLabel.text = match.timeStamp.formatted(date: .omitted, time: .shortened)
+        dateLabel.text = match.timeStamp.formatted(date: .numeric, time: .omitted)
         homeTeamScore.text = String(match.homeTeamScore)
         awayTeamScore.text = String(match.awayTeamScore)
-        setStatus(from: match.status, time: match.timeElapsed)
-        
-        vsLabel.text = "-"
-        vsLabel.sizeToFit()
-        //imageStack.layoutSubviews()
-        
+
         loadImage(for: homeTeam, teamType: .home)
         loadImage(for: awayTeam, teamType: .away)
     }
@@ -204,9 +130,15 @@ class MatchCollectionCell: UICollectionViewCell {
     }
     
     func setUpColors() {
-        self.backgroundColor = Colors.teamDataStackBackgroundColor
-        self.layer.borderColor = Colors.logoTheme.cgColor
-        self.layer.borderWidth = 1
+        self.backgroundColor = Colors.teamDataStackCellBackgroundColor
+        self.layer.cornerRadius = 10
+        //self.layer.shadowColor = UIColor.black.cgColor
+        //self.layer.shadowOpacity = 1
+        //self.layer.shadowOffset = .zero
+        //self.layer.shadowRadius = 5
+        //self.layer.shadowPath = UIBezierPath(rect: self.bounds).cgPath
+        //self.layer.borderColor = Colors.logoTheme.cgColor
+        //self.layer.borderWidth = 1
     }
     
     private func loadImage(for team: TeamObject, teamType: TeamType) {

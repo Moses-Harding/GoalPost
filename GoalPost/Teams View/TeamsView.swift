@@ -123,7 +123,7 @@ class TeamsView: UIView {
         
         var foundTeams = [TeamObject]()
         
-        for team in Cached.teams {
+        for team in Cached.favoriteTeamIds {
             if let teamSearchData = Cached.teamDictionary[team] {
                 foundTeams.append(teamSearchData)
             }
@@ -164,6 +164,14 @@ class TeamsView: UIView {
         dataSource.apply(snapshot, animatingDifferences: true)
     }
     
+    func addTeamToDataSource(team: TeamObject) {
+        guard let dataSource = dataSource else { return }
+        
+        var snapshot = dataSource.snapshot(for: .main)
+        snapshot.append([team])
+        dataSource.apply(snapshot, to: .main)
+    }
+    
     func setUpColors() {
         // Views
         mainStack.backgroundColor = Colors.backgroundColor
@@ -196,18 +204,31 @@ extension TeamsView {
 
 extension TeamsView: Refreshable  {
     
+
+}
+
+extension TeamsView: TeamsViewDelegate {
+    
     // Refresh
     func refresh() {
         
         var foundTeams = [TeamObject]()
         
-        for team in Cached.teams {
+        for team in Cached.favoriteTeamIds {
             if let teamSearchData = Cached.teamDictionary[team] {
                 foundTeams.append(teamSearchData)
             }
         }
         
         setUpDataSourceSnapshots(searchResult: foundTeams)
+    }
+    
+    func add(team: TeamObject) {
+        
+        addTeamToDataSource(team: team)
+        let indexPath = IndexPath(item: collectionView.numberOfItems(inSection: 0) - 1, section: 0)
+        guard let cell = collectionView.cellForItem(at: indexPath) as? TeamCollectionCell else { fatalError() }
+        DataFetcher.helper.add(team: team, with: cell.teamDataStack)
     }
 }
 

@@ -12,5 +12,6 @@ typealias LeagueID = Int
 typealias MatchID = Int
 typealias PlayerID = Int
 typealias InjuryID = String
+typealias TransferID = String
 
 typealias DateString = String

@@ -22,17 +22,12 @@ class TitleSupplementaryView: UICollectionReusableView {
 
 extension TitleSupplementaryView {
     func configure() {
-        self.backgroundColor = .black
-        addSubview(label)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.adjustsFontForContentSizeCategory = true
-        let inset = CGFloat(10)
-        NSLayoutConstraint.activate([
-            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: inset),
-            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -inset),
-            label.topAnchor.constraint(equalTo: topAnchor, constant: inset),
-            label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -inset)
-        ])
+        //self.layer.borderColor = UIColor.black.cgColor
+        //self.layer.borderWidth = 1
+        self.layer.cornerRadius = 10
+        self.backgroundColor = Colors.teamDataStackCellBackgroundColor
+
+        self.constrain(label, using: .edges, padding: 10)
         label.font = UIFont.preferredFont(forTextStyle: .title1)
     }
 }

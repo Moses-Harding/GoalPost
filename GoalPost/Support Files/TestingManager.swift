@@ -14,4 +14,6 @@ struct Testing {
     
     var getMatchesForFavoriteLeagues = true
     var getLiveTestData = true
+    
+    var disableAds = false
 }

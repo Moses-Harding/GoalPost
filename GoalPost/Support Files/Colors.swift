@@ -44,7 +44,7 @@ struct Colors {
     
     static var teamDataStackBackgroundColor = gray.hex282B28
     static var teamDataStackTextColor = white.hexFFFCF9
-    static var teamDataStackCellBackgroundColor = gray.hex1C1F1C
+    static var teamDataStackCellBackgroundColor = gray.hex313531
     static var teamDataStackCellTextColor = white.hexFFFCF9
     
     static var addButtonBackgroundColor = gray.hex1C1F1C
@@ -70,6 +70,7 @@ struct BlueColors {
 struct GrayColors {
     var hex282B28 = UIColor(red: 0.16, green: 0.17, blue: 0.16, alpha: 1.00)
     var hex1C1F1C = UIColor(red: 0.11, green: 0.12, blue: 0.11, alpha: 1.00)
+    var hex313531 = UIColor(red: 0.19, green: 0.21, blue: 0.19, alpha: 1.00)
 }
 
 struct PurpleColors {

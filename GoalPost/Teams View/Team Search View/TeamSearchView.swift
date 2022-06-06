@@ -232,7 +232,7 @@ extension TeamSearchView: UITextFieldDelegate {
 }
 
 extension TeamSearchView: TeamSearchDelegate {
-    
+
     func addSpinner() {
         spinner = UIActivityIndicatorView(style: .large)
         self.constrain(spinner!, except: [.height])
@@ -254,7 +254,7 @@ extension TeamSearchView: TeamSearchDelegate {
         }
     }
     
-    func add(team: TeamObject) {
+    func addAnimation(completion: @escaping () -> ()) {
 
         // Create a blur effect
         let blurEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
@@ -292,8 +292,7 @@ extension TeamSearchView: TeamSearchDelegate {
             }, completion: { (Bool) in
                 blurImageView.removeFromSuperview()
                 addedTeamLabel.removeFromSuperview()
-                self.viewController?.dismiss(animated: true)
-                self.viewController?.refreshableParent?.refresh()
+                completion()
                 return
             })
             return
@@ -304,11 +303,12 @@ extension TeamSearchView: TeamSearchDelegate {
 extension TeamSearchView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        guard let cell = collectionView.cellForItem(at: indexPath) as? TeamSearchCell, let teamInformation = cell.teamInformation else { return }
+        guard let cell = collectionView.cellForItem(at: indexPath) as? TeamSearchCell, let team = cell.teamInformation else { return }
         
-        self.add(team: teamInformation)
-        
-        DataFetcher.helper.getDataFor(team: teamInformation)
-        Cached.teams.append(teamInformation.id)
+        self.addAnimation() {
+            self.viewController?.dismiss(animated: true)
+            self.viewController?.refreshableParent?.refresh()
+            self.viewController?.refreshableParent?.add(team: team)
+        }
     }
 }

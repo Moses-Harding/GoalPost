@@ -32,8 +32,6 @@ class InjuryObject: Codable {
     var reason: String
     // Returned on Team Search
     
-    var founded: Int?
-    
     var id: String
     
     init(_ getInjuriesInformation: GetInjuriesInformation) {
@@ -49,9 +47,9 @@ class InjuryObject: Codable {
             Cached.teamDictionary[teamId] = TeamObject(getInjuriesInformationTeam: info.team)
         }
         
-        if Cached.playerDictionary[playerId] == nil { Cached.playerDictionary[playerId] = PlayerObject(getInjuriesInformationPlayer: info.player) }
-        if Cached.leagueDictionary[leagueId] == nil { Cached.leagueDictionary[leagueId] = LeagueObject(getInjuriesInformationLeague: info.league) }
-        if Cached.matchesDictionary[matchId] == nil { Cached.matchesDictionary[matchId] = MatchObject(getInjuriesInformationFixture: info.fixture) }
+        Cached.playerDictionary.addIfNoneExists(PlayerObject(getInjuriesInformationPlayer: info.player), key: playerId)
+        Cached.leagueDictionary.addIfNoneExists(LeagueObject(getInjuriesInformationLeague: info.league) , key: leagueId)
+        Cached.matchesDictionary.addIfNoneExists(MatchObject(getInjuriesInformationFixture: info.fixture), key: matchId)
         
         self.type = info.player.type
         self.reason = info.player.reason

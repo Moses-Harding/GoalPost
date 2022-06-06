@@ -110,14 +110,13 @@ class TeamCollectionCell: UICollectionViewCell {
     // MARK: - Private Methods
     
     func setUp() {
+
         self.backgroundColor = Colors.teamCellViewBackgroundColor
         layer.cornerRadius = 8
         
         setUpMainStack()
         setUpTitleStack()
         setUpBodyStack()
-        
-        // TEMPORARY
     }
     
     func setUpMainStack() {
@@ -161,6 +160,7 @@ class TeamCollectionCell: UICollectionViewCell {
     }
     
     func updateContent() {
+        
         guard let teamInfo = teamInformation else { return }
         nameLabel.text = teamInfo.name
         foundedLabel.text = "Founded: \(teamInfo.founded ?? 0)"
@@ -172,7 +172,6 @@ class TeamCollectionCell: UICollectionViewCell {
         
         DispatchQueue.main.async { [self] in
             teamDataStack.team = teamInformation
-            teamDataStack.refresh()
         }
     }
     
@@ -180,7 +179,7 @@ class TeamCollectionCell: UICollectionViewCell {
         
         if isSelected {
             DispatchQueue.main.async {
-                self.teamDataStack.refresh()
+                self.teamDataStack.manualRefresh()
             }
         }
         

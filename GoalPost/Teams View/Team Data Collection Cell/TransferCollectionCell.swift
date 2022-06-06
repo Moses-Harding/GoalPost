@@ -1,14 +1,14 @@
 //
-//  InjuryCollectionCell.swift
+//  TransferCollectionCell.swift
 //  GoalPost
 //
-//  Created by Moses Harding on 5/30/22.
+//  Created by Moses Harding on 5/31/22.
 //
 
 import Foundation
 import UIKit
 
-class InjuryCollectionCell: UICollectionViewCell {
+class TransferCollectionCell: UICollectionViewCell {
     
     // MARK: - Public Properties
     
@@ -23,8 +23,9 @@ class InjuryCollectionCell: UICollectionViewCell {
     
     // Labels
     let playerNameLabel = UILabel()
-    let reasonLabel = UILabel()
-    let timeOfInjuryLabel = UILabel()
+    let transferFromTeam = UILabel()
+    let transferToTeam = UILabel()
+    let transferDate = UILabel()
     
     // Image
     let playerImage = UIImageView()
@@ -62,17 +63,17 @@ class InjuryCollectionCell: UICollectionViewCell {
     }
     
     func setUpStacks() {
-        contentView.constrain(mainStack, using: .edges, padding: 10, debugName: "MainStack To ContentView - InjuryCollectionCell")
-        mainStack.add(children: [(UIView(), 0.05), (timeOfInjuryLabel, 0.2), (UIView(), 0.05), (greenLine, 0.02), (UIView(), 0.05), (bodyStack, nil), (UIView(), 0.05),])
+        contentView.constrain(mainStack, using: .edges, padding: 10, debugName: "MainStack To ContentView - TransferCollectionCell")
+        mainStack.add(children: [(UIView(), 0.05), (transferDate, 0.2), (UIView(), 0.05), (greenLine, 0.02), (UIView(), 0.05), (bodyStack, nil), (UIView(), 0.05),])
         bodyStack.add(children: [(UIView(), 0.025), (playerImageArea, nil), (UIView(), 0.1), (descriptionStack, nil), (UIView(), nil)])
         
-        descriptionStack.add(children: [(UIView(), 0.025), (playerNameArea, nil), (UIView(), 0.1), (reasonLabel, nil), (UIView(), nil)])
+        descriptionStack.add(children: [(UIView(), 0.025), (playerNameArea, nil), (UIView(), 0.1), (transferFromTeam, nil), (UIView(), 0.1), (transferToTeam, nil), (UIView(), nil)])
     }
     
     func setUpViewContent() {
 
         // Image
-        playerImageArea.constrain(playerImage, except: [.height], debugName: "playerImage To playerImageArea - InjuryCollectionCell")
+        playerImageArea.constrain(playerImage, except: [.height], debugName: "PlayerImage To PlayerImageArea - TransferCollectionCell")
         playerImage.heightAnchor.constraint(equalToConstant: 100).isActive = true
         playerImage.widthAnchor.constraint(equalToConstant: 100).isActive = true
         
@@ -80,26 +81,27 @@ class InjuryCollectionCell: UICollectionViewCell {
         playerImage.clipsToBounds = true
         
         // Labels
-        timeOfInjuryLabel.font = UIFont.preferredFont(forTextStyle: .title2)//UIFont.boldSystemFont(ofSize: 30)
-        timeOfInjuryLabel.numberOfLines = -1
-        timeOfInjuryLabel.textAlignment = .center
+        transferDate.font = UIFont.preferredFont(forTextStyle: .title2)//UIFont.boldSystemFont(ofSize: 30)
+        transferDate.numberOfLines = -1
+        transferDate.textAlignment = .center
         
-        playerNameArea.constrain(playerNameLabel, debugName: "PlayerNameLabel To PlayerNameArea - InjuryCollectionCell")
+        playerNameArea.constrain(playerNameLabel, debugName: "PlayerNameLabel To PlayerNameArea - TransferCollectionCell")
         
-        playerNameLabel.font = UIFont.preferredFont(forTextStyle: .title3)//UIFont.boldSystemFont(ofSize: 24)
+        playerNameLabel.font = UIFont.preferredFont(forTextStyle: .title3)
         playerNameLabel.textAlignment = .left
         
-        reasonLabel.numberOfLines = -1
+        transferToTeam.numberOfLines = -1
 
     }
 
     func updateContent() {
-        guard let injuryInfo = teamDataObject?.injury else { return }
-        reasonLabel.text = "\(injuryInfo.reason)"
-        if let match = injuryInfo.match {
-            timeOfInjuryLabel.text = "\(DateFormatter.localizedString(from: match.timeStamp, dateStyle: .short, timeStyle: .none))"
-        }
-        if let player = injuryInfo.player {
+        guard let transferInfo = teamDataObject?.transfer else { return }
+
+        transferFromTeam.text = "From: \(String(describing: transferInfo.teamFrom?.name))"
+        transferToTeam.text = "To: \(String(describing: transferInfo.teamTo?.name))"
+        transferDate.text = transferInfo.transferDate.formatted(date: .numeric, time: .omitted)
+        
+        if let player = transferInfo.player {
             playerNameLabel.text = player.name
             loadImage(for: player)
         }
@@ -108,8 +110,6 @@ class InjuryCollectionCell: UICollectionViewCell {
     func setUpColors() {
         self.backgroundColor = Colors.teamDataStackCellBackgroundColor
         greenLine.backgroundColor = Colors.logoTheme
-        //self.layer.borderColor = Colors.logoTheme.cgColor
-        //self.layer.borderWidth = 1
     }
     
     func loadImage(for player: PlayerObject) {

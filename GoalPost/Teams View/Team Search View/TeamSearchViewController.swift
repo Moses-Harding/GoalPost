@@ -12,7 +12,7 @@ class TeamSearchViewController: UIViewController {
     
     var teamSearchView = TeamSearchView()
     
-    var refreshableParent: Refreshable?
+    var refreshableParent: TeamsViewDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()

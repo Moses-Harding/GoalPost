@@ -49,12 +49,21 @@ enum AdViewName: String, Codable, CaseIterable {
 enum TeamDataObjectType: String {
     case match = "Matches"
     case injury = "Injuries and Absences"
+    case transfer = "Transfers"
     // case squad = "Squad"
-    // case transfers = "Transfers"
 }
 
 
 enum ElementKind: String {
     case titleElementKind = "title-element-kind"
     case titleSupplementaryView = "title-supplementary-reuse-identifier"
+}
+
+// Errors
+
+enum WebServiceCallErrors: Error {
+    case dataNotPassedToConversionFunction
+    case noDataRetrieved
+    case resultsNotDecoded
+    case elementNotFoundInLookupDictionary
 }

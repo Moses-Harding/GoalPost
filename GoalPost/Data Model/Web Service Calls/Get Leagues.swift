@@ -47,7 +47,7 @@ class GetLeagues {
         
         for response in responses {
             
-            var currentSeason: Int = 0
+            var currentSeason: Int?
             var seasonStart: String = ""
             var seasonEnd: String = ""
             
@@ -59,9 +59,9 @@ class GetLeagues {
                 }
             }
             
-            guard let league = response.league else { continue }
+            guard let league = response.league, let season = currentSeason else { continue }
             
-            let leagueSearchData = LeagueObject(id: league.id, name: league.name, logo: league.logo, type: league.type, country: response.country?.name ?? "N/A", countryLogo: response.country?.flag, currentSeason: currentSeason, seasonStart: seasonStart, seasonEnd: seasonEnd, matches: nil)
+            let leagueSearchData = LeagueObject(id: league.id, name: league.name, logo: league.logo, type: league.type, country: response.country?.name ?? "N/A", countryLogo: response.country?.flag, currentSeason: season, seasonStart: seasonStart, seasonEnd: seasonEnd, matches: nil)
             retrievedTeam.leagueDictionary[leagueSearchData.id] = leagueSearchData
         }
         
@@ -103,5 +103,44 @@ class GetLeagues {
             let leagueSearchData = LeagueObject(id: league.id, name: league.name, logo: league.logo, type: league.type, country: response.country?.name ?? "N/A", countryLogo: response.country?.flag, currentSeason: currentSeason, seasonStart: seasonStart, seasonEnd: seasonEnd, matches: nil)
             Cached.leagueDictionary[leagueSearchData.id] = leagueSearchData
         }
+    }
+    
+    // MARK: Async versions
+    
+    func getLeaguesFrom(team: TeamObject) async throws -> TeamObject {
+
+        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/leagues?team=\(team.id)"
+        let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
+        let team = try asyncConvertLeaguesFor(team: team, data: data)
+        return team
+    }
+    
+    func asyncConvertLeaguesFor(team: TeamObject, data: Data?) throws -> TeamObject {
+
+        guard let data = data else { throw WebServiceCallErrors.dataNotPassedToConversionFunction }
+        
+        let results: LeagueSearchStructure = try JSONDecoder().decode(LeagueSearchStructure.self, from: data)
+
+        for response in results.response {
+            
+            var currentSeason: Int?
+            var seasonStart: String = ""
+            var seasonEnd: String = ""
+            
+            for season in response.seasons {
+                if season.current {
+                    currentSeason = season.year
+                    seasonStart = season.start
+                    seasonEnd = season.end
+                }
+            }
+            
+            guard let league = response.league, let season = currentSeason else { continue }
+            
+            let leagueSearchData = LeagueObject(id: league.id, name: league.name, logo: league.logo, type: league.type, country: response.country?.name ?? "N/A", countryLogo: response.country?.flag, currentSeason: season, seasonStart: seasonStart, seasonEnd: seasonEnd, matches: nil)
+            team.leagueDictionary[leagueSearchData.id] = leagueSearchData
+        }
+        
+        return team
     }
 }

@@ -19,31 +19,32 @@ class TeamObject: Codable {
     var leagueDictionary: [Int:LeagueObject] = [:]
     
     // This should be used for searching
-    lazy var mostRecentSeason: Int = {
-        var season: Int = 0
+    lazy var mostRecentSeason: Int? = {
         
+        var season: Int?
         // Iterate through the league dictionary and return the most recent league
         for league in leagueDictionary.values {
-            if league.currentSeason ?? 0 > season {
-                season = league.currentSeason ?? 0
+            if let leagueSeason = league.currentSeason {
+                if let currentSeason = season {
+                    if leagueSeason > currentSeason {
+                        season = leagueSeason
+                    }
+                } else {
+                    season = leagueSeason
+                }
             }
         }
-        
-        // If none are found (in case no leagues have been added yet), just use this year
-        if season == 0 {
-            return Calendar.current.component(.year, from: Date.now)
-        } else {
-            return season
-        }
+        return season
     } ()
     
     // Returned on Team Search
     
     var founded: Int?
     
-    init(id: Int, name: String) {
+    init(id: Int, name: String, logo: String? = nil) {
         self.id = id
         self.name = name
+        self.logo = logo
     }
     
     convenience init(teamSearchInformation: TeamSearchInformation) {

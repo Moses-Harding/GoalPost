@@ -12,6 +12,11 @@ protocol Refreshable {
     func refresh()
 }
 
+protocol TeamsViewDelegate {
+    func refresh()
+    func add(team: TeamObject)
+}
+
 protocol MatchesViewDelegate {
     func refresh()
 }
@@ -20,9 +25,15 @@ protocol TeamSearchDelegate {
     var spinner: UIActivityIndicatorView? { get set }
     
     func returnSearchResults(teamResult: [TeamObject])
-    func add(team: TeamObject)
+    func addAnimation(completion: @escaping () -> ())
     func addSpinner()
     func removeSpinner()
+}
+
+protocol TeamDataStackDelegate {
+    func updateInjurySection(with injuryIDs: Set<InjuryID>?)
+    func updateMatchSection(with matchIDs: Set<MatchID>?)
+    func updateTransferSection(with transferIDs: Set<TransferID>?)
 }
 
 protocol LeagueSearchDelegate {

@@ -23,9 +23,15 @@ class TeamDataObject {
         guard let id = matchId else { return nil }
         return Cached.matchesDictionary[id]
     }
+    
+    var transfer: TransferObject? {
+        guard let id = transferId else { return nil }
+        return Cached.transferDictionary[id]
+    }
 
     var injuryId: InjuryID?
     var matchId: MatchID?
+    var transferId: TransferID?
     
     var id: Int
     
@@ -45,9 +51,13 @@ class TeamDataObject {
         self.init(type: .injury)
         self.injuryId = injuryId
     }
+    
+    
+    convenience init(transferId: TransferID) {
+        self.init(type: .transfer)
+        self.transferId = transferId
+    }
 }
-
-
 
 extension TeamDataObject: Hashable {
     static func == (lhs: TeamDataObject, rhs: TeamDataObject) -> Bool {

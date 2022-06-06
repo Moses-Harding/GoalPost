@@ -72,17 +72,9 @@ class MatchObject: Codable {
         
         // If there are no copies of the home / away teams in the dictionary, add them for each search
         
-        if Cached.teamDictionary[getMatchesStructure.teams.home.id] == nil {
-            Cached.teamDictionary[getMatchesStructure.teams.home.id] = TeamObject(getMatchInfoTeam: getMatchesStructure.teams.home)
-        }
-        
-        if Cached.teamDictionary[getMatchesStructure.teams.away.id] == nil {
-            Cached.teamDictionary[getMatchesStructure.teams.away.id] = TeamObject(getMatchInfoTeam: getMatchesStructure.teams.away)
-        }
-        
-        if Cached.leagueDictionary[getMatchesStructure.league.id] == nil {
-            Cached.leagueDictionary[getMatchesStructure.league.id] = LeagueObject(getMatchInformationLeague: getMatchesStructure.league)
-        }
+        Cached.teamDictionary.addIfNoneExists(TeamObject(getMatchInfoTeam: getMatchesStructure.teams.home), key: getMatchesStructure.teams.home.id)
+        Cached.teamDictionary.addIfNoneExists(TeamObject(getMatchInfoTeam: getMatchesStructure.teams.away), key: getMatchesStructure.teams.away.id)
+        Cached.leagueDictionary.addIfNoneExists(LeagueObject(getMatchInformationLeague: getMatchesStructure.league), key: getMatchesStructure.league.id)
     }
     
     convenience init(getInjuriesInformationFixture fixture: GetInjuriesInformation_Fixture) {

@@ -38,7 +38,7 @@ class PlayerObject: Codable {
     
     var teams = [TeamID]()
     
-    init(id: PlayerID, name: String, photo: String) {
+    init(id: PlayerID, name: String, photo: String?) {
         self.id = id
         self.name = name
         self.photo = photo

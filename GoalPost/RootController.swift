@@ -17,10 +17,11 @@ class RootController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        
-        //clearData()
+
+        testing()
         
         self.setViewControllers([matchesViewController, teamsViewController, leaguesViewController], animated: true)
+        self.tabBar.unselectedItemTintColor = UIColor.lightGray
         self.tabBar.tintColor = Colors.green.hex18EE88
         
         matchesViewController.tabBarItem = UITabBarItem(title: "Matches", image: UIImage(systemName: "sportscourt"), tag: 0)
@@ -33,28 +34,63 @@ class RootController: UITabBarController {
         gatherData()
     }
     
+    func testing() {
+        /*
+        print(
+        Cached.teamDictionary,
+        Cached.leagueDictionary,
+        Cached.matchesDictionary,
+        Cached.injuryDictionary,
+        Cached.playerDictionary,
+        Cached.transferDictionary,
+        Cached.injuriesByTeam,
+        Cached.matchesByTeam,
+        Cached.transfersByTeam)
+        */
+        
+        // DataFetcher.helper.testing(team: 529)
+        
+        // print(Cached.injuriesByTeam)
+        
+        // Cached.favoriteTeamIds = []
+        
+        //print(Cached.transferDictionary, Cached.transfersByTeam)
+        
+        //Cached.transferDictionary = [:]
+        //Cached.transfersByTeam = [:]
+        
+        // clearData()
+        for team in Cached.favoriteTeamIds {
+            //GetLeagues.helper.getLeaguesFrom(team: 3520)
+            Cached.teamDictionary[3520]?.leagueDictionary.values.forEach {
+                print($0.name, $0.country, $0.id, $0.currentSeason)
+            }
+        }
+        
+        Task.init {
+            guard let team = Cached.teamDictionary[3520] else { fatalError() }
+            let foundTeam = try await GetLeagues.helper.getLeaguesFrom(team: team)
+            print("Retrieved \(foundTeam) with dict \(foundTeam.leagueDictionary)")
+        }
+    }
+    
     func gatherData() {
         
         // Populate default data if first run
         
         if Saved.firstRun {
             
-            print("\n\n***\n***\n***RUNNING LEAGUE search since first run\n***\n***\n***\n")
+            print("\nFirst Run\n")
         
-            Cached.leagues  = [39, 61, 78, 135, 140]
-            
-            // Run the initial data gathering checks
-            
-            GetLeagues.helper.getAllLeagues()
-            DataFetcher.helper.getDataforFavoriteLeagues()
-            
-            Saved.lastLeaguesUpdate = Date.now
+            Cached.favoriteLeagueIds  = [39, 61, 78, 135, 140]
             Saved.firstRun = false
+            
+            
+            DataFetcher.helper.fetchDataIfValid(true)
             
             return
         } else {
-            // If not, retrieve data if valid time frame
-            DataFetcher.helper.fetchDataIfValid()
+            DataFetcher.helper.fetchDataIfValid(false)
         }
     }
     
@@ -62,21 +98,21 @@ class RootController: UITabBarController {
         
         Saved.firstRun = true
         
-        Cached.leagues = []
-        Cached.teams = []
-        
+        Cached.favoriteLeagueIds = []
+        Cached.favoriteTeamIds = []
 
         Cached.teamDictionary = [:]
         Cached.leagueDictionary = [:]
         Cached.matchesDictionary = [:]
         Cached.injuryDictionary = [:]
         Cached.playerDictionary = [:]
+        Cached.transferDictionary = [:]
         
         Cached.injuriesByTeam = [:]
         Cached.matchesByTeam = [:]
+        Cached.transfersByTeam = [:]
         
         Cached.matchesByDay = [:]
         Cached.favoriteTeamMatchesByDay = [:]
-
     }
 }
