@@ -44,6 +44,8 @@ struct GAD {
     
     func loadBannerAd(for viewName: AdViewName, with width: CGFloat?) {
         
+        guard !Testing.manager.disableAds else { return }
+        
         print("Loading ad for \(viewName)")
         
         guard var bannerView = bannerViews[viewName] else {

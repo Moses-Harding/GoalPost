@@ -17,6 +17,8 @@ class TeamDataStack: UIStackView {
     
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCollectionViewLayout())
     
+    var totalHeight: CGFloat = 800
+    
     // Data
     var team: TeamObject?
     
@@ -35,7 +37,7 @@ class TeamDataStack: UIStackView {
         // Set Up Structure
         self.add([collectionViewArea])
         
-        self.heightAnchor.constraint(greaterThanOrEqualToConstant: 600).isActive = true
+        self.heightAnchor.constraint(greaterThanOrEqualToConstant: totalHeight).isActive = true
     }
     
     func setUpCollectionView() {
@@ -106,24 +108,32 @@ class TeamDataStack: UIStackView {
     func createCollectionViewLayout() -> UICollectionViewLayout {
         // The item and group will share this size to allow for automatic sizing of the cell's height
         
+        var titleHeight: CGFloat = 40
+        var insetSize: CGFloat = 10
+        var spacingSize: CGFloat = 5
+        
+        var cellSize = (totalHeight / 4.0) - titleHeight - (insetSize * 2)
+        
         let sectionProvider = { (sectionIndex: Int,
                                  layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
+            
+            // Set the size of the item to the size of its parent group
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                                  heightDimension: .fractionalHeight(1))//.absolute(300))
+                                                  heightDimension: .fractionalHeight(1))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             
             // if we have the space, adapt and go 2-up + peeking 3rd item
             let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(300),
-                                                   heightDimension: .absolute(300))
+                                                   heightDimension: .absolute(cellSize))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
             
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .continuous
-            section.interGroupSpacing = 5
-            section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)
+            section.interGroupSpacing = spacingSize
+            section.contentInsets = NSDirectionalEdgeInsets(top: insetSize, leading: insetSize, bottom: 0, trailing: insetSize)
             
             let titleSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                   heightDimension: .estimated(44))
+                                                   heightDimension: .estimated(titleHeight))
             let titleSupplementary = NSCollectionLayoutBoundarySupplementaryItem(
                 layoutSize: titleSize,
                 elementKind: ElementKind.titleElementKind.rawValue,
@@ -240,6 +250,7 @@ extension TeamDataStack: TeamDataStackDelegate {
             
             snapshot.append(transfers)
             dataSource.apply(snapshot, to: .transfer)
+            self.collectionView.reloadData()
         }
     }
     
@@ -260,13 +271,14 @@ extension TeamDataStack: TeamDataStackDelegate {
             
             snapshot.append(matches)
             dataSource.apply(snapshot, to: .match)
+            self.collectionView.reloadData()
         }
     }
     
     func updateInjurySection(with injuryIDs: Set<InjuryID>?) {
         DispatchQueue.main.async {
             
-            print("TeamDataStack - Updating injury section for \(self.team?.name)")
+            print("TeamDataStack - Updating transfer section for \(self.team?.name)")
             
             guard let dataSource = self.dataSource, let injuryIDs = injuryIDs else { return }
             
@@ -280,6 +292,7 @@ extension TeamDataStack: TeamDataStackDelegate {
             
             snapshot.append(injuries)
             dataSource.apply(snapshot, to: .injury)
+            self.collectionView.reloadData()
         }
     }
     

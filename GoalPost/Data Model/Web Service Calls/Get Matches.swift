@@ -15,7 +15,7 @@ class GetMatches {
     
     static var helper = GetMatches()
     
-    var delegate: MatchesViewDelegate?
+    //var delegate: MatchesViewDelegate?
     
     var dailyMatchData = [String: Dictionary<Int,LeagueObject>]()
     
@@ -24,7 +24,7 @@ class GetMatches {
     }
     
     // MARK: Retrieve Data
-    
+    /*
     func getMatchesFor(league id: Int, on date: Date) {
         
         // If the league exists in the dictionary, get the current season, otherwise just use the current year
@@ -148,25 +148,57 @@ class GetMatches {
             delegate.refresh()
         }
     }
-    
+    */
+     
     // Async version
     
-    func getMatchesFor(team: TeamObject) async throws -> ([MatchID:MatchObject], [TeamID:Set<MatchID>], [DateString: Set<MatchID>], [DateString: Set<MatchID>]) {
+    func getMatchesFor(league: LeagueObject) async throws -> ([MatchID:MatchObject], [TeamID:Set<MatchID>], [DateString: Set<MatchID>], [LeagueID: Set<MatchID>], [DateString: Set<MatchID>], [MatchID:MatchObject]) {
+        
+        guard let season = league.currentSeason else {
+            print("WARNING - No season available for league \(league.name)")
+            return ([MatchID:MatchObject](), [TeamID:Set<MatchID>](), [DateString: Set<MatchID>](), [LeagueID: Set<MatchID>](), [DateString: Set<MatchID>](), [MatchID:MatchObject]())
+        }
+
+        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?league=\(String(league.id))&season=\(season)"
+
+        let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
+        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try convert(data: data)
+        
+        return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary)
+    }
+    
+    func getMatchesFor(team: TeamObject) async throws -> ([MatchID:MatchObject], [TeamID:Set<MatchID>], [DateString: Set<MatchID>], [LeagueID: Set<MatchID>], [DateString: Set<MatchID>], [MatchID:MatchObject]) {
         
         let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?team=\(String(team.id))&season=\(String(team.mostRecentSeason))"
 
         let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
-        let (matchesDictionary, matchesByTeam, matchesByDateSet, favoriteMatchesByDateSet) = try convert(data: data)
+        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try convert(data: data)
         
-        return (matchesDictionary, matchesByTeam, matchesByDateSet, favoriteMatchesByDateSet)
+        return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary)
     }
     
-    func convert(data: Data?) throws -> ([MatchID:MatchObject], [TeamID:Set<MatchID>], [DateString: Set<MatchID>], [DateString: Set<MatchID>]) {
+    func getMatchesFor(date: Date) async throws -> ([MatchID:MatchObject], [TeamID:Set<MatchID>], [DateString: Set<MatchID>], [LeagueID: Set<MatchID>], [DateString: Set<MatchID>], [MatchID:MatchObject]) {
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let searchDate = formatter.string(from: date)
+        
+        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?date=\(searchDate)"
+        
+        let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
+        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try convert(data: data)
+        
+        return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary)
+    }
+    
+    func convert(data: Data?) throws -> ([MatchID:MatchObject], [TeamID:Set<MatchID>], [DateString: Set<MatchID>], [LeagueID: Set<MatchID>], [DateString: Set<MatchID>], [MatchID:MatchObject]) {
         
         var matchesDictionary = [MatchID:MatchObject]()
         var matchesByTeam = [TeamID:Set<MatchID>]()
         var matchesByDateSet = [DateString: Set<MatchID>]()
+        var matchesByLeagueSet = [LeagueID: Set<MatchID>]()
         var favoriteMatchesByDateSet = [DateString: Set<MatchID>]()
+        var favoriteMatchesDictionary = [MatchID:MatchObject]()
 
         guard let data = data else { throw WebServiceCallErrors.dataNotPassedToConversionFunction }
         let results: GetMatchesStructure = try JSONDecoder().decode(GetMatchesStructure.self, from: data)
@@ -191,8 +223,12 @@ class GetMatches {
             
             // Add if it's a favorite team
             if Cached.favoriteTeamIds.contains(homeTeamId) || Cached.favoriteTeamIds.contains(awayTeamId) {
-
-                favoriteMatchesByDateSet.add(matchId, toSetWithKey: matchDate.asKey)
+                
+                let favoriteMatchId = FavoriteTeamLeague.identifer.rawValue + matchId
+                let favoriteMatchData = MatchObject(getMatchesStructure: result, favoriteTeam: true)
+                
+                favoriteMatchesByDateSet.add(favoriteMatchId, toSetWithKey: matchDate.asKey)
+                favoriteMatchesDictionary[favoriteMatchId] = favoriteMatchData
             }
             
             // Add to dictionary of all matches
@@ -200,10 +236,11 @@ class GetMatches {
             
             // Add to set of matches
             
+            matchesByLeagueSet.add(matchId, toSetWithKey: leagueId)
             matchesByTeam.add(matchId, toSetWithKey: homeTeamId)
             matchesByTeam.add(matchId, toSetWithKey: awayTeamId)
         }
         
-        return (matchesDictionary, matchesByTeam, matchesByDateSet, favoriteMatchesByDateSet)
+        return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary)
     }
 }

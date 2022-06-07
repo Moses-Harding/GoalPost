@@ -11,6 +11,7 @@ import Foundation
 class GetInjuries {
     static var helper = GetInjuries()
     
+    /*
     func getInjuriesFor(team id: Int, season: Int) {
         
         //print("Get injuries for \(id), season \(season)")
@@ -50,6 +51,7 @@ class GetInjuries {
             Cached.injuriesByTeam[teamId] = set
         }
     }
+     */
     
     // Async version
     func getInjuriesFor(team: TeamObject) async throws -> ([InjuryID:InjuryObject], [TeamID:Set<InjuryID>]) {

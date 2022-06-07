@@ -12,6 +12,7 @@ class GetTransfers {
     
     static var helper = GetTransfers()
     
+    /*
     func getTransfersFor(team id: Int) {
         
         let requestURL = "https://api-football-v1.p.rapidapi.com/v3/transfers?team=\(id)"
@@ -55,6 +56,7 @@ class GetTransfers {
 
         }
     }
+     */
     
     // Async versions
     

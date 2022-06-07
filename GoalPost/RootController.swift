@@ -35,6 +35,12 @@ class RootController: UITabBarController {
     }
     
     func testing() {
+        // clearData()
+        
+        //print(Cached.favoriteTeamIds)
+        //print(Cached.matchesDictionary)
+        //print(Cached.favoriteMatchesByDateSet)
+        
         /*
         print(
         Cached.teamDictionary,
@@ -59,19 +65,20 @@ class RootController: UITabBarController {
         //Cached.transferDictionary = [:]
         //Cached.transfersByTeam = [:]
         
-        // clearData()
+
         for team in Cached.favoriteTeamIds {
             //GetLeagues.helper.getLeaguesFrom(team: 3520)
-            Cached.teamDictionary[3520]?.leagueDictionary.values.forEach {
-                print($0.name, $0.country, $0.id, $0.currentSeason)
-            }
+            //Cached.teamDictionary[3520]?.leagueDictionary.values.forEach {
+            //    print($0.name, $0.country, $0.id, $0.currentSeason)
+            //}
         }
-        
+        /*
         Task.init {
             guard let team = Cached.teamDictionary[3520] else { fatalError() }
             let foundTeam = try await GetLeagues.helper.getLeaguesFrom(team: team)
             print("Retrieved \(foundTeam) with dict \(foundTeam.leagueDictionary)")
         }
+         */
     }
     
     func gatherData() {
@@ -100,6 +107,16 @@ class RootController: UITabBarController {
         
         Cached.favoriteLeagueIds = []
         Cached.favoriteTeamIds = []
+        
+        Cached.favoriteMatchesByDateSet = [:]
+        Cached.favoriteMatchesDictionary = [:]
+        
+        Cached.matchesByDateSet = [:]
+        Cached.matchesByLeagueSet = [:]
+        Cached.matchesByTeam = [:]
+        
+        Cached.injuriesByTeam = [:]
+        Cached.transfersByTeam = [:]
 
         Cached.teamDictionary = [:]
         Cached.leagueDictionary = [:]
@@ -107,12 +124,5 @@ class RootController: UITabBarController {
         Cached.injuryDictionary = [:]
         Cached.playerDictionary = [:]
         Cached.transferDictionary = [:]
-        
-        Cached.injuriesByTeam = [:]
-        Cached.matchesByTeam = [:]
-        Cached.transfersByTeam = [:]
-        
-        Cached.matchesByDay = [:]
-        Cached.favoriteTeamMatchesByDay = [:]
     }
 }

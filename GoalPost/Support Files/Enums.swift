@@ -28,7 +28,7 @@ enum MatchesCellType: Codable, Hashable {
 }
 
 enum FavoriteTeamLeague: Int {
-    case identifer = 100000000000
+    case identifer = 10000000000000
 }
 
 // MARK: GAD

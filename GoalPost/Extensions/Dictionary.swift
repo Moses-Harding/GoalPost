@@ -31,9 +31,13 @@ extension Dictionary {
         }
     }
     
-    mutating func integrate(_ dictionary: [Key:Value]) {
+    mutating func integrate(_ dictionary: [Key:Value], replaceExistingValue: Bool) {
         for (key, value) in dictionary {
-            self[key] = value
+            if replaceExistingValue {
+                self[key] = value
+            } else {
+                addIfNoneExists(value, key: key)
+            }
         }
     }
     

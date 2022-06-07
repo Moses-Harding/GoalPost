@@ -21,8 +21,9 @@ class LeagueObject: Codable {
     var round: String?
     
     var matches = [Int:MatchObject]()
+    var matchSet = Set<MatchID>()
     
-    init(id: Int, name: String, logo: String? = nil, type: LeagueSearchInformation_League_Type? = nil, country: String, countryLogo: String? = nil, currentSeason: Int? = nil, seasonStart: String? = nil, seasonEnd: String? = nil, round: String? = nil, matches: [Int:MatchObject]?) {
+    init(id: Int, name: String, logo: String? = nil, type: LeagueSearchInformation_League_Type? = nil, country: String, countryLogo: String? = nil, currentSeason: Int? = nil, seasonStart: String? = nil, seasonEnd: String? = nil, round: String? = nil, matches: [Int:MatchObject]?, matchSet: Set<MatchID>?) {
         self.id = id
         self.name = name
         self.logo = logo
@@ -35,16 +36,17 @@ class LeagueObject: Codable {
         self.round = round
         
         if let matches = matches { self.matches = matches }
+        if let matchSet = matchSet { self.matchSet = matchSet }
     }
     
     convenience init(getMatchInformationLeague: GetMatchInformation_League) {
         
-        self.init(id: getMatchInformationLeague.id, name: getMatchInformationLeague.name, logo: getMatchInformationLeague.logo, country: getMatchInformationLeague.country, countryLogo: getMatchInformationLeague.flag, currentSeason: getMatchInformationLeague.season, round: getMatchInformationLeague.round, matches: nil)
+        self.init(id: getMatchInformationLeague.id, name: getMatchInformationLeague.name, logo: getMatchInformationLeague.logo, country: getMatchInformationLeague.country, countryLogo: getMatchInformationLeague.flag, currentSeason: getMatchInformationLeague.season, round: getMatchInformationLeague.round, matches: nil, matchSet: nil)
     }
     
     convenience init(getInjuriesInformationLeague info: GetInjuriesInformation_League) {
 
-        self.init(id: info.id, name: info.name, logo: info.logo, country: info.country, currentSeason: info.season, matches: nil)
+        self.init(id: info.id, name: info.name, logo: info.logo, country: info.country, currentSeason: info.season, matches: nil, matchSet: nil)
     }
 }
 

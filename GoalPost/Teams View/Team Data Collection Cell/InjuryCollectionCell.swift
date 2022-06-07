@@ -18,17 +18,13 @@ class InjuryCollectionCell: UICollectionViewCell {
     
     // Views
     let playerNameArea = UIView()
-    let playerImageArea = UIView()
     let greenLine = UIView()
     
     // Labels
     let playerNameLabel = UILabel()
     let reasonLabel = UILabel()
     let timeOfInjuryLabel = UILabel()
-    
-    // Image
-    let playerImage = UIImageView()
-    
+
     // Stacks
     var mainStack = UIStackView(.vertical)
     
@@ -64,20 +60,12 @@ class InjuryCollectionCell: UICollectionViewCell {
     func setUpStacks() {
         contentView.constrain(mainStack, using: .edges, padding: 10, debugName: "MainStack To ContentView - InjuryCollectionCell")
         mainStack.add(children: [(UIView(), 0.05), (timeOfInjuryLabel, 0.2), (UIView(), 0.05), (greenLine, 0.02), (UIView(), 0.05), (bodyStack, nil), (UIView(), 0.05),])
-        bodyStack.add(children: [(UIView(), 0.025), (playerImageArea, nil), (UIView(), 0.1), (descriptionStack, nil), (UIView(), nil)])
+        bodyStack.add(children: [(UIView(), 0.025), (UIView(), 0.1), (descriptionStack, nil), (UIView(), nil)])
         
         descriptionStack.add(children: [(UIView(), 0.025), (playerNameArea, nil), (UIView(), 0.1), (reasonLabel, nil), (UIView(), nil)])
     }
     
     func setUpViewContent() {
-
-        // Image
-        playerImageArea.constrain(playerImage, except: [.height], debugName: "playerImage To playerImageArea - InjuryCollectionCell")
-        playerImage.heightAnchor.constraint(equalToConstant: 100).isActive = true
-        playerImage.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        
-        playerImage.layer.cornerRadius = 10
-        playerImage.clipsToBounds = true
         
         // Labels
         timeOfInjuryLabel.font = UIFont.preferredFont(forTextStyle: .title2)//UIFont.boldSystemFont(ofSize: 30)
@@ -101,7 +89,6 @@ class InjuryCollectionCell: UICollectionViewCell {
         }
         if let player = injuryInfo.player {
             playerNameLabel.text = player.name
-            loadImage(for: player)
         }
     }
     
@@ -110,32 +97,5 @@ class InjuryCollectionCell: UICollectionViewCell {
         greenLine.backgroundColor = Colors.logoTheme
         //self.layer.borderColor = Colors.logoTheme.cgColor
         //self.layer.borderWidth = 1
-    }
-    
-    func loadImage(for player: PlayerObject) {
-        
-        let imageName = "\(player.name) - \(player.id).png"
-        
-        if let image = Cached.data.retrieveImage(from: imageName) {
-            
-            self.playerImage.image = image
-            
-            return
-        }
-        
-        guard let photo = player.photo, let url = URL(string: photo) else { return }
-
-        DispatchQueue.global().async {
-            if let data = try? Data(contentsOf: url) {
-                DispatchQueue.main.async {
-                    
-                    guard let image = UIImage(data: data) else { return }
-                    
-                    self.playerImage.image = image
-                    
-                    Cached.data.save(image: image, uniqueName: imageName)
-                }
-            }
-        }
     }
 }

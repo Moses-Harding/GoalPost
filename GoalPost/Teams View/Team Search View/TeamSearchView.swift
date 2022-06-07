@@ -69,7 +69,7 @@ class TeamSearchView: UIView {
         
         testing()
         
-        GetTeams.helper.delegate = self
+        //GetTeams.helper.delegate = self
         teamSearchInputField.delegate = self
         countrySearchInputField.delegate = self
         collectionView.delegate = self
@@ -176,63 +176,9 @@ class TeamSearchView: UIView {
         
         countrySearchInputField.textColor = Colors.searchResultViewTextColor
     }
-}
-
-// Protocols
-
-extension TeamSearchView: UITextFieldDelegate {
     
-    func textFieldDidChangeSelection(_ textField: UITextField) {
-        
-        if textField.tag == 0 {
-            self.currentTeamNameSearch = textField.text
-        } else if textField.tag == 1 {
-            self.currentCountrySearch = textField.text
-        }
-        
-        searchForTeams()
-    }
+    // MARK: Retrieving search result
     
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        
-        guard let text = textField.text else { return false }
-        
-        GetTeams.helper.search(for: text)
-        
-        textField.resignFirstResponder()
-        
-        return true
-    }
-    
-    private func searchForTeams() {
-        
-        var searchResults = [TeamObject]()
-        
-        for searchData in Cached.teamDictionary.values {
-            if let country = currentCountrySearch, let team = currentTeamNameSearch {
-                if searchData.name.contains(team) && searchData.country != nil && searchData.country!.contains(country) {
-                    searchResults.append(searchData)
-                }
-            } else if let country = currentCountrySearch {
-                if searchData.country != nil && searchData.country!.contains(country) {
-                    searchResults.append(searchData)
-                }
-            } else if let team = currentTeamNameSearch {
-                if searchData.name.contains(team) {
-                    searchResults.append(searchData)
-
-                }
-            }
-        }
-        
-        searchResults.sort { $0.id < $1.id }
-        
-        self.returnSearchResults(teamResult: searchResults)
-    }
-}
-
-extension TeamSearchView: TeamSearchDelegate {
-
     func addSpinner() {
         spinner = UIActivityIndicatorView(style: .large)
         self.constrain(spinner!, except: [.height])
@@ -299,6 +245,66 @@ extension TeamSearchView: TeamSearchDelegate {
         }
     }
 }
+
+// Protocols
+
+extension TeamSearchView: UITextFieldDelegate {
+    
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        
+        if textField.tag == 0 {
+            self.currentTeamNameSearch = textField.text
+        } else if textField.tag == 1 {
+            self.currentCountrySearch = textField.text
+        }
+        
+        searchForTeams()
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        
+        guard let text = textField.text, let teamName = self.currentTeamNameSearch else { return false }
+        
+        self.addSpinner()
+        
+        Task.init {
+            // Note - Country search is optional
+            let teamDictionary: [TeamID:TeamObject] = try await GetTeams.helper.search(for: teamName, countryName: self.currentCountrySearch)
+            self.returnSearchResults(teamResult: teamDictionary.values.map { $0 })
+            Cached.teamDictionary.integrate(teamDictionary, replaceExistingValue: false)
+            self.removeSpinner()
+        }
+        textField.resignFirstResponder()
+        
+        return true
+    }
+    
+    private func searchForTeams() {
+        
+        var searchResults = [TeamObject]()
+        
+        for searchData in Cached.teamDictionary.values {
+            if let country = currentCountrySearch, let team = currentTeamNameSearch {
+                if searchData.name.lowercased().contains(team.lowercased()) && searchData.country != nil && searchData.country!.lowercased().contains(country.lowercased()) {
+                    searchResults.append(searchData)
+                }
+            } else if let country = currentCountrySearch {
+                if searchData.country != nil && searchData.country!.lowercased().contains(country.lowercased()) {
+                    searchResults.append(searchData)
+                }
+            } else if let team = currentTeamNameSearch {
+                if searchData.name.lowercased().contains(team) {
+                    searchResults.append(searchData)
+                }
+            }
+        }
+        
+        searchResults.sort { $0.id < $1.id }
+        
+        self.returnSearchResults(teamResult: searchResults)
+    }
+}
+
 
 extension TeamSearchView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
