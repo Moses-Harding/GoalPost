@@ -10,9 +10,14 @@ import Foundation
 extension Dictionary {
     
     mutating func addIfNoneExists(_ element: Value, key: Key) {
+        print("DICTIONARY - ADD")
         if self[key] == nil {
+            print("Adding \(element) to \(key) because it does not yet exist")
             self[key] = element
+        } else {
+            print("\(element) is already tied to \(key)")
         }
+        print()
     }
     
     mutating func add<T>(_ element: T, toSetWithKey key: Key) where Value == Set<T> {
@@ -32,11 +37,16 @@ extension Dictionary {
     }
     
     mutating func integrate(_ dictionary: [Key:Value], replaceExistingValue: Bool) {
+        print("\nDICTIONARY - INTEGRATE")
         for (key, value) in dictionary {
-            if replaceExistingValue {
+            if self[key] == nil {
+                //print("\tAdding \(value) to \(key) because it does not yet exist")
+                self[key] = value
+            } else if replaceExistingValue {
+                //print("\tReplacing \(self[key]) with \(value) because it exists but needs to be overridden")
                 self[key] = value
             } else {
-                addIfNoneExists(value, key: key)
+                //"\tNot replacing \(self[key]) with \(value) "
             }
         }
     }

@@ -16,15 +16,18 @@ class TeamObject: Codable {
     var national: Bool = false
     var logo: String?
     
-    var leagueDictionary: [Int:LeagueObject] = [:]
+    // SWITCH THIS OVER TO JUST A SET
+    
+    //var leagueDictionary: [Int:LeagueObject] = [:]
+    var leagueSet = Set<LeagueID>()
     
     // This should be used for searching
     lazy var mostRecentSeason: Int? = {
         
         var season: Int?
         // Iterate through the league dictionary and return the most recent league
-        for league in leagueDictionary.values {
-            if let leagueSeason = league.currentSeason {
+        for leagueId in leagueSet {
+            if let leagueSeason = Cached.leagueDictionary[leagueId]?.currentSeason {
                 if let currentSeason = season {
                     if leagueSeason > currentSeason {
                         season = leagueSeason
@@ -80,5 +83,11 @@ extension TeamObject: Hashable {
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+    }
+}
+
+extension TeamObject: CustomStringConvertible {
+    var description: String {
+        return "\(self.name) - \(self.id)"
     }
 }

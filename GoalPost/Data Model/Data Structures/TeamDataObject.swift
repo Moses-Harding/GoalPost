@@ -30,7 +30,7 @@ class TeamDataObject {
     }
 
     var injuryId: InjuryID?
-    var matchId: MatchID?
+    var matchId: MatchUniqueID?
     var transferId: TransferID?
     
     var id: Int
@@ -42,7 +42,7 @@ class TeamDataObject {
         id = TeamDataObject.universalCount
     }
     
-    convenience init(matchId: MatchID) {
+    convenience init(matchId: MatchUniqueID) {
         self.init(type: .match)
         self.matchId = matchId
     }

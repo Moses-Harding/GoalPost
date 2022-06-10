@@ -131,6 +131,6 @@ class LeagueCellContentView: UIView, UIContentView {
         currentConfiguration = configuration
         
         // Set data to UI elements
-        leagueLabel.text = league.id != FavoriteTeamLeague.identifer.rawValue ? league.name + " - " + league.country : league.name
+        leagueLabel.text = league.id != DefaultIdentifier.favoriteTeam.rawValue ? league.name + " - " + league.country : league.name
     }
 }

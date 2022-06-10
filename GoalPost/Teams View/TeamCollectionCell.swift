@@ -66,6 +66,7 @@ class TeamCollectionCell: UICollectionViewCell {
     // MARK: - Public Properties
     
     var teamInformation: TeamObject? { didSet { updateContent() } }
+    var teamsViewDelegate: TeamsViewDelegate?
     override var isSelected: Bool { didSet { updateAppearance() } }
     
     // MARK: - Private Properties
@@ -94,6 +95,16 @@ class TeamCollectionCell: UICollectionViewCell {
     
     var closedConstraint: NSLayoutConstraint?
     var openConstraint: NSLayoutConstraint?
+    
+    // Buttons
+    let removalButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Remove Team", for: .normal)
+        button.backgroundColor = Colors.teamCellRemovalButtonBackgroundColor
+        button.setTitleColor(UIColor.white, for: .normal)
+        button.addTarget(self, action: #selector(removeTeam), for: .touchUpInside)
+        return button
+    } ()
     
     // MARK: - Init
     
@@ -154,7 +165,10 @@ class TeamCollectionCell: UICollectionViewCell {
     func setUpBodyStack() {
 
         teamDataStack = TeamDataStack(team: self.teamInformation)
+        bodyStack.addArrangedSubview(removalButton)
         bodyStack.addArrangedSubview(teamDataStack)
+        
+        removalButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         bodyStack.isHidden = true
     }
@@ -233,5 +247,15 @@ class TeamCollectionCell: UICollectionViewCell {
                 }
             }
         }
+    }
+    
+    // Actions
+}
+
+extension TeamCollectionCell {
+    @objc func removeTeam() {
+        print("TeamCollectionCell - Removing team")
+        guard let delegate = teamsViewDelegate, let team = self.teamInformation else { fatalError("No delegate passed to team collection cell") }
+        delegate.remove(team: team)
     }
 }

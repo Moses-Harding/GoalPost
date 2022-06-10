@@ -69,7 +69,6 @@ class TransferCollectionCell: UICollectionViewCell {
     
     func setUpViewContent() {
 
-        
         // Labels
         transferDate.font = UIFont.preferredFont(forTextStyle: .title2)//UIFont.boldSystemFont(ofSize: 30)
         transferDate.numberOfLines = -1
@@ -87,13 +86,10 @@ class TransferCollectionCell: UICollectionViewCell {
     func updateContent() {
         guard let transferInfo = teamDataObject?.transfer else { return }
 
-        transferFromTeam.text = "From: \(String(describing: transferInfo.teamFrom?.name))"
-        transferToTeam.text = "To: \(String(describing: transferInfo.teamTo?.name))"
+        transferFromTeam.text = "From: \(transferInfo.teamFrom?.name ?? "-")"
+        transferToTeam.text = "To: \(transferInfo.teamTo?.name ?? "-")"
         transferDate.text = transferInfo.transferDate.formatted(date: .numeric, time: .omitted)
-        
-        if let player = transferInfo.player {
-            playerNameLabel.text = player.name
-        }
+        playerNameLabel.text = transferInfo.player?.name ?? "-"
     }
     
     func setUpColors() {

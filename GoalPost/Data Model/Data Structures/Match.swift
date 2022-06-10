@@ -10,29 +10,22 @@ import Foundation
 class MatchObject: Codable {
     
     var id: MatchID
+    var uniqueID: MatchUniqueID
 
     var timeStamp: Date
     var timezone: String?
     var timeElapsed: Int?
     
     var homeTeam: TeamObject? {
-        if let id = homeTeamId {
-            return Cached.teamDictionary[id]
-        } else {
-            return nil
-        }
+        return Cached.teamDictionary[homeTeamId]
     }
-    var homeTeamId: TeamID?
+    var homeTeamId: TeamID
     var homeTeamScore: Int?
     
     var awayTeam: TeamObject? {
-        if let id = awayTeamId {
-            return Cached.teamDictionary[id]
-        } else {
-            return nil
-        }
+        return Cached.teamDictionary[awayTeamId]
     }
-    var awayTeamId: TeamID?
+    var awayTeamId: TeamID
     var awayTeamScore: Int?
     
     var status: MatchStatusCode
@@ -48,9 +41,10 @@ class MatchObject: Codable {
     }
     var leagueId: LeagueID?
     
-    init(id: MatchID, favoriteTeam: Bool = false, timeStamp: Date, timeElapsed: Int? = nil, status: MatchStatusCode? = nil, leagueId: LeagueID? = nil, homeTeamId: TeamID? = nil, awayTeamId: TeamID? = nil, homeTeamScore: Int? = nil, awayTeamScore: Int? = nil) {
+    init(id: MatchID, favoriteTeam: Bool = false, timeStamp: Date, timeElapsed: Int? = nil, status: MatchStatusCode? = nil, leagueId: LeagueID? = nil, homeTeamId: TeamID, awayTeamId: TeamID, homeTeamScore: Int? = nil, awayTeamScore: Int? = nil) {
         
         self.id = id
+        self.uniqueID = MatchObject.getUniqueID(id: id, timestamp: timeStamp)
         self.favoriteTeam = favoriteTeam
         self.timeStamp = timeStamp
         self.homeTeamId = homeTeamId
@@ -72,13 +66,22 @@ class MatchObject: Codable {
         
         // If there are no copies of the home / away teams in the dictionary, add them for each search
         
-        Cached.teamDictionary.addIfNoneExists(TeamObject(getMatchInfoTeam: getMatchesStructure.teams.home), key: getMatchesStructure.teams.home.id)
-        Cached.teamDictionary.addIfNoneExists(TeamObject(getMatchInfoTeam: getMatchesStructure.teams.away), key: getMatchesStructure.teams.away.id)
+
+        let homeTeam = TeamObject(getMatchInfoTeam: getMatchesStructure.teams.home)
+        Cached.teamDictionary.addIfNoneExists(homeTeam, key: getMatchesStructure.teams.home.id)
+        let awayTeam = TeamObject(getMatchInfoTeam: getMatchesStructure.teams.away)
+        Cached.teamDictionary.addIfNoneExists(awayTeam, key: getMatchesStructure.teams.away.id)
         Cached.leagueDictionary.addIfNoneExists(LeagueObject(getMatchInformationLeague: getMatchesStructure.league), key: getMatchesStructure.league.id)
     }
+}
+
+extension MatchObject {
+    static func getUniqueID(id: Int, timestamp: Int) -> MatchUniqueID {
+        return "\(timestamp)\(id)"
+    }
     
-    convenience init(getInjuriesInformationFixture fixture: GetInjuriesInformation_Fixture) {
-        self.init(id: fixture.id, timeStamp: Date(timeIntervalSince1970: TimeInterval(fixture.timestamp)))
+    static func getUniqueID(id: Int, timestamp: Date) -> MatchUniqueID {
+        return "\(timestamp.timeIntervalSince1970)\(id)"
     }
 }
 
@@ -90,5 +93,11 @@ extension MatchObject: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(favoriteTeam)
+    }
+}
+
+extension MatchObject: CustomStringConvertible {
+    var description: String {
+        return "\(self.timeStamp.formatted(date: .numeric, time: .omitted)) - \(String(describing: self.homeTeam?.name)) vs \(self.awayTeam?.name) - \(self.uniqueID)"
     }
 }

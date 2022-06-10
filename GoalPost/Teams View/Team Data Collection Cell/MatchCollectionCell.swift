@@ -22,7 +22,7 @@ class MatchCollectionCell: UICollectionViewCell {
     var awayTeamLabel = UILabel()
     var homeTeamScore = UILabel()
     var awayTeamScore = UILabel()
-
+    
     var dateLabel = UILabel()
     
     var allLabels: [UILabel] {
@@ -42,13 +42,14 @@ class MatchCollectionCell: UICollectionViewCell {
     
     var imageStack = UIStackView(.horizontal)
     var labelStack = UIStackView(.vertical)
-
+    
     var homeImage = UIView()
     var awayImage = UIView()
     
     var homeImageView = UIImageView()
     var awayImageView = UIImageView()
     
+    let greenLine = UIView()
     
     //MARK: Lines
     
@@ -58,7 +59,7 @@ class MatchCollectionCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-
+        
         setUp()
         setUpColors()
     }
@@ -70,7 +71,7 @@ class MatchCollectionCell: UICollectionViewCell {
     
     // MARK: - Private Methods
     private func setUp() {
-
+        
         addSubview(mainStack)
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -80,8 +81,10 @@ class MatchCollectionCell: UICollectionViewCell {
             mainStack.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
         ])
         
-        mainStack.add([UIView(), dateStack, homeTeamStack, awayTeamStack, UIView()])
-
+        //mainStack.add([UIView(), dateStack, homeTeamStack, awayTeamStack, UIView()])
+        
+        mainStack.add(children: [(UIView(), 0.05), (dateStack, 0.2), (UIView(), 0.05), (greenLine, 0.02), (UIView(), 0.05), (homeTeamStack, nil), (awayTeamStack, nil), (UIView(), 0.05),])
+        
         mainStack.setCustomSpacing(10, after: dateStack)
         
         dateStack.add([dateLabel])
@@ -110,9 +113,18 @@ class MatchCollectionCell: UICollectionViewCell {
         
         imageStack.alignment = .center
     }
-
+    
     func updateContent() {
-        guard let match = teamDataObject?.match, let homeTeam = match.homeTeam, let awayTeam = match.awayTeam else { return }
+
+        guard let match = teamDataObject?.match else { print("Attempting to update content for match cell but matchInformation not found")
+            return
+        }
+        guard let homeTeam = Cached.teamDictionary[match.homeTeamId] else { print("Attempting to update content for match cell but home team with id \(match.homeTeamId) not found")
+            return
+        }
+        guard let awayTeam = match.awayTeam else { print("Attempting to update content for match cell but away Team with id \(match.awayTeamId) not found")
+            return
+        }
         
         // Set data to UI elements
         homeTeamLabel.text = homeTeam.name
@@ -120,7 +132,7 @@ class MatchCollectionCell: UICollectionViewCell {
         dateLabel.text = match.timeStamp.formatted(date: .numeric, time: .omitted)
         homeTeamScore.text = String(match.homeTeamScore)
         awayTeamScore.text = String(match.awayTeamScore)
-
+        
         loadImage(for: homeTeam, teamType: .home)
         loadImage(for: awayTeam, teamType: .away)
     }
@@ -132,6 +144,7 @@ class MatchCollectionCell: UICollectionViewCell {
     func setUpColors() {
         self.backgroundColor = Colors.teamDataStackCellBackgroundColor
         self.layer.cornerRadius = 10
+        greenLine.backgroundColor = Colors.logoTheme
         //self.layer.shadowColor = UIColor.black.cgColor
         //self.layer.shadowOpacity = 1
         //self.layer.shadowOffset = .zero
@@ -157,9 +170,9 @@ class MatchCollectionCell: UICollectionViewCell {
         }
         
         guard let logo = team.logo, let url = URL(string: logo)  else { return }
-
+        
         //let url = URL(string: team.logo)!
-
+        
         DispatchQueue.global().async {
             if let data = try? Data(contentsOf: url) {
                 DispatchQueue.main.async {

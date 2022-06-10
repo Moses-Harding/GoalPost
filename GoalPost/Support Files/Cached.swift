@@ -111,21 +111,23 @@ struct Cached {
     static var data = Cached()
     
     // Save an array of "FavoriteLeague" items with the key "Leagues" by initializing an empty array as a default value
-    @Cache(key: "Leagues", defaultValue: []) static var favoriteLeagueIds: [Int]
+    //@Cache(key: "Leagues", defaultValue: []) static var favoriteLeagueIds: [Int]
+    @Cache(key: "Favorite Leagues", defaultValue: [:]) static var favoriteLeagues: [LeagueID:LeagueObject]
     // Save an array of "FavoriteTeam" items with the key "Teams" by initializing an empty array as a default value
-    @Cache(key: "Teams", defaultValue: []) static var favoriteTeamIds: [Int]
+    //@Cache(key: "Teams", defaultValue: []) static var favoriteTeamIds: [Int]
+    @Cache(key: "Favorite Teams", defaultValue: [:]) static var favoriteTeams: [TeamID:TeamObject]
     
     // Save an array of "FavoriteLeague" items with the key "Leagues" by initializing an empty array as a default value
     //@Cache(key: "Matches By Day", defaultValue: [:]) static var matchesByDay: [DateString: Dictionary<Int,LeagueObject>]
     //@Cache(key: "Favorite Team Matches By Day", defaultValue: [:]) static var favoriteTeamMatchesByDay: [DateString:LeagueObject]
     
     // References
-    @Cache(key: "Favorite Matches By Date", defaultValue: [:]) static var favoriteMatchesByDateSet: [DateString: Set<MatchID>]
-    @Cache(key: "Favorite Match Dictionary", defaultValue: [:]) static var favoriteMatchesDictionary: [MatchID:MatchObject]
+    @Cache(key: "Favorite Matches By Date", defaultValue: [:]) static var favoriteMatchesByDateSet: [DateString: Set<MatchUniqueID>]
+    @Cache(key: "Favorite Match Dictionary", defaultValue: [:]) static var favoriteMatchesDictionary: [MatchUniqueID:MatchObject]
     
-    @Cache(key: "Matches By Date", defaultValue: [:]) static var matchesByDateSet: [DateString: Set<MatchID>]
-    @Cache(key: "Matches By League", defaultValue: [:]) static var matchesByLeagueSet: [LeagueID: Set<MatchID>]
-    @Cache(key: "Matches By Team", defaultValue: [:]) static var matchesByTeam: [TeamID:Set<MatchID>]
+    @Cache(key: "Matches By Date", defaultValue: [:]) static var matchesByDateSet: [DateString: Set<MatchUniqueID>]
+    @Cache(key: "Matches By League", defaultValue: [:]) static var matchesByLeagueSet: [LeagueID: Set<MatchUniqueID>]
+    @Cache(key: "Matches By Team", defaultValue: [:]) static var matchesByTeam: [TeamID:Set<MatchUniqueID>]
     
     @Cache(key: "Injuries By Team", defaultValue: [:]) static var injuriesByTeam: [TeamID:Set<InjuryID>]
     @Cache(key: "Transfers By Team", defaultValue: [:]) static var transfersByTeam: [TeamID:Set<TransferID>]
@@ -135,7 +137,7 @@ struct Cached {
     @Cache(key: "League Dictionary", defaultValue: [:]) static var leagueDictionary: [LeagueID:LeagueObject]
     @Cache(key: "Player Dictionary", defaultValue: [:]) static var playerDictionary: [PlayerID:PlayerObject]
     @Cache(key: "Injury Dictionary", defaultValue: [:]) static var injuryDictionary: [InjuryID:InjuryObject]
-    @Cache(key: "Match Dictionary", defaultValue: [:]) static var matchesDictionary: [MatchID:MatchObject]
+    @Cache(key: "Match Dictionary", defaultValue: [:]) static var matchesDictionary: [MatchUniqueID:MatchObject]
     @Cache(key: "Transfer Dictionary", defaultValue: [:]) static var transferDictionary: [TransferID:TransferObject]
     
     func retrieveImage(from string: String) -> UIImage? {

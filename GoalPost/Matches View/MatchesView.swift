@@ -265,12 +265,12 @@ class MatchesView: UIView {
         
         // Get only the matches for the current date
         //let currentMatches = Cached.matchesByDay[date.asKey] ?? [:]
-        let matchesByDay = Cached.matchesByDateSet[date.asKey] ?? Set<MatchID>()
+        let matchesByDay = Cached.matchesByDateSet[date.asKey] ?? Set<MatchUniqueID>()
         
-        var leagueMatchDictionary = [LeagueID:Set<MatchID>]()
+        var leagueMatchDictionary = [LeagueID:Set<MatchUniqueID>]()
         var leagueDataContainers = [MatchesSectionDataContainer]()
 
-        for leagueId in Cached.favoriteLeagueIds {
+        for leagueId in Cached.favoriteLeagues.keys {
             guard let leagueSet = Cached.matchesByLeagueSet[leagueId], let league = Cached.leagueDictionary[leagueId] else {
                 continue
             }
@@ -286,7 +286,7 @@ class MatchesView: UIView {
             }
         }
         
-        leagueMatchDictionary[FavoriteTeamLeague.identifer.rawValue] = Cached.favoriteMatchesByDateSet[date.asKey] ?? Set<MatchID>()
+        leagueMatchDictionary[DefaultIdentifier.favoriteTeam.rawValue] = Cached.favoriteMatchesByDateSet[date.asKey] ?? Set<MatchUniqueID>()
         
         // Create a list of each league for that date and sort the leagues alphabetically
         
@@ -314,7 +314,7 @@ class MatchesView: UIView {
         }
         
         // NOTE: User Teams
-        let myTeams = LeagueObject(id: FavoriteTeamLeague.identifer.rawValue, name: "My Teams", country: "NA", matches: [:], matchSet: [])
+        let myTeams = LeagueObject(id: DefaultIdentifier.favoriteTeam.rawValue, name: "My Teams", country: "NA")
         let leaguesList = [MatchesSectionDataContainer(.league(myTeams))] + leagueDataContainers
         
         // Add sections to the snapshot (just adding an array)
@@ -343,7 +343,7 @@ class MatchesView: UIView {
                 
                 var matchObjects = [MatchObject]()
                 
-                if league.id == FavoriteTeamLeague.identifer.rawValue {
+                if league.id == DefaultIdentifier.favoriteTeam.rawValue {
                     matchObjects = matchSet.compactMap { Cached.favoriteMatchesDictionary[$0] }
                 } else {
                     matchObjects = matchSet.compactMap { Cached.matchesDictionary[$0] }

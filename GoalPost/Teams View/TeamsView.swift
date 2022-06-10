@@ -123,10 +123,8 @@ class TeamsView: UIView {
         
         var foundTeams = [TeamObject]()
         
-        for team in Cached.favoriteTeamIds {
-            if let teamSearchData = Cached.teamDictionary[team] {
-                foundTeams.append(teamSearchData)
-            }
+        for team in Cached.favoriteTeams.sorted(by: { $0.value.name > $1.value.name} ) {
+            foundTeams.append(team.value)
         }
         
         dataSource = UICollectionViewDiffableDataSource<Section, TeamObject>(collectionView: collectionView) {
@@ -138,6 +136,7 @@ class TeamsView: UIView {
                     fatalError("Could not cast cell as \(TeamCollectionCell.self)")
             }
             cell.teamInformation = teamInformation
+            cell.teamsViewDelegate = self
             return cell
         }
         collectionView.dataSource = dataSource
@@ -148,10 +147,10 @@ class TeamsView: UIView {
         dataSource?.apply(snapshot)
     }
     
-    func setUpDataSourceSnapshots(searchResult: [TeamObject]?) {
+    func applyTeamsToDataSourceSnapshot(_ teamObjects: [TeamObject]?) {
         // MARK: Setup snap shots
 
-        guard let result = searchResult, let dataSource = dataSource else { return }
+        guard let result = teamObjects, let dataSource = dataSource else { return }
         
         let teams = result.map { $0 }
 
@@ -202,33 +201,76 @@ extension TeamsView {
     }
 }
 
-extension TeamsView: Refreshable  {
-    
-
-}
-
 extension TeamsView: TeamsViewDelegate {
     
     // Refresh
     func refresh() {
         
+        print("TeamsView - Refreshing")
+        
         var foundTeams = [TeamObject]()
         
-        for team in Cached.favoriteTeamIds {
-            if let teamSearchData = Cached.teamDictionary[team] {
-                foundTeams.append(teamSearchData)
-            }
+        for team in Cached.favoriteTeams {
+            foundTeams.append(team.value)
         }
         
-        setUpDataSourceSnapshots(searchResult: foundTeams)
+        applyTeamsToDataSourceSnapshot(foundTeams)
     }
     
     func add(team: TeamObject) {
         
         addTeamToDataSource(team: team)
+        
+        var capturedCell: TeamCollectionCell?
+        
+        for eachCell in collectionView.visibleCells {
+            guard let teamCell = eachCell as? TeamCollectionCell else { continue }
+            if teamCell.teamInformation?.id == team.id {
+                capturedCell = teamCell
+            }
+        }
+        
+        guard let cell = capturedCell else { fatalError("TeamsView - Could not locate cell to update")}
+        
+        Task.init {
+            let team = try await DataFetcher.helper.getLeaguesFor(team: team)
+            DispatchQueue(label: "Matches Queue", attributes: .concurrent).async {
+                Task.init {
+                    try await DataFetcher.helper.getMatchesFor(team: team) {
+                        print("\n\n******\n******\n******\nCalling Completion For Matches\n******\n******\n******\n")
+                        await cell.teamDataStack.updateMatchSection()
+                    }
+                }
+            }
+            DispatchQueue(label: "Transfer Queue", attributes: .concurrent).async {
+                Task.init {
+                    try await DataFetcher.helper.getTransfersFor(team: team) {
+                        print("\n\n******\n******\n******\nCalling Completion For Transfer\n******\n******\n******\n")
+                        await cell.teamDataStack.updateTransferSection() }
+                    }
+            }
+            DispatchQueue(label: "Injury Queue", attributes: .concurrent).async {
+                Task.init {
+                    try await DataFetcher.helper.getInjuriesFor(team: team) {
+                        print("\n\n******\n******\n******\nCalling Completion For Injury\n******\n******\n******\n")
+                        await cell.teamDataStack.updateInjurySection()
+                    }
+                }
+            }
+        }
+        
+
+        
+        /*
         let indexPath = IndexPath(item: collectionView.numberOfItems(inSection: 0) - 1, section: 0)
         guard let cell = collectionView.cellForItem(at: indexPath) as? TeamCollectionCell else { fatalError() }
         DataFetcher.helper.add(team: team, with: cell.teamDataStack)
+         */
+    }
+    
+    func remove(team: TeamObject) {
+        Cached.favoriteTeams.removeValue(forKey: team.id)
+        self.refresh()
     }
 }
 

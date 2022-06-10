@@ -34,6 +34,7 @@ class TransferObject: Codable {
         let dateString = transfer.date.split(separator: "-")
 
         guard dateString.count == 3 else { return nil }
+        guard let year = Int(dateString[0]), year <= Calendar.current.component(.year, from: Date.now) else { return nil }
         let components = DateComponents(year: Int(dateString[0]), month: Int(dateString[1]), day: Int(dateString[2]))
         
         guard let date = Calendar.current.date(from: components) else { return nil }
@@ -43,7 +44,7 @@ class TransferObject: Codable {
         self.transferType = transfer.type ?? "N/A"
         self.teamToId = teamToId
         self.teamFromId = teamFromId
-        self.id = "\(transferDate)\(playerId)\(teamToId)\(teamFromId)"
+        self.id = "\(transferDate.timeIntervalSince1970) - \(playerId) - \(teamToId) - \(teamFromId)"
         
         Cached.teamDictionary.addIfNoneExists(TeamObject(id: teamToId, name: teamToName, logo: teamsIn.logo), key: teamToId)
         Cached.teamDictionary.addIfNoneExists(TeamObject(id: teamFromId, name: teamFromName, logo: teamsOut.logo), key: teamFromId)

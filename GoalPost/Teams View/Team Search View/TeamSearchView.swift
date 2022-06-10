@@ -270,7 +270,8 @@ extension TeamSearchView: UITextFieldDelegate {
         Task.init {
             // Note - Country search is optional
             let teamDictionary: [TeamID:TeamObject] = try await GetTeams.helper.search(for: teamName, countryName: self.currentCountrySearch)
-            self.returnSearchResults(teamResult: teamDictionary.values.map { $0 })
+            let resultList = teamDictionary.values.map { $0 }.sorted { $0.id < $1.id }
+            self.returnSearchResults(teamResult: resultList)
             Cached.teamDictionary.integrate(teamDictionary, replaceExistingValue: false)
             self.removeSpinner()
         }
@@ -293,7 +294,7 @@ extension TeamSearchView: UITextFieldDelegate {
                     searchResults.append(searchData)
                 }
             } else if let team = currentTeamNameSearch {
-                if searchData.name.lowercased().contains(team) {
+                if searchData.name.lowercased().contains(team.lowercased()) {
                     searchResults.append(searchData)
                 }
             }

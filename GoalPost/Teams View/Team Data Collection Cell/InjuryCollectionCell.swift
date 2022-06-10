@@ -84,12 +84,8 @@ class InjuryCollectionCell: UICollectionViewCell {
     func updateContent() {
         guard let injuryInfo = teamDataObject?.injury else { return }
         reasonLabel.text = "\(injuryInfo.reason)"
-        if let match = injuryInfo.match {
-            timeOfInjuryLabel.text = "\(DateFormatter.localizedString(from: match.timeStamp, dateStyle: .short, timeStyle: .none))"
-        }
-        if let player = injuryInfo.player {
-            playerNameLabel.text = player.name
-        }
+        timeOfInjuryLabel.text = "\(injuryInfo.date.formatted(date: .numeric, time: .omitted))"
+        playerNameLabel.text = injuryInfo.player?.name ?? "CANNOT LOCATE PLAYER"
     }
     
     func setUpColors() {

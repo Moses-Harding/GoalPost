@@ -37,76 +37,23 @@ class RootController: UITabBarController {
     func testing() {
         // clearData()
         
-        //print(Cached.favoriteTeamIds)
-        //print(Cached.matchesDictionary)
-        //print(Cached.favoriteMatchesByDateSet)
-        
-        /*
-        print(
-        Cached.teamDictionary,
-        Cached.leagueDictionary,
-        Cached.matchesDictionary,
-        Cached.injuryDictionary,
-        Cached.playerDictionary,
-        Cached.transferDictionary,
-        Cached.injuriesByTeam,
-        Cached.matchesByTeam,
-        Cached.transfersByTeam)
-        */
-        
-        // DataFetcher.helper.testing(team: 529)
-        
-        // print(Cached.injuriesByTeam)
-        
-        // Cached.favoriteTeamIds = []
-        
-        //print(Cached.transferDictionary, Cached.transfersByTeam)
-        
-        //Cached.transferDictionary = [:]
-        //Cached.transfersByTeam = [:]
-        
-
-        for team in Cached.favoriteTeamIds {
-            //GetLeagues.helper.getLeaguesFrom(team: 3520)
-            //Cached.teamDictionary[3520]?.leagueDictionary.values.forEach {
-            //    print($0.name, $0.country, $0.id, $0.currentSeason)
-            //}
-        }
-        /*
-        Task.init {
-            guard let team = Cached.teamDictionary[3520] else { fatalError() }
-            let foundTeam = try await GetLeagues.helper.getLeaguesFrom(team: team)
-            print("Retrieved \(foundTeam) with dict \(foundTeam.leagueDictionary)")
-        }
-         */
+        print("Favorite leagues - \(Cached.favoriteLeagues.values)")
+        print("Favorite teams - \(Cached.favoriteTeams.values)")
     }
     
     func gatherData() {
         
         // Populate default data if first run
-        
-        if Saved.firstRun {
-            
-            print("\nFirst Run\n")
-        
-            Cached.favoriteLeagueIds  = [39, 61, 78, 135, 140]
-            Saved.firstRun = false
-            
-            
-            DataFetcher.helper.fetchDataIfValid(true)
-            
-            return
-        } else {
-            DataFetcher.helper.fetchDataIfValid(false)
-        }
+        DataFetcher.helper.fetchDataIfValid(false)
+
     }
     
     func clearData() {
         
         Saved.firstRun = true
         
-        Cached.favoriteLeagueIds = []
-        Cached.favoriteTeamIds = []
+        Cached.favoriteLeagues = [:]
+        Cached.favoriteTeams = [:]
         
         Cached.favoriteMatchesByDateSet = [:]
         Cached.favoriteMatchesDictionary = [:]

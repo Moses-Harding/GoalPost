@@ -18,6 +18,7 @@ class TeamDataStack: UIStackView {
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCollectionViewLayout())
     
     var totalHeight: CGFloat = 800
+    var heightConstraint: NSLayoutConstraint?
     
     // Data
     var team: TeamObject?
@@ -37,7 +38,8 @@ class TeamDataStack: UIStackView {
         // Set Up Structure
         self.add([collectionViewArea])
         
-        self.heightAnchor.constraint(greaterThanOrEqualToConstant: totalHeight).isActive = true
+        heightConstraint = self.heightAnchor.constraint(greaterThanOrEqualToConstant: totalHeight)
+        heightConstraint?.isActive = true
     }
     
     func setUpCollectionView() {
@@ -100,8 +102,7 @@ class TeamDataStack: UIStackView {
         }
         
         var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>()
-        snapshot.appendSections([.match, .injury, .transfer])
-        snapshot.appendItems([])
+        snapshot.appendSections([.match, .transfer, .injury])
         dataSource?.apply(snapshot)
     }
     
@@ -151,74 +152,18 @@ class TeamDataStack: UIStackView {
         return layout
     }
     
-    func getMatches() -> [TeamDataObject] {
-        
-        guard let teamID = team?.id, let matchIds = Cached.matchesByTeam[teamID] else { return [] }
-        
-        //print(teamID)
-        
-        var foundMatches = [TeamDataObject]()
-        
-        for id in matchIds.sorted { $0 > $1 } {
-            foundMatches.append(TeamDataObject(matchId: id))
-        }
-        return foundMatches
-    }
-    
-    private func getInjuries() -> [TeamDataObject] {
-        
-        //print(Cached.injuriesByTeam[529])
-        
-        guard let teamID = team?.id, let injuryDict = Cached.injuriesByTeam[teamID] else { return [] }
-        
-        var foundInjuries = [TeamDataObject]()
-        
-        for injuryId in injuryDict.sorted(by: { $0 > $1 } ) {
-            foundInjuries.append(TeamDataObject(injuryId: injuryId))
-        }
-        let injuries = foundInjuries
-        
-        return injuries
-    }
-    
-    private func getTransfers() -> [TeamDataObject] {
-        
-        //print(Cached.transfersByTeam[529])
-        
-        guard let teamID = team?.id, let transferDict = Cached.transfersByTeam[teamID] else { return [] }
-        
-        var foundTransfers = [TeamDataObject]()
-        
-        for transferId in transferDict.sorted(by: { $0 > $1 } ) {
-            foundTransfers.append(TeamDataObject(transferId: transferId))
-        }
-        let transfers = foundTransfers
-        
-        
-        return transfers
-    }
-    
     func updateSnapshot() {
         
         // MARK: Setup snap shots
-        guard let dataSource = dataSource else { return }
+        guard let dataSource = dataSource, let teamID = team?.id  else { return }
         
         // Create a snapshot that define the current state of data source's data
         var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>()
-        snapshot.appendSections([.injury, .match, .transfer])
-        
-        let matches = getMatches()
-        let injuries = getInjuries()
-        let transfers = getTransfers()
-        
-        //print(matches, injuries, transfers)
-        
-        snapshot.appendItems(matches, toSection: .match)
-        snapshot.appendItems(injuries, toSection: .injury)
-        snapshot.appendItems(transfers, toSection: .transfer)
-        
-        // Display data on the collection view by applying the snapshot to data source
-        dataSource.apply(snapshot, animatingDifferences: false)
+        snapshot.appendSections([.match, .injury, .transfer])
+
+        updateMatchSection()
+        updateTransferSection()
+        updateInjurySection()
     }
     
     func setUpColors() {
@@ -231,8 +176,9 @@ class TeamDataStack: UIStackView {
     }
 }
 
-extension TeamDataStack: TeamDataStackDelegate {
+extension TeamDataStack {
     
+    /*
     func updateTransferSection(with transferIDs: Set<TransferID>?) {
         DispatchQueue.main.async {
             
@@ -240,7 +186,10 @@ extension TeamDataStack: TeamDataStackDelegate {
             
             guard let dataSource = self.dataSource, let transferIDs = transferIDs else { return }
             
+            //print("Transfer Ids found for \(self.team?.name) - \(transferIDs)")
+            
             var snapshot = dataSource.snapshot(for: .transfer)
+            //var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>().
             
             var transfers = [TeamDataObject]()
             
@@ -248,20 +197,27 @@ extension TeamDataStack: TeamDataStackDelegate {
                 transfers.append(TeamDataObject(transferId: transferId))
             }
             
+            //print("Trnasfers found for \(self.team?.name) - \(transfers)")
+            
+            //snapshot.append(transfers)
+            snapshot.deleteAll()
             snapshot.append(transfers)
-            dataSource.apply(snapshot, to: .transfer)
-            self.collectionView.reloadData()
+            dataSource.apply(snapshot, to: .transfer, animatingDifferences: false)
+            //self.collectionView.reloadData()
         }
     }
     
-    func updateMatchSection(with matchIDs: Set<MatchID>?) {
+    func updateMatchSection(with matchIDs: Set<MatchUniqueID>?) {
         DispatchQueue.main.async {
             
             print("TeamDataStack - Updating match section for \(self.team?.name)")
             
             guard let dataSource = self.dataSource, let matchIDs = matchIDs else { return }
             
+            //print("match Ids found for \(self.team?.name) - \(matchIDs)")
+            
             var snapshot = dataSource.snapshot(for: .match)
+            //var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>()
             
             var matches = [TeamDataObject]()
             
@@ -269,20 +225,27 @@ extension TeamDataStack: TeamDataStackDelegate {
                 matches.append(TeamDataObject(matchId: matchId))
             }
             
+            //print("match found for \(self.team?.name) - \(matches)")
+
+            snapshot.deleteAll()
             snapshot.append(matches)
-            dataSource.apply(snapshot, to: .match)
-            self.collectionView.reloadData()
+            dataSource.apply(snapshot, to: .match, animatingDifferences: false)
+            //self.collectionView.reloadData()
         }
     }
     
     func updateInjurySection(with injuryIDs: Set<InjuryID>?) {
+    /// Updates only the injury section
         DispatchQueue.main.async {
             
-            print("TeamDataStack - Updating transfer section for \(self.team?.name)")
+            print("TeamDataStack - Updating injury section for \(self.team?.name)")
             
             guard let dataSource = self.dataSource, let injuryIDs = injuryIDs else { return }
             
+            //print("injury Ids found for \(self.team?.name) - \(injuryIDs)")
+            
             var snapshot = dataSource.snapshot(for: .injury)
+            //var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>()
             
             var injuries = [TeamDataObject]()
             
@@ -290,9 +253,100 @@ extension TeamDataStack: TeamDataStackDelegate {
                 injuries.append(TeamDataObject(injuryId: injuryId))
             }
             
+            //print("injury found for \(self.team?.name) - \(injuries)")
+            
+            snapshot.deleteAll()
             snapshot.append(injuries)
-            dataSource.apply(snapshot, to: .injury)
-            self.collectionView.reloadData()
+            dataSource.apply(snapshot, to: .injury, animatingDifferences: false)
+            //dataSource.applySnapshotUsingReloadData(snapshot)
+            //self.collectionView.reloadData()
+        }
+    }
+    */
+    
+    func updateTransferSection() {
+        DispatchQueue.main.async {
+            
+            print("TeamDataStack - Updating transfer section for \(self.team?.name)")
+            
+            guard let dataSource = self.dataSource, let teamId = self.team?.id, let transferIDs = Cached.transfersByTeam[teamId] else { return }
+            
+            //print("Transfer Ids found for \(self.team?.name) - \(transferIDs)")
+            
+            var snapshot = dataSource.snapshot(for: .transfer)
+            //var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>().
+            
+            var transfers = [TeamDataObject]()
+            
+            for transferId in transferIDs.sorted(by: { $0 > $1 } ) {
+                transfers.append(TeamDataObject(transferId: transferId))
+            }
+            
+
+            snapshot.deleteAll()
+            snapshot.append(transfers)
+            dataSource.apply(snapshot, to: .transfer, animatingDifferences: false)
+            //self.collectionView.reloadData()
+        }
+    }
+    
+    func updateMatchSection() {
+        DispatchQueue.main.async {
+            
+            print("TeamDataStack - Updating match section for \(self.team?.name)")
+            
+            //guard let dataSource = self.dataSource, let matchIDs = matchIDs else { return }
+            
+            guard let dataSource = self.dataSource, let teamId = self.team?.id, let matchIDs = Cached.matchesByTeam[teamId] else { return }
+            
+            //print("match Ids found for \(self.team?.name) - \(matchIDs)")
+            
+            var snapshot = dataSource.snapshot(for: .match)
+            //var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>()
+            
+            var matches = [TeamDataObject]()
+            
+            for matchId in matchIDs.sorted(by: { $0 > $1 } ) {
+                matches.append(TeamDataObject(matchId: matchId))
+            }
+            
+            //print("match found for \(self.team?.name) - \(matches)")
+
+            snapshot.deleteAll()
+            snapshot.append(matches)
+            dataSource.apply(snapshot, to: .match, animatingDifferences: false)
+            //self.collectionView.reloadData()
+        }
+    }
+    
+    func updateInjurySection() {
+    /// Updates only the injury section
+        DispatchQueue.main.async {
+            
+            print("TeamDataStack - Updating injury section for \(self.team?.name)")
+            
+            //guard let dataSource = self.dataSource, let injuryIDs = injuryIDs else { return }
+            
+            guard let dataSource = self.dataSource, let teamId = self.team?.id, let injuryIDs = Cached.injuriesByTeam[teamId] else { return }
+            
+            //print("injury Ids found for \(self.team?.name) - \(injuryIDs)")
+            
+            var snapshot = dataSource.snapshot(for: .injury)
+            //var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>()
+            
+            var injuries = [TeamDataObject]()
+            
+            for injuryId in injuryIDs.sorted(by: { $0 > $1 } ) {
+                injuries.append(TeamDataObject(injuryId: injuryId))
+            }
+            
+            //print("injury found for \(self.team?.name) - \(injuries)")
+            
+            snapshot.deleteAll()
+            snapshot.append(injuries)
+            dataSource.apply(snapshot, to: .injury, animatingDifferences: false)
+            //dataSource.applySnapshotUsingReloadData(snapshot)
+            //self.collectionView.reloadData()
         }
     }
     

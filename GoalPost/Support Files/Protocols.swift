@@ -15,17 +15,11 @@ protocol Refreshable {
 protocol TeamsViewDelegate {
     func refresh()
     func add(team: TeamObject)
+    func remove(team: TeamObject)
 }
 
 protocol MatchesViewDelegate {
     func refresh()
-}
-
-
-protocol TeamDataStackDelegate {
-    func updateInjurySection(with injuryIDs: Set<InjuryID>?)
-    func updateMatchSection(with matchIDs: Set<MatchID>?)
-    func updateTransferSection(with transferIDs: Set<TransferID>?)
 }
 
 protocol LeagueSearchDelegate {
