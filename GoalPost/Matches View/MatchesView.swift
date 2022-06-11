@@ -67,13 +67,10 @@ class MatchesView: UIView {
         setUpCollectionView()
         setUpColors()
         setUpGestures()
-        
-        //GetMatches.helper.delegate = self
     }
     
     func testing() {
-        //Cached.matches = [:]
-        //Cached.favoriteTeamMatches = [:]
+
     }
     
     required init?(coder: NSCoder) {
@@ -164,98 +161,6 @@ class MatchesView: UIView {
         let dataSourceSnapshot = NSDiffableDataSourceSnapshot<MatchesSectionDataContainer, MatchesCellType>()
         dataSource.apply(dataSourceSnapshot, animatingDifferences: true)
     }
-    
-    /*
-     
-     func setUpDataSourceSnapshots(from date: Date) {
-         // MARK: Setup snap shots
-         
-         // Create new datasource snapshot
-         var dataSourceSnapshot = NSDiffableDataSourceSnapshot<MatchesSectionDataContainer, MatchesCellType>()
-         
-         // Get only the matches for the current date
-         let currentMatches = Cached.matchesByDay[date.asKey] ?? [:]
-         // let currentMatches = matchesByDateSet[date.asKey]
-         
-         // Create a list of each league for that date and sort the leagues alphabetically
-         var preferredLeagues = currentMatches.map { MatchesSectionDataContainer(.league($0.value)) }.sorted { $0.name < $1.name }
-         
-         
-         let safeWidth = Float(self.frame.inset(by: self.safeAreaInsets).width)
-         
-         
-         if preferredLeagues.isEmpty {
-             preferredLeagues.append(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd1))))
-         } else {
-             preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd1))), at: 1)
-             
-             if preferredLeagues.count > 4 {
-                 preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd2))), at: 3)
-             }
-             
-             if preferredLeagues.count > 6 {
-                 preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd3))), at: 5)
-             }
-             
-             if preferredLeagues.count > 8 {
-                 preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd4))), at: 7)
-             }
-              
-             if preferredLeagues.count > 10 {
-                 preferredLeagues.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd5))), at: 9)
-             }
-         }
-         
-         // NOTE: User Teams
-         let myTeams = Cached.favoriteTeamMatchesByDay[date.asKey] ?? LeagueObject(id: FavoriteTeamLeague.identifer.rawValue, name: "My Teams", country: "NA", matches: [:])
-         let leaguesList = [MatchesSectionDataContainer(.league(myTeams))] + preferredLeagues
-         
-         // Add sections to the snapshot (just adding an array)
-         dataSourceSnapshot.appendSections(leaguesList)
-         
-         // Apply the snapshot to the datasource
-         dataSource.apply(dataSourceSnapshot)
-         
-         // Create a section snapshot for each league
-         for sectionItem in leaguesList {
-             
-             // Create new section snapshot
-             var sectionSnapshot = NSDiffableDataSourceSectionSnapshot<MatchesCellType>()
-             
-             // Create a new "ListItem" object, and assign the current league to it. Then append it to the snapshot
-             
-             switch sectionItem.sectionType {
-             case .league(let league):
-                 let leagueListItem = MatchesCellType.league(league)
-                 sectionSnapshot.append([leagueListItem])
-                 
-                 // Create an array of "ListItem" objects and assign each match for a given league to it. Then append that list to its "parent"
-                 let matchItems = league.matches.sorted(by: {
-                     if $0.value.timeStamp < $1.value.timeStamp {
-                         return true
-                     } else if $0.value.timeStamp == $1.value.timeStamp {
-                         return $0.value.homeTeam?.name ?? "" < $1.value.homeTeam?.name ?? ""
-                     } else {
-                         return false
-                     } }).map { MatchesCellType.match($0.value) }
-                 sectionSnapshot.append(matchItems, to: leagueListItem)
-                 
-                 // Expand this section by default
-                 sectionSnapshot.expand([leagueListItem])
-                 
-                 // Apply section snapshot to the respective collection view section
-                 dataSource.apply(sectionSnapshot, to: sectionItem, animatingDifferences: true)
-             case .ad(let adData):
-                 let adItem = MatchesCellType.ad(adData)
-                 sectionSnapshot.append([adItem])
-                 dataSource.apply(sectionSnapshot, to: sectionItem, animatingDifferences: true)
-             case .match(_):
-                 return
-             }
-             
-         }
-     }
-     */
     
     func setUpDataSourceSnapshots(from date: Date) {
         // MARK: Setup snap shots

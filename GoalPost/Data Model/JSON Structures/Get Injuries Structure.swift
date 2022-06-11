@@ -7,11 +7,6 @@ import Foundation
 
 // MARK: - GetInjuries
 struct GetInjuriesStructure: Codable {
-    //let getInjuriesGet: String
-    //let parameters: Parameters
-    //let errors: [Any?]
-    //let results: Int
-    //let paging: Paging
     let response: [GetInjuriesInformation]
 }
 

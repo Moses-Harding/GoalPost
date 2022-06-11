@@ -17,9 +17,7 @@ class MatchesViewController: UIViewController {
         // Do any additional setup after loading the views
         
         self.view.constrain(matchesView)
-        
-        //matchesView.setUpDataSourceSnapshots(from: matchesView.currentDate)
-        
+
         for matchAd in GAD.helper.matchAds {
             GAD.helper.bannerViews[matchAd]?.rootViewController = self
         }

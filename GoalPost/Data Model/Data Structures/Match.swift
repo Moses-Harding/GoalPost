@@ -66,11 +66,12 @@ class MatchObject: Codable {
         
         // If there are no copies of the home / away teams in the dictionary, add them for each search
         
-
         let homeTeam = TeamObject(getMatchInfoTeam: getMatchesStructure.teams.home)
-        Cached.teamDictionary.addIfNoneExists(homeTeam, key: getMatchesStructure.teams.home.id)
         let awayTeam = TeamObject(getMatchInfoTeam: getMatchesStructure.teams.away)
+
+        Cached.teamDictionary.addIfNoneExists(homeTeam, key: getMatchesStructure.teams.home.id)
         Cached.teamDictionary.addIfNoneExists(awayTeam, key: getMatchesStructure.teams.away.id)
+         
         Cached.leagueDictionary.addIfNoneExists(LeagueObject(getMatchInformationLeague: getMatchesStructure.league), key: getMatchesStructure.league.id)
     }
 }

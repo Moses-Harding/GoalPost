@@ -10,7 +10,15 @@ import Foundation
 struct DataFetcher {
     static var helper = DataFetcher()
     
+    var testing = false
+    
     func fetchDataIfValid(_ forceDataRetrieval: Bool) {
+        
+        if testing {
+            //getDataforFavoriteLeagues()
+            getDataForFavoriteTeams()
+            return
+        }
         
         if Saved.firstRun {
             
@@ -93,8 +101,6 @@ struct DataFetcher {
         }
     }
     
-    // Private
-    
     private func getDataforFavoriteLeagues() {
         
         print("DataFetcher - Getting data for favorite leagues")
@@ -120,33 +126,24 @@ struct DataFetcher {
             
             Cached.favoriteTeams[team.id] = team
             Cached.teamDictionary[team.id] = team
+            
             Cached.leagueDictionary.integrate(leagueDictionary, replaceExistingValue: true)
             for (key, _) in Cached.favoriteLeagues {
                 Cached.favoriteLeagues[key] = Cached.leagueDictionary[key]
             }
-            
-            DispatchQueue(label: "Transfer Queue", attributes: .concurrent).async {
-                Task.init {
+
                     let (transferDictionary, transfersByTeam) = try await GetTransfers.helper.getTransfersFor(team: team)
 
                     
                     Cached.transferDictionary.integrate(transferDictionary, replaceExistingValue: true)
                     Cached.transfersByTeam.integrate(transfersByTeam, replaceExistingValue: true)
-                }
-            }
-            
-            DispatchQueue(label: "Injury Queue", attributes: .concurrent).async {
-                Task.init {
+
                     let (injuryDictionary, injuriesByTeam) = try await GetInjuries.helper.getInjuriesFor(team: team)
                     
                     
                     Cached.injuryDictionary.integrate(injuryDictionary, replaceExistingValue: true)
                     Cached.injuriesByTeam.integrate(injuriesByTeam, replaceExistingValue: true)
-                }
-            }
-            
-            DispatchQueue(label: "Match Queue", attributes: .concurrent).async {
-                Task.init {
+
                     var (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
                     let (lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, lastFavoriteMatchesByDateSet, lastFavoriteMatchesDictionary) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
                     
@@ -163,18 +160,19 @@ struct DataFetcher {
                     Cached.favoriteMatchesByDateSet.integrate(favoriteMatchesByDateSet, replaceExistingValue: true)
                     Cached.favoriteMatchesDictionary.integrate(favoriteMatchesDictionary, replaceExistingValue: true)
                     Cached.matchesByLeagueSet.integrate(matchesByLeagueSet, replaceExistingValue: true)
-                }
-            }
             
         }
     }
     
-    func getLeaguesFor(team teamObject: TeamObject) async throws -> TeamObject {
+    /* Functions for adding Team */
+    
+    func addLeaguesFor(team teamObject: TeamObject) async throws -> TeamObject {
         
         let (team, leagueDictionary) = try await GetLeagues.helper.getLeaguesFrom(team: teamObject)
         
         Cached.favoriteTeams[team.id] = team
         Cached.teamDictionary[team.id] = team
+    
         Cached.leagueDictionary.integrate(leagueDictionary, replaceExistingValue: true)
         for (key, _) in Cached.favoriteLeagues {
             Cached.favoriteLeagues[key] = Cached.leagueDictionary[key]
@@ -183,14 +181,14 @@ struct DataFetcher {
         return team
     }
     
-    func getTransfersFor(team: TeamObject, completion: @escaping () async -> ()) async throws {
+    func addTransfersFor(team: TeamObject, completion: @escaping () async -> ()) async throws {
         let (transferDictionary, transfersByTeam) = try await GetTransfers.helper.getTransfersFor(team: team)
         Cached.transferDictionary.integrate(transferDictionary, replaceExistingValue: true)
         Cached.transfersByTeam.integrate(transfersByTeam, replaceExistingValue: true)
         await completion()
     }
     
-    func getInjuriesFor(team: TeamObject, completion: @escaping () async -> ()) async throws {
+    func addInjuriesFor(team: TeamObject, completion: @escaping () async -> ()) async throws {
         let (injuryDictionary, injuriesByTeam) = try await GetInjuries.helper.getInjuriesFor(team: team)
         
         Cached.injuryDictionary.integrate(injuryDictionary, replaceExistingValue: true)
@@ -198,7 +196,7 @@ struct DataFetcher {
         await completion()
     }
     
-    func getMatchesFor(team: TeamObject, completion: @escaping () async -> ()) async throws  {
+    func addMatchesFor(team: TeamObject, completion: @escaping () async -> ()) async throws  {
         let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
         let (lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, lastFavoriteMatchesByDateSet, lastFavoriteMatchesDictionary) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
 
@@ -231,17 +229,6 @@ struct DataFetcher {
                 Cached.favoriteMatchesByDateSet.integrate(favoriteMatchesByDateSet, replaceExistingValue: true)
                 Cached.favoriteMatchesDictionary.integrate(favoriteMatchesDictionary, replaceExistingValue: true)
                 Cached.matchesByLeagueSet.integrate(matchesByLeagueSet, replaceExistingValue: true)
-            }
-        }
-    }
-    
-    
-    func testing(team: TeamID) {
-        Task.init {
-            if let team = Cached.teamDictionary[team] {
-                print("Calling transfer async call")
-                let (injuryDictionary, injuriesByTeam) = try await GetTransfers.helper.getTransfersFor(team: team)
-                print(injuryDictionary, injuriesByTeam)
             }
         }
     }

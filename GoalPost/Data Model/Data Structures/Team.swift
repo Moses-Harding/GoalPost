@@ -17,8 +17,7 @@ class TeamObject: Codable {
     var logo: String?
     
     // SWITCH THIS OVER TO JUST A SET
-    
-    //var leagueDictionary: [Int:LeagueObject] = [:]
+
     var leagueSet = Set<LeagueID>()
     
     // This should be used for searching

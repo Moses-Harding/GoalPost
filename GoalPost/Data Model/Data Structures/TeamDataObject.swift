@@ -34,6 +34,7 @@ class TeamDataObject {
     var transferId: TransferID?
     
     var id: Int
+    var loading: Bool = false
     
     private init(type: TeamDataObjectType) {
         self.type = type
@@ -56,6 +57,11 @@ class TeamDataObject {
     convenience init(transferId: TransferID) {
         self.init(type: .transfer)
         self.transferId = transferId
+    }
+    
+    convenience init(type: TeamDataObjectType, loading: Bool) {
+        self.init(type: type)
+        self.loading = true
     }
 }
 

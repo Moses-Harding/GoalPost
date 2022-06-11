@@ -35,7 +35,8 @@ class RootController: UITabBarController {
     }
     
     func testing() {
-        // clearData()
+         clearData()
+
         
         print("Favorite leagues - \(Cached.favoriteLeagues.values)")
         print("Favorite teams - \(Cached.favoriteTeams.values)")

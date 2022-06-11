@@ -22,8 +22,7 @@ class TitleSupplementaryView: UICollectionReusableView {
 
 extension TitleSupplementaryView {
     func configure() {
-        //self.layer.borderColor = UIColor.black.cgColor
-        //self.layer.borderWidth = 1
+
         self.layer.cornerRadius = 10
         self.backgroundColor = Colors.teamDataStackCellBackgroundColor
 

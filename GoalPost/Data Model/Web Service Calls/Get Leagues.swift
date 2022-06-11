@@ -36,28 +36,37 @@ class GetLeagues {
         var leagueDictionary = [LeagueID:LeagueObject]()
         
         let results: LeagueSearchStructure = try JSONDecoder().decode(LeagueSearchStructure.self, from: data)
-
+        
         for response in results.response {
             
-            var currentSeason: Int?
+            var currentSeason: Int = 0
             var seasonStart: String = ""
             var seasonEnd: String = ""
+
             
             for season in response.seasons {
                 if season.current {
                     currentSeason = season.year
                     seasonStart = season.start
                     seasonEnd = season.end
+                    break
+                } else if season.year > currentSeason {
+                    currentSeason = season.year
+                    seasonStart = season.start
+                    seasonEnd = season.end
                 }
             }
             
-            guard let league = response.league, let season = currentSeason else { continue }
+            guard let league = response.league else { print ("Get Leagues - \(response.league?.name) not found")
+                continue
+            }
+            guard currentSeason > 0 else { print ("Get Leagues - \(response.league?.name) could not locate season")
+                continue }
             
-            let leagueSearchData = LeagueObject(id: league.id, name: league.name, logo: league.logo, type: league.type, country: response.country?.name ?? "N/A", countryLogo: response.country?.flag, currentSeason: season, seasonStart: seasonStart, seasonEnd: seasonEnd)
+            let leagueSearchData = LeagueObject(id: league.id, name: league.name, logo: league.logo, type: league.type, country: response.country?.name ?? "N/A", countryLogo: response.country?.flag, currentSeason: currentSeason, seasonStart: seasonStart, seasonEnd: seasonEnd)
             leagueDictionary[leagueSearchData.id] = leagueSearchData
             team.leagueSet.insert(league.id)
         }
-        
         return (team, leagueDictionary)
     }
     

@@ -27,11 +27,14 @@ class InjuryCollectionCell: UICollectionViewCell {
 
     // Stacks
     var mainStack = UIStackView(.vertical)
-    
-    //var titleStack = UIStackView(.vertical)
+    var contentStack = UIStackView(.vertical)
+
     var bodyStack = UIStackView(.horizontal)
     var descriptionStack = UIStackView(.vertical)
 
+    // Loading
+    var loadingView = UIView()
+    var loadingLabel = UILabel()
     
     // MARK: - Init
     
@@ -43,6 +46,7 @@ class InjuryCollectionCell: UICollectionViewCell {
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        
         setUp()
     }
     
@@ -59,7 +63,8 @@ class InjuryCollectionCell: UICollectionViewCell {
     
     func setUpStacks() {
         contentView.constrain(mainStack, using: .edges, padding: 10, debugName: "MainStack To ContentView - InjuryCollectionCell")
-        mainStack.add(children: [(UIView(), 0.05), (timeOfInjuryLabel, 0.2), (UIView(), 0.05), (greenLine, 0.02), (UIView(), 0.05), (bodyStack, nil), (UIView(), 0.05),])
+        mainStack.add([contentStack, loadingView])
+        contentStack.add(children: [(UIView(), 0.05), (timeOfInjuryLabel, 0.2), (UIView(), 0.05), (greenLine, 0.02), (UIView(), 0.05), (bodyStack, nil), (UIView(), 0.05)])
         bodyStack.add(children: [(UIView(), 0.025), (UIView(), 0.1), (descriptionStack, nil), (UIView(), nil)])
         
         descriptionStack.add(children: [(UIView(), 0.025), (playerNameArea, nil), (UIView(), 0.1), (reasonLabel, nil), (UIView(), nil)])
@@ -68,30 +73,43 @@ class InjuryCollectionCell: UICollectionViewCell {
     func setUpViewContent() {
         
         // Labels
-        timeOfInjuryLabel.font = UIFont.preferredFont(forTextStyle: .title2)//UIFont.boldSystemFont(ofSize: 30)
+        timeOfInjuryLabel.font = UIFont.preferredFont(forTextStyle: .title2)
         timeOfInjuryLabel.numberOfLines = -1
         timeOfInjuryLabel.textAlignment = .center
         
         playerNameArea.constrain(playerNameLabel, debugName: "PlayerNameLabel To PlayerNameArea - InjuryCollectionCell")
         
-        playerNameLabel.font = UIFont.preferredFont(forTextStyle: .title3)//UIFont.boldSystemFont(ofSize: 24)
+        playerNameLabel.font = UIFont.preferredFont(forTextStyle: .title3)
         playerNameLabel.textAlignment = .left
         
         reasonLabel.numberOfLines = -1
-
+        
+        loadingView.constrain(loadingLabel, debugName: "Loading Label to Loading View - InjuryCollectionCell")
+        loadingLabel.text = "LOADING"
+        loadingView.isHidden = true
     }
 
     func updateContent() {
-        guard let injuryInfo = teamDataObject?.injury else { return }
-        reasonLabel.text = "\(injuryInfo.reason)"
-        timeOfInjuryLabel.text = "\(injuryInfo.date.formatted(date: .numeric, time: .omitted))"
-        playerNameLabel.text = injuryInfo.player?.name ?? "CANNOT LOCATE PLAYER"
+        
+        guard let teamDataObject = teamDataObject else { return }
+        
+        if teamDataObject.loading {
+            loadingView.isHidden = false
+            contentStack.isHidden = true
+        } else {
+            loadingView.isHidden = true
+            contentStack.isHidden = false
+            
+            guard let injuryInfo = teamDataObject.injury else { return }
+            
+            reasonLabel.text = "\(injuryInfo.reason)"
+            timeOfInjuryLabel.text = "\(injuryInfo.date.formatted(date: .numeric, time: .omitted))"
+            playerNameLabel.text = injuryInfo.player?.name ?? "CANNOT LOCATE PLAYER"
+        }
     }
-    
+
     func setUpColors() {
         self.backgroundColor = Colors.teamDataStackCellBackgroundColor
         greenLine.backgroundColor = Colors.logoTheme
-        //self.layer.borderColor = Colors.logoTheme.cgColor
-        //self.layer.borderWidth = 1
     }
 }

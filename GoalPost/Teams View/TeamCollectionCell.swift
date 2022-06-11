@@ -248,8 +248,7 @@ class TeamCollectionCell: UICollectionViewCell {
             }
         }
     }
-    
-    // Actions
+
 }
 
 extension TeamCollectionCell {

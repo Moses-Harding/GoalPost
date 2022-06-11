@@ -31,8 +31,9 @@ class MatchCollectionCell: UICollectionViewCell {
     
     //MARK: Views
     
-    var verticalStack = UIStackView(.vertical)
     var mainStack = UIStackView(.vertical)
+    var contentStack = UIStackView(.vertical)
+    
     var topStack = UIStackView(.horizontal)
     var bottomStack = UIStackView(.horizontal)
     
@@ -51,9 +52,9 @@ class MatchCollectionCell: UICollectionViewCell {
     
     let greenLine = UIView()
     
-    //MARK: Lines
-    
-    var line = UIView()
+    // Loading
+    var loadingView = UIView()
+    var loadingLabel = UILabel()
     
     // MARK: - Init
     
@@ -72,18 +73,10 @@ class MatchCollectionCell: UICollectionViewCell {
     // MARK: - Private Methods
     private func setUp() {
         
-        addSubview(mainStack)
-        mainStack.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            mainStack.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
-            mainStack.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            mainStack.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
-            mainStack.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
-        ])
+        contentView.constrain(mainStack, using: .edges, padding: 10, debugName: "MainStack To ContentView - MatchCollectionCell")
         
-        //mainStack.add([UIView(), dateStack, homeTeamStack, awayTeamStack, UIView()])
-        
-        mainStack.add(children: [(UIView(), 0.05), (dateStack, 0.2), (UIView(), 0.05), (greenLine, 0.02), (UIView(), 0.05), (homeTeamStack, nil), (awayTeamStack, nil), (UIView(), 0.05),])
+        mainStack.add([contentStack, loadingView])
+        contentStack.add(children: [(UIView(), 0.05), (dateStack, 0.2), (UIView(), 0.05), (greenLine, 0.02), (UIView(), 0.05), (homeTeamStack, nil), (awayTeamStack, nil), (UIView(), 0.05),])
         
         mainStack.setCustomSpacing(10, after: dateStack)
         
@@ -112,19 +105,36 @@ class MatchCollectionCell: UICollectionViewCell {
         awayImageView.widthAnchor.constraint(equalToConstant: 20).isActive = true
         
         imageStack.alignment = .center
+        
+        loadingView.constrain(loadingLabel, debugName: "Loading Label to Loading View - MatchCollectionCell")
+        loadingLabel.text = "LOADING"
+        loadingLabel.font = UIFont.preferredFont(forTextStyle: .title1)
+        loadingLabel.textAlignment = .center
+        loadingView.isHidden = true
     }
     
     func updateContent() {
+        
+        guard let teamDataObject = teamDataObject else { return }
+        
+        if teamDataObject.loading {
+            loadingView.isHidden = false
+            contentStack.isHidden = true
+            self.loading(true)
+        } else {
+            loadingView.isHidden = true
+            contentStack.isHidden = false
+            self.loading(false)
 
-        guard let match = teamDataObject?.match else { print("Attempting to update content for match cell but matchInformation not found")
-            return
-        }
-        guard let homeTeam = Cached.teamDictionary[match.homeTeamId] else { print("Attempting to update content for match cell but home team with id \(match.homeTeamId) not found")
-            return
-        }
-        guard let awayTeam = match.awayTeam else { print("Attempting to update content for match cell but away Team with id \(match.awayTeamId) not found")
-            return
-        }
+            guard let match = teamDataObject.match else { print("Attempting to update content for match cell but matchInformation not found")
+                return
+            }
+            guard let homeTeam = Cached.teamDictionary[match.homeTeamId] else { print("Attempting to update content for match cell but home team with id \(match.homeTeamId) not found")
+                return
+            }
+            guard let awayTeam = match.awayTeam else { print("Attempting to update content for match cell but away Team with id \(match.awayTeamId) not found")
+                return
+            }
         
         // Set data to UI elements
         homeTeamLabel.text = homeTeam.name
@@ -135,6 +145,7 @@ class MatchCollectionCell: UICollectionViewCell {
         
         loadImage(for: homeTeam, teamType: .home)
         loadImage(for: awayTeam, teamType: .away)
+        }
     }
     
     enum TeamType {
@@ -145,13 +156,16 @@ class MatchCollectionCell: UICollectionViewCell {
         self.backgroundColor = Colors.teamDataStackCellBackgroundColor
         self.layer.cornerRadius = 10
         greenLine.backgroundColor = Colors.logoTheme
-        //self.layer.shadowColor = UIColor.black.cgColor
-        //self.layer.shadowOpacity = 1
-        //self.layer.shadowOffset = .zero
-        //self.layer.shadowRadius = 5
-        //self.layer.shadowPath = UIBezierPath(rect: self.bounds).cgPath
-        //self.layer.borderColor = Colors.logoTheme.cgColor
-        //self.layer.borderWidth = 1
+    }
+    
+    func loading(_ loading: Bool) {
+        if loading {
+            self.backgroundColor = UIColor.clear
+        } else {
+            self.backgroundColor = Colors.teamDataStackCellBackgroundColor
+            self.layer.removeAllAnimations()
+        }
+
     }
     
     private func loadImage(for team: TeamObject, teamType: TeamType) {
@@ -188,5 +202,16 @@ class MatchCollectionCell: UICollectionViewCell {
                 }
             }
         }
+    }
+    
+    override func prepareForReuse() {
+        homeTeamLabel.text = "-"
+        awayTeamLabel.text = "-"
+        dateLabel.text = "-"
+        homeTeamScore.text = "-"
+        awayTeamScore.text = "-"
+        
+        self.homeImageView.image = nil
+        self.awayImageView.image = nil
     }
 }

@@ -75,14 +75,14 @@ class TeamsView: UIView {
         setUpDataSource()
         setUpColors()
         collectionView.delegate = self
-        
+
         self.refresh()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: - Private Methods
     
     func createCollectionViewLayout() -> UICollectionViewLayout {
@@ -232,40 +232,24 @@ extension TeamsView: TeamsViewDelegate {
         
         guard let cell = capturedCell else { fatalError("TeamsView - Could not locate cell to update")}
         
+        cell.teamDataStack.load(.match)
+        cell.teamDataStack.load(.transfer)
+        cell.teamDataStack.load(.injury)
+        
         Task.init {
-            let team = try await DataFetcher.helper.getLeaguesFor(team: team)
-            DispatchQueue(label: "Matches Queue", attributes: .concurrent).async {
-                Task.init {
-                    try await DataFetcher.helper.getMatchesFor(team: team) {
-                        print("\n\n******\n******\n******\nCalling Completion For Matches\n******\n******\n******\n")
-                        await cell.teamDataStack.updateMatchSection()
-                    }
-                }
-            }
-            DispatchQueue(label: "Transfer Queue", attributes: .concurrent).async {
-                Task.init {
-                    try await DataFetcher.helper.getTransfersFor(team: team) {
-                        print("\n\n******\n******\n******\nCalling Completion For Transfer\n******\n******\n******\n")
-                        await cell.teamDataStack.updateTransferSection() }
-                    }
-            }
-            DispatchQueue(label: "Injury Queue", attributes: .concurrent).async {
-                Task.init {
-                    try await DataFetcher.helper.getInjuriesFor(team: team) {
-                        print("\n\n******\n******\n******\nCalling Completion For Injury\n******\n******\n******\n")
-                        await cell.teamDataStack.updateInjurySection()
-                    }
-                }
-            }
+            let team = try await DataFetcher.helper.addLeaguesFor(team: team)
+                try await DataFetcher.helper.addMatchesFor(team: team) {
+                    print("\n\n******\n******\n******\nCalling Completion For Matches\n******\n******\n******\n")
+                    cell.teamDataStack.updateMatchSection() }
+                try await DataFetcher.helper.addTransfersFor(team: team) {
+                    print("\n\n******\n******\n******\nCalling Completion For Transfer\n******\n******\n******\n")
+                    cell.teamDataStack.updateTransferSection() }
+                try await DataFetcher.helper.addInjuriesFor(team: team) {
+                    print("\n\n******\n******\n******\nCalling Completion For Injury\n******\n******\n******\n")
+                    cell.teamDataStack.updateInjurySection() }
         }
         
-
-        
-        /*
-        let indexPath = IndexPath(item: collectionView.numberOfItems(inSection: 0) - 1, section: 0)
-        guard let cell = collectionView.cellForItem(at: indexPath) as? TeamCollectionCell else { fatalError() }
-        DataFetcher.helper.add(team: team, with: cell.teamDataStack)
-         */
+        cell.isSelected = true
     }
     
     func remove(team: TeamObject) {

@@ -29,11 +29,14 @@ class TransferCollectionCell: UICollectionViewCell {
     
     // Stacks
     var mainStack = UIStackView(.vertical)
-    
-    //var titleStack = UIStackView(.vertical)
+    var contentStack = UIStackView(.vertical)
+
     var bodyStack = UIStackView(.horizontal)
     var descriptionStack = UIStackView(.vertical)
 
+    // Loading
+    var loadingView = UIView()
+    var loadingLabel = UILabel()
     
     // MARK: - Init
     
@@ -61,7 +64,8 @@ class TransferCollectionCell: UICollectionViewCell {
     
     func setUpStacks() {
         contentView.constrain(mainStack, using: .edges, padding: 10, debugName: "MainStack To ContentView - TransferCollectionCell")
-        mainStack.add(children: [(UIView(), 0.05), (transferDate, 0.2), (UIView(), 0.05), (greenLine, 0.02), (UIView(), 0.05), (bodyStack, nil), (UIView(), 0.05),])
+        mainStack.add([contentStack, loadingView])
+        contentStack.add(children: [(UIView(), 0.05), (transferDate, 0.2), (UIView(), 0.05), (greenLine, 0.02), (UIView(), 0.05), (bodyStack, nil), (UIView(), 0.05),])
         bodyStack.add(children: [(UIView(), 0.025), (UIView(), 0.1), (descriptionStack, nil), (UIView(), nil)])
         
         descriptionStack.add(children: [(UIView(), 0.025), (playerNameArea, nil), (UIView(), 0.1), (transferFromTeam, nil), (UIView(), 0.1), (transferToTeam, nil), (UIView(), nil)])
@@ -80,16 +84,28 @@ class TransferCollectionCell: UICollectionViewCell {
         playerNameLabel.textAlignment = .left
         
         transferToTeam.numberOfLines = -1
-
+        
+        loadingView.constrain(loadingLabel, debugName: "Loading Label to Loading View - InjuryCollectionCell")
+        loadingLabel.text = "LOADING"
+        loadingView.isHidden = true
     }
 
     func updateContent() {
-        guard let transferInfo = teamDataObject?.transfer else { return }
+        guard let teamDataObject = teamDataObject else { return }
+        
+        if teamDataObject.loading {
+            loadingView.isHidden = false
+            contentStack.isHidden = true
+        } else {
+            loadingView.isHidden = true
+            contentStack.isHidden = false
+            guard let transferInfo = teamDataObject.transfer else { return }
 
-        transferFromTeam.text = "From: \(transferInfo.teamFrom?.name ?? "-")"
-        transferToTeam.text = "To: \(transferInfo.teamTo?.name ?? "-")"
-        transferDate.text = transferInfo.transferDate.formatted(date: .numeric, time: .omitted)
-        playerNameLabel.text = transferInfo.player?.name ?? "-"
+            transferFromTeam.text = "From: \(transferInfo.teamFrom?.name ?? "-")"
+            transferToTeam.text = "To: \(transferInfo.teamTo?.name ?? "-")"
+            transferDate.text = transferInfo.transferDate.formatted(date: .numeric, time: .omitted)
+            playerNameLabel.text = transferInfo.player?.name ?? "-"
+        }
     }
     
     func setUpColors() {

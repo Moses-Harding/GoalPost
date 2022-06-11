@@ -19,10 +19,7 @@ class LeagueObject: Codable {
     var seasonStart: String?
     var seasonEnd: String?
     var round: String?
-    
-    //var matches = [Int:MatchObject]()
-    //var matchSet = Set<MatchID>()
-    
+
     init(id: Int, name: String, logo: String? = nil, type: LeagueSearchInformation_League_Type? = nil, country: String, countryLogo: String? = nil, currentSeason: Int? = nil, seasonStart: String? = nil, seasonEnd: String? = nil, round: String? = nil) {
         self.id = id
         self.name = name
@@ -38,7 +35,7 @@ class LeagueObject: Codable {
     
     convenience init(getMatchInformationLeague: GetMatchInformation_League) {
         
-        self.init(id: getMatchInformationLeague.id, name: getMatchInformationLeague.name, logo: getMatchInformationLeague.logo, country: getMatchInformationLeague.country, countryLogo: getMatchInformationLeague.flag, currentSeason: getMatchInformationLeague.season, round: getMatchInformationLeague.round)//, matches: nil, matchSet: nil)
+        self.init(id: getMatchInformationLeague.id, name: getMatchInformationLeague.name, logo: getMatchInformationLeague.logo, country: getMatchInformationLeague.country, countryLogo: getMatchInformationLeague.flag, currentSeason: getMatchInformationLeague.season, round: getMatchInformationLeague.round)
     }
     
     convenience init(getInjuriesInformationLeague info: GetInjuriesInformation_League) {

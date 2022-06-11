@@ -44,13 +44,10 @@ class InjuryObject: Codable {
         matchId = MatchObject.getUniqueID(id: info.fixture.id, timestamp: info.fixture.timestamp)
         date = Date(timeIntervalSince1970: TimeInterval(info.fixture.timestamp))
         
-        if Cached.teamDictionary[teamId] == nil {
-            Cached.teamDictionary[teamId] = TeamObject(getInjuriesInformationTeam: info.team)
-        }
-        
         Cached.playerDictionary.addIfNoneExists(PlayerObject(getInjuriesInformationPlayer: info.player), key: playerId)
         Cached.leagueDictionary.addIfNoneExists(LeagueObject(getInjuriesInformationLeague: info.league) , key: leagueId)
-        
+
+         
         self.type = info.player.type
         self.reason = info.player.reason
         

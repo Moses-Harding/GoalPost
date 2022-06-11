@@ -29,8 +29,6 @@ enum MatchesCellType: Codable, Hashable {
 
 enum DefaultIdentifier: Int {
     case favoriteTeam = 10000000000000
-    case homeTeam = 9999999
-    case awayTeam = 8888888
 }
 
 // MARK: GAD

@@ -45,7 +45,7 @@ class TransferObject: Codable {
         self.teamToId = teamToId
         self.teamFromId = teamFromId
         self.id = "\(transferDate.timeIntervalSince1970) - \(playerId) - \(teamToId) - \(teamFromId)"
-        
+         
         Cached.teamDictionary.addIfNoneExists(TeamObject(id: teamToId, name: teamToName, logo: teamsIn.logo), key: teamToId)
         Cached.teamDictionary.addIfNoneExists(TeamObject(id: teamFromId, name: teamFromName, logo: teamsOut.logo), key: teamFromId)
         Cached.playerDictionary.addIfNoneExists(PlayerObject(id: player.id, name: playerName, photo: nil), key: player.id)

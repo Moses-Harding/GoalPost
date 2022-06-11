@@ -26,13 +26,11 @@ class WebServiceCall {
         guard let url =  URL(string: requestURL) else { fatalError() }
         
         var urlRequest = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
-        
-        //let request = NSMutableURLRequest(url: NSURL(string: requestURL)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
                                           
         urlRequest.httpMethod = "GET"
         urlRequest.allHTTPHeaderFields = headers
         
-        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        let (data, _) = try await URLSession.shared.data(for: urlRequest)
         
         return data
     }

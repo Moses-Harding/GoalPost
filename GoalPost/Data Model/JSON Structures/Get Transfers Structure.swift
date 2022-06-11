@@ -8,18 +8,12 @@
 import Foundation
 
 struct GetTransfersStructure: Codable {
-    //let getTransfersGet: String
-    //let parameters: Parameters
-    //let errors: [Any?]
-    //let results: Int
-    //let paging: Paging
     let response: [GetTransfersInformation]
 }
 
 // MARK: - Response
 struct GetTransfersInformation: Codable {
     let player: GetTransfersInformation_Player
-    //let update: Date
     let transfers: [GetTransfersInformation_Transfer]
 }
 
