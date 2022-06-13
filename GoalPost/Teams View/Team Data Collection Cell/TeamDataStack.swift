@@ -23,6 +23,10 @@ class TeamDataStack: UIStackView {
     // Data
     var team: TeamObject?
     
+    var matchLoading = false
+    var injuryLoading = false
+    var transferLoading = false
+    
     init(team: TeamObject?) {
         super.init(frame: .zero)
         
@@ -154,6 +158,8 @@ class TeamDataStack: UIStackView {
     
     func updateSnapshot() {
         
+        print("TeamDataStack - Update Snapshot for \(team)")
+        
         // MARK: Setup snap shots
         guard let dataSource = dataSource, let teamID = team?.id  else { return }
         
@@ -179,9 +185,15 @@ class TeamDataStack: UIStackView {
 extension TeamDataStack {
     
     func updateTransferSection() {
+        
+        print("TeamDataStack - Update Transfer Section for \(team)")
+        
+        if transferLoading {
+            self.load(.transfer)
+            return
+        }
+        
         DispatchQueue.main.async {
-            
-            print("TeamDataStack - Updating transfer section for \(self.team?.name)")
             
             guard let dataSource = self.dataSource, let teamId = self.team?.id, let transferIDs = Cached.transfersByTeam[teamId] else { return }
 
@@ -200,9 +212,15 @@ extension TeamDataStack {
     }
     
     func updateMatchSection() {
+        
+        print("TeamDataStack - Update Match Section for \(team)")
+        
+        if matchLoading {
+            self.load(.match)
+            return
+        }
+        
         DispatchQueue.main.async {
-            
-            print("TeamDataStack - Updating match section for \(self.team?.name)")
 
             guard let dataSource = self.dataSource, let teamId = self.team?.id, let matchIDs = Cached.matchesByTeam[teamId] else { return }
 
@@ -221,10 +239,15 @@ extension TeamDataStack {
     }
     
     func updateInjurySection() {
-    /// Updates only the injury section
+
+        print("TeamDataStack - Update Injury Section for \(team)")
+        
+        if injuryLoading {
+            self.load(.injury)
+            return
+        }
+        
         DispatchQueue.main.async {
-            
-            print("TeamDataStack - Updating injury section for \(self.team?.name)")
 
             guard let dataSource = self.dataSource, let teamId = self.team?.id, let injuryIDs = Cached.injuriesByTeam[teamId] else { return }
 
@@ -243,7 +266,18 @@ extension TeamDataStack {
     }
     
     func load(_ sectionType: TeamDataObjectType) {
+        print("TeamDataStack - Loading Section for \(team)")
         guard let dataSource = self.dataSource else { return }
+        
+        switch sectionType {
+        case .match:
+            self.matchLoading = true
+        case .injury:
+            self.injuryLoading = true
+        case .transfer:
+            self.transferLoading = true
+        }
+        
         var snapshot = dataSource.snapshot(for: .injury)
         let loading = TeamDataObject(type: sectionType, loading: true)
         snapshot.deleteAll()
@@ -252,7 +286,7 @@ extension TeamDataStack {
     }
     
     func manualRefresh() {
-        print("Team Data Stack - Refreshing for \(team?.name)")
+        print("Team Data Stack - Refreshing for \(team)")
         self.updateSnapshot()
     }
 }

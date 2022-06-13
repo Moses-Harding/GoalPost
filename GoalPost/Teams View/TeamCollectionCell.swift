@@ -208,7 +208,7 @@ class TeamCollectionCell: UICollectionViewCell {
             }) { _ in
                 self.bodyStack.isHidden = !self.isSelected
             }
-        } else {
+        } else if !isSelected {
             self.openConstraint?.isActive = false
             self.closedConstraint?.isActive = true
             

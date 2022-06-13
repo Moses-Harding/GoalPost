@@ -135,11 +135,7 @@ struct Cached {
     @Cache(key: "*Transfers By Team", defaultValue: [:]) static var transfersByTeam: [TeamID:Set<TransferID>]
     
     // Dictionaries
-    @Cache(key: "*Team Dictionary", defaultValue: [:]) static var teamDictionary: [TeamID:TeamObject] {
-        willSet {
-            print("Team Dictionary is being accessed")
-        }
-    }
+    @Cache(key: "*Team Dictionary", defaultValue: [:]) static var teamDictionary: [TeamID:TeamObject]
     @Cache(key: "*League Dictionary", defaultValue: [:]) static var leagueDictionary: [LeagueID:LeagueObject]
     @Cache(key: "*Player Dictionary", defaultValue: [:]) static var playerDictionary: [PlayerID:PlayerObject]
     @Cache(key: "*Injury Dictionary", defaultValue: [:]) static var injuryDictionary: [InjuryID:InjuryObject]

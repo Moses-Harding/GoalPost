@@ -98,3 +98,7 @@ class CustomStack: UIView {
         }
     }
 }
+
+class Indicator: UIActivityIndicatorView {
+    
+}

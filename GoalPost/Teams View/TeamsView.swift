@@ -230,7 +230,7 @@ extension TeamsView: TeamsViewDelegate {
             }
         }
         
-        guard let cell = capturedCell else { fatalError("TeamsView - Could not locate cell to update")}
+        guard let cell = capturedCell else { fatalError("TeamsView - Could not locate cell to update") }
         
         cell.teamDataStack.load(.match)
         cell.teamDataStack.load(.transfer)
@@ -240,12 +240,16 @@ extension TeamsView: TeamsViewDelegate {
             let team = try await DataFetcher.helper.addLeaguesFor(team: team)
                 try await DataFetcher.helper.addMatchesFor(team: team) {
                     print("\n\n******\n******\n******\nCalling Completion For Matches\n******\n******\n******\n")
-                    cell.teamDataStack.updateMatchSection() }
+                    cell.teamDataStack.matchLoading = false
+                    cell.teamDataStack.updateMatchSection()
+                }
                 try await DataFetcher.helper.addTransfersFor(team: team) {
                     print("\n\n******\n******\n******\nCalling Completion For Transfer\n******\n******\n******\n")
+                    cell.teamDataStack.transferLoading = false
                     cell.teamDataStack.updateTransferSection() }
                 try await DataFetcher.helper.addInjuriesFor(team: team) {
                     print("\n\n******\n******\n******\nCalling Completion For Injury\n******\n******\n******\n")
+                    cell.teamDataStack.injuryLoading = false
                     cell.teamDataStack.updateInjurySection() }
         }
         

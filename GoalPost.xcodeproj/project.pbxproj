@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1521B37528566C8C007C0BF3 /* TeamDataStackCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1521B37428566C8C007C0BF3 /* TeamDataStackCellModel.swift */; };
 		15275C7D282DA6810005565E /* TeamSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15275C7C282DA6810005565E /* TeamSearchViewController.swift */; };
 		15275C7F282DA6A90005565E /* TeamSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15275C7E282DA6A90005565E /* TeamSearchView.swift */; };
 		15275C81282DA7460005565E /* TeamSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15275C80282DA7460005565E /* TeamSearchCell.swift */; };
@@ -75,6 +76,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1521B37428566C8C007C0BF3 /* TeamDataStackCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamDataStackCellModel.swift; sourceTree = "<group>"; };
 		15275C7C282DA6810005565E /* TeamSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamSearchViewController.swift; sourceTree = "<group>"; };
 		15275C7E282DA6A90005565E /* TeamSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamSearchView.swift; sourceTree = "<group>"; };
 		15275C80282DA7460005565E /* TeamSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamSearchCell.swift; sourceTree = "<group>"; };
@@ -194,6 +196,7 @@
 				155CD97028457F1D00F5C4CE /* MatchCollectionCell.swift */,
 				1533429C2846A393006EC083 /* TransferCollectionCell.swift */,
 				155CD9642844806700F5C4CE /* InjuryCollectionCell.swift */,
+				1521B37428566C8C007C0BF3 /* TeamDataStackCellModel.swift */,
 			);
 			path = "Team Data Collection Cell";
 			sourceTree = "<group>";
@@ -455,6 +458,7 @@
 				1578B8532822D98000B71838 /* Cached.swift in Sources */,
 				155CD9612844761D00F5C4CE /* Dictionary.swift in Sources */,
 				15FE14672833213000DAB2A0 /* TeamCollectionCell.swift in Sources */,
+				1521B37528566C8C007C0BF3 /* TeamDataStackCellModel.swift in Sources */,
 				1548A15328236F3A00741179 /* Colors.swift in Sources */,
 				15DAA8E428285260005492F0 /* String.swift in Sources */,
 				155CD95B284460A200F5C4CE /* Get Injuries.swift in Sources */,
