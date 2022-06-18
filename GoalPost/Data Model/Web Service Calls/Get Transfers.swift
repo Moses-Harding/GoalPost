@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 class GetTransfers {
     
     static var helper = GetTransfers()
@@ -33,7 +32,9 @@ class GetTransfers {
             
             for transfer in response.transfers {
 
-                guard let transferData = TransferObject(getTransfersInformationTransfer: transfer, player: response.player) else { continue }
+                guard let transferData = TransferObject(getTransfersInformationTransfer: transfer, player: response.player) else {
+                    // print("Could not create transfer for \(transfer) with player \(response.player)")
+                    continue }
                 
                 transferDictionary[transferData.id] = transferData
 

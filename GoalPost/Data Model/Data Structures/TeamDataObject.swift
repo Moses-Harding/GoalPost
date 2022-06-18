@@ -28,10 +28,16 @@ class TeamDataObject {
         guard let id = transferId else { return nil }
         return Cached.transferDictionary[id]
     }
+    
+    var player: PlayerObject? {
+        guard let id = playerID else { return nil }
+        return Cached.playerDictionary[id]
+    }
 
     var injuryId: InjuryID?
     var matchId: MatchUniqueID?
     var transferId: TransferID?
+    var playerID: PlayerID?
     
     var id: Int
     var loading: Bool = false
@@ -57,6 +63,11 @@ class TeamDataObject {
     convenience init(transferId: TransferID) {
         self.init(type: .transfer)
         self.transferId = transferId
+    }
+    
+    convenience init(playerId: PlayerID) {
+        self.init(type: .player)
+        self.playerID = playerId
     }
     
     convenience init(type: TeamDataObjectType, loading: Bool) {

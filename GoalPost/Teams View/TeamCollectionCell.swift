@@ -8,59 +8,6 @@
 import Foundation
 import UIKit
 
-/*
- 
- CELL BODY
- 
- ____________________________________
- | CONTENT VIEW                       |
- |   ______________________________   |
- |  | MAIN STACK                   |  |
- |  |   _______________________    |  |
- |  |  | TITLE STACK           |   |  |
- |  |  |  __________________   |   |  |
- |  |  | |NAME LABEL | LOGO |  |   |  |
- |  |  | |___________|______|  |   |  |
- |  |  |_______________________|   |  |
- |  |                              |  |
- |  |   ________________________   |  |
- |  |  | BODY STACK             |  |  |
- |  |  |  ____________________  |  |  |
- |  |  | | MATCHES STACK      | |  |  |
- |  |  | |  ________________  | |  |  |
- |  |  | | |  MATCHES LABEL | | |  |  |
- |  |  | | |  -----------   | | |  |  |
- |  |  | | | COLLECTIONVIEW | | |  |  |
- |  |  | | |________________| | |  |  |
- |  |  | | ------------------ | |  |  |
- |  |  | | SQUAD STACK        | |  |  |
- |  |  | |  ________________  | |  |  |
- |  |  | | | SQUAD LABEL    | | |  |  |
- |  |  | | |  -----------   | | |  |  |
- |  |  | | | COLLECTIONVIEW | | |  |  |
- |  |  | | |________________| | |  |  |
- |  |  | | ------------------ | |  |  |
- |  |  | | INJURIES STACK     | |  |  |
- |  |  | |  ________________  | |  |  |
- |  |  | | | INJURIES LABEL | | |  |  |
- |  |  | | |  -----------   | | |  |  |
- |  |  | | | COLLECTIONVIEW | | |  |  |
- |  |  | | |________________| | |  |  |
- |  |  | | ------------------ | |  |  |
- |  |  | | TRANSFERS STACK    | |  |  |
- |  |  | |  ________________  | |  |  |
- |  |  | | | TRANSFERS LABEL| | |  |  |
- |  |  | | |  -----------   | | |  |  |
- |  |  | | | COLLECTIONVIEW | | |  |  |
- |  |  | | |________________| | |  |  |
- |  |  | |____________________| |  |  |
- |  |  |________________________|  |  |
- |  |______________________________|  |
- |____________________________________|
- 
- */
-
-
 class TeamCollectionCell: UICollectionViewCell {
     
     // MARK: - Public Properties
@@ -165,8 +112,7 @@ class TeamCollectionCell: UICollectionViewCell {
     func setUpBodyStack() {
 
         teamDataStack = TeamDataStack(team: self.teamInformation)
-        bodyStack.addArrangedSubview(removalButton)
-        bodyStack.addArrangedSubview(teamDataStack)
+        bodyStack.add(children: [(UIView(), 0.05), (removalButton, nil), (UIView(), 0.05), (teamDataStack, nil), (UIView(), 0.05)])
         
         removalButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         

@@ -37,6 +37,8 @@ class RootController: UITabBarController {
     func testing() {
         // clearData()
 
+        // Cached.transferDictionary = [:]
+        // Cached.transfersByTeam = [:]
         
         print("Favorite leagues - \(Cached.favoriteLeagues.values)")
         print("Favorite teams - \(Cached.favoriteTeams.values)")

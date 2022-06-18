@@ -10,12 +10,14 @@ import Foundation
 struct DataFetcher {
     static var helper = DataFetcher()
     
-    var testing = false
+    var testing = true
     
     func fetchDataIfValid(_ forceDataRetrieval: Bool) {
         
+        let queue = DispatchQueue(label: "Get favorite data queue")
+        
         if testing {
-            //getDataforFavoriteLeagues()
+            getDataforFavoriteLeagues(queue: queue)
             getDataForFavoriteTeams()
             return
         }
@@ -36,10 +38,12 @@ struct DataFetcher {
                 
                 // MARK: NOTE - ENABLE THIS IN PROD
                 /*
-                for league in Cached.favoriteLeagues {
-                    self.getDataFor(league: league.value)
-                }
-                */
+                 for league in Cached.favoriteLeagues {
+                 group.enter()
+                 self.getDataFor(league: league.value)
+                 group.leave()
+                 }
+                 */
             }
             
             Saved.firstRun = false
@@ -50,9 +54,8 @@ struct DataFetcher {
         // Daily Update
         if Date.now.timeIntervalSince(Saved.dailyUpdate) >= 86400 || forceDataRetrieval {
             print("\n\n*** Running daily search since time interval was - \(Date.now.timeIntervalSince(Saved.dailyUpdate))\n")
-            getDataforFavoriteLeagues()
+            getDataforFavoriteLeagues(queue: queue)
             getDataForFavoriteTeams()
-            
             Saved.dailyUpdate = Date.now
         }
         
@@ -75,13 +78,6 @@ struct DataFetcher {
         }
     }
     
-    func add(team teamObject: TeamObject) {
-        
-        print("DataFetcher - Adding data for team \(teamObject.name)")
-        
-        getDataFor(team: teamObject)
-    }
-    
     func add(league: LeagueObject) {
         getDataFor(league: league)
     }
@@ -101,12 +97,14 @@ struct DataFetcher {
         }
     }
     
-    private func getDataforFavoriteLeagues() {
+    private func getDataforFavoriteLeagues(queue: DispatchQueue) {
         
         print("DataFetcher - Getting data for favorite leagues")
         
         for league in Cached.favoriteLeagues {
-            getDataFor(league: league.value)
+            queue.async {
+                getDataFor(league: league.value)
+            }
         }
     }
     
@@ -114,45 +112,26 @@ struct DataFetcher {
         
         print("DataFetcher - Getting data for favorite teams")
         
-        for team in Cached.favoriteTeams {
-            getDataFor(team: team.value)
-        }
-    }
-    
-    private func getDataFor(team teamObject: TeamObject) {
-        Task.init {
-            // Retrieve data
-            let (team, leagueDictionary) = try await GetLeagues.helper.getLeaguesFrom(team: teamObject)
-            
-            Cached.favoriteTeams[team.id] = team
-            Cached.teamDictionary[team.id] = team
-            
-            Cached.leagueDictionary.integrate(leagueDictionary, replaceExistingValue: true)
-            for (key, _) in Cached.favoriteLeagues {
-                Cached.favoriteLeagues[key] = Cached.leagueDictionary[key]
-            }
-
-                    let (transferDictionary, transfersByTeam) = try await GetTransfers.helper.getTransfersFor(team: team)
-
+        let queue = DispatchQueue(label: "favoriteTeamQueue", qos: .background)
+        
+        let group = DispatchGroup()
+        group.setTarget(queue: queue)
+        
+        queue.async {
+            Task.init {
+                var index = 0
+                var teamIds = Cached.favoriteTeams.keys.map { $0 }
+                while index < teamIds.count {
+                    //queue.async {
+                    //Task.init {
+                    guard let team = Cached.favoriteTeams[teamIds[index]] else {
+                        print("DataFetcher - getDataForFavoriteTeams - Could not located team with id \(teamIds[index])")
+                        continue
+                    }
                     
-                    Cached.transferDictionary.integrate(transferDictionary, replaceExistingValue: true)
-                    Cached.transfersByTeam.integrate(transfersByTeam, replaceExistingValue: true)
-
-                    let (injuryDictionary, injuriesByTeam) = try await GetInjuries.helper.getInjuriesFor(team: team)
+                    print("DataFetcher - getDataForFavoriteTeams - Beginning data retrival for team \(team.name)")
                     
-                    
-                    Cached.injuryDictionary.integrate(injuryDictionary, replaceExistingValue: true)
-                    Cached.injuriesByTeam.integrate(injuriesByTeam, replaceExistingValue: true)
-
-                    var (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
-                    let (lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, lastFavoriteMatchesByDateSet, lastFavoriteMatchesDictionary) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
-                    
-                    matchesDictionary.integrate(lastMatchesDictionary, replaceExistingValue: true)
-                    matchesByTeam.integrate(lastMatchesByTeam, replaceExistingValue: true)
-                    matchesByDateSet.integrate(lastMatchesByDateSet, replaceExistingValue: true)
-                    favoriteMatchesByDateSet.integrate(lastFavoriteMatchesByDateSet, replaceExistingValue: true)
-                    favoriteMatchesDictionary.integrate(lastFavoriteMatchesDictionary, replaceExistingValue: true)
-                    matchesByLeagueSet.integrate(lastMatchesByLeagueSet, replaceExistingValue: true)
+                    let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary, lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, lastFavoriteMatchesByDateSet, lastFavoriteMatchesDictionary, injuryDictionary, injuriesByTeam, playerDictionary, playersByTeam, transferDictionary, transfersByTeam) = try await getDataFor(team: team, group: group)
                     
                     Cached.matchesDictionary.integrate(matchesDictionary, replaceExistingValue: true)
                     Cached.matchesByTeam.integrate(matchesByTeam, replaceExistingValue: true)
@@ -160,9 +139,121 @@ struct DataFetcher {
                     Cached.favoriteMatchesByDateSet.integrate(favoriteMatchesByDateSet, replaceExistingValue: true)
                     Cached.favoriteMatchesDictionary.integrate(favoriteMatchesDictionary, replaceExistingValue: true)
                     Cached.matchesByLeagueSet.integrate(matchesByLeagueSet, replaceExistingValue: true)
-            
+                    
+                    Cached.matchesDictionary.integrate(lastMatchesDictionary, replaceExistingValue: true)
+                    Cached.matchesByTeam.integrate(lastMatchesByTeam, replaceExistingValue: true)
+                    Cached.matchesByDateSet.integrate(lastMatchesByDateSet, replaceExistingValue: true)
+                    Cached.favoriteMatchesByDateSet.integrate(lastFavoriteMatchesByDateSet, replaceExistingValue: true)
+                    Cached.favoriteMatchesDictionary.integrate(lastFavoriteMatchesDictionary, replaceExistingValue: true)
+                    Cached.matchesByLeagueSet.integrate(lastMatchesByLeagueSet, replaceExistingValue: true)
+                    
+                    print("DataFetcher - getDataForFavoriteTeams - Matches retrieved for \(team.name)")
+                    
+                    Cached.injuryDictionary.integrate(injuryDictionary, replaceExistingValue: true)
+                    Cached.injuriesByTeam.integrate(injuriesByTeam, replaceExistingValue: true)
+                    
+                    print("DataFetcher - getDataForFavoriteTeams - Injury retrieved for \(team.name)")
+                    
+                    Cached.playerDictionary.integrate(playerDictionary, replaceExistingValue: true)
+                    Cached.playersByTeam.integrate(playersByTeam, replaceExistingValue: true)
+                    
+                    print("DataFetcher - getDataForFavoriteTeams - Player retrieved for \(team.name)")
+                    
+                    Cached.transferDictionary.integrate(transferDictionary, replaceExistingValue: true)
+                    Cached.transfersByTeam.integrate(transfersByTeam, replaceExistingValue: true)
+                    
+                    print("DataFetcher - getDataForFavoriteTeams - Transfer retrieved for \(team.name)")
+                    
+                    index += 1
+                }
+            }
         }
     }
+    
+    private func getDataFor(team teamObject: TeamObject, group: DispatchGroup) async throws -> ([MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [MatchUniqueID:MatchObject], [MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [MatchUniqueID:MatchObject], [InjuryID:InjuryObject], [TeamID:Set<InjuryID>], [PlayerID:PlayerObject], [TeamID:Set<PlayerID>], [TransferID:TransferObject], [TeamID:Set<TransferID>]) {
+        
+        let team = try await DataFetcher.helper.addLeaguesFor(team: teamObject)
+        
+        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
+        let (lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, lastFavoriteMatchesByDateSet, lastFavoriteMatchesDictionary) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
+        
+        let (injuryDictionary, injuriesByTeam) = try await GetInjuries.helper.getInjuriesFor(team: team)
+        
+        
+        let (playerDictionary, playersByTeam) = try await GetSquad.helper.getSquadFor(team: team)
+        
+        let (transferDictionary, transfersByTeam) = try await GetTransfers.helper.getTransfersFor(team: team)
+        
+        return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary, lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, lastFavoriteMatchesByDateSet, lastFavoriteMatchesDictionary, injuryDictionary, injuriesByTeam, playerDictionary, playersByTeam, transferDictionary, transfersByTeam)
+        
+    }
+    
+    /*
+     private func getDataForFavoriteTeams() {
+     
+     print("DataFetcher - Getting data for favorite teams")
+     
+     let queue = DispatchQueue(label: "favoriteTeamQueue", qos: .background)
+     
+     let group = DispatchGroup()
+     group.setTarget(queue: queue)
+     
+     for team in Cached.favoriteTeams {
+     
+     group.enter()
+     getDataFor(team: team.value, group: group)
+     group.wait()
+     }
+     }
+     
+     private func getDataFor(team teamObject: TeamObject, group: DispatchGroup) {
+     
+     Task.init {
+     let team = try await DataFetcher.helper.addLeaguesFor(team: teamObject)
+     
+     let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
+     let (lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, lastFavoriteMatchesByDateSet, lastFavoriteMatchesDictionary) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
+     
+     
+     Cached.matchesDictionary.integrate(matchesDictionary, replaceExistingValue: true)
+     Cached.matchesByTeam.integrate(matchesByTeam, replaceExistingValue: true)
+     Cached.matchesByDateSet.integrate(matchesByDateSet, replaceExistingValue: true)
+     Cached.favoriteMatchesByDateSet.integrate(favoriteMatchesByDateSet, replaceExistingValue: true)
+     Cached.favoriteMatchesDictionary.integrate(favoriteMatchesDictionary, replaceExistingValue: true)
+     Cached.matchesByLeagueSet.integrate(matchesByLeagueSet, replaceExistingValue: true)
+     
+     Cached.matchesDictionary.integrate(lastMatchesDictionary, replaceExistingValue: true)
+     Cached.matchesByTeam.integrate(lastMatchesByTeam, replaceExistingValue: true)
+     Cached.matchesByDateSet.integrate(lastMatchesByDateSet, replaceExistingValue: true)
+     Cached.favoriteMatchesByDateSet.integrate(lastFavoriteMatchesByDateSet, replaceExistingValue: true)
+     Cached.favoriteMatchesDictionary.integrate(lastFavoriteMatchesDictionary, replaceExistingValue: true)
+     Cached.matchesByLeagueSet.integrate(lastMatchesByLeagueSet, replaceExistingValue: true)
+     
+     print("Matches complete for \(team.name)")
+     
+     let (injuryDictionary, injuriesByTeam) = try await GetInjuries.helper.getInjuriesFor(team: team)
+     
+     Cached.injuryDictionary.integrate(injuryDictionary, replaceExistingValue: true)
+     Cached.injuriesByTeam.integrate(injuriesByTeam, replaceExistingValue: true)
+     
+     print("Injury complete for \(team.name)")
+     
+     let (playerDictionary, playersByTeam) = try await GetSquad.helper.getSquadFor(team: team)
+     
+     Cached.playerDictionary.integrate(playerDictionary, replaceExistingValue: true)
+     Cached.playersByTeam.integrate(playersByTeam, replaceExistingValue: true)
+     
+     print("Player complete for \(team.name)")
+     
+     let (transferDictionary, transfersByTeam) = try await GetTransfers.helper.getTransfersFor(team: team)
+     Cached.transferDictionary.integrate(transferDictionary, replaceExistingValue: true)
+     Cached.transfersByTeam.integrate(transfersByTeam, replaceExistingValue: true)
+     print("Transfer complete for \(team.name)")
+     
+     group.leave()
+     }
+     }
+     */
     
     /* Functions for adding Team */
     
@@ -172,7 +263,7 @@ struct DataFetcher {
         
         Cached.favoriteTeams[team.id] = team
         Cached.teamDictionary[team.id] = team
-    
+        
         Cached.leagueDictionary.integrate(leagueDictionary, replaceExistingValue: true)
         for (key, _) in Cached.favoriteLeagues {
             Cached.favoriteLeagues[key] = Cached.leagueDictionary[key]
@@ -183,6 +274,7 @@ struct DataFetcher {
     
     func addTransfersFor(team: TeamObject, completion: @escaping () async -> ()) async throws {
         let (transferDictionary, transfersByTeam) = try await GetTransfers.helper.getTransfersFor(team: team)
+        
         Cached.transferDictionary.integrate(transferDictionary, replaceExistingValue: true)
         Cached.transfersByTeam.integrate(transfersByTeam, replaceExistingValue: true)
         await completion()
@@ -196,10 +288,18 @@ struct DataFetcher {
         await completion()
     }
     
+    func addSquadFor(team: TeamObject, completion: @escaping () async -> ()) async throws {
+        let (playerDictionary, playersByTeam) = try await GetSquad.helper.getSquadFor(team: team)
+        
+        Cached.playerDictionary.integrate(playerDictionary, replaceExistingValue: true)
+        Cached.playersByTeam.integrate(playersByTeam, replaceExistingValue: true)
+        await completion()
+    }
+    
     func addMatchesFor(team: TeamObject, completion: @escaping () async -> ()) async throws  {
         let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
         let (lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, lastFavoriteMatchesByDateSet, lastFavoriteMatchesDictionary) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
-
+        
         
         Cached.matchesDictionary.integrate(matchesDictionary, replaceExistingValue: true)
         Cached.matchesByTeam.integrate(matchesByTeam, replaceExistingValue: true)

@@ -15,8 +15,6 @@ class TeamObject: Codable {
     var country: String?
     var national: Bool = false
     var logo: String?
-    
-    // SWITCH THIS OVER TO JUST A SET
 
     var leagueSet = Set<LeagueID>()
     

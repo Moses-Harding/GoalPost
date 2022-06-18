@@ -314,7 +314,7 @@ extension TeamSearchView: UICollectionViewDelegate {
         
         self.addAnimation() {
             self.viewController?.dismiss(animated: true)
-            self.viewController?.refreshableParent?.refresh()
+            self.viewController?.refreshableParent?.refresh(calledBy: "TeamSearchView - didSelectItemAt (adding team)")
             self.viewController?.refreshableParent?.add(team: team)
         }
     }

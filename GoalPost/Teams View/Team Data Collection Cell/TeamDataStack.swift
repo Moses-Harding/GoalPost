@@ -17,8 +17,7 @@ class TeamDataStack: UIStackView {
     
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCollectionViewLayout())
     
-    var totalHeight: CGFloat = 800
-    var heightConstraint: NSLayoutConstraint?
+    var totalHeight: CGFloat = 1200
     
     // Data
     var team: TeamObject?
@@ -26,6 +25,7 @@ class TeamDataStack: UIStackView {
     var matchLoading = false
     var injuryLoading = false
     var transferLoading = false
+    var playerLoading = false
     
     init(team: TeamObject?) {
         super.init(frame: .zero)
@@ -42,8 +42,7 @@ class TeamDataStack: UIStackView {
         // Set Up Structure
         self.add([collectionViewArea])
         
-        heightConstraint = self.heightAnchor.constraint(greaterThanOrEqualToConstant: totalHeight)
-        heightConstraint?.isActive = true
+        self.heightAnchor.constraint(greaterThanOrEqualToConstant: totalHeight).isActive = true
     }
     
     func setUpCollectionView() {
@@ -53,6 +52,7 @@ class TeamDataStack: UIStackView {
         collectionView.register(MatchCollectionCell.self, forCellWithReuseIdentifier: String(describing: MatchCollectionCell.self))
         collectionView.register(InjuryCollectionCell.self, forCellWithReuseIdentifier: String(describing: InjuryCollectionCell.self))
         collectionView.register(TransferCollectionCell.self, forCellWithReuseIdentifier: String(describing: TransferCollectionCell.self))
+        collectionView.register(PlayerCollectionCell.self, forCellWithReuseIdentifier: String(describing: PlayerCollectionCell.self))
         
         
         dataSource = UICollectionViewDiffableDataSource<TeamDataObjectType, TeamDataObject>(collectionView: collectionView) {
@@ -86,6 +86,15 @@ class TeamDataStack: UIStackView {
                 
                 cell.teamDataObject = teamDataObject
                 return cell
+            case .player:
+                guard let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: String(describing: PlayerCollectionCell.self),
+                    for: indexPath) as? PlayerCollectionCell else {
+                    fatalError("Could not cast cell as \(PlayerCollectionCell.self)")
+                }
+                
+                cell.teamDataObject = teamDataObject
+                return cell
             }
         }
         collectionView.dataSource = dataSource
@@ -106,7 +115,7 @@ class TeamDataStack: UIStackView {
         }
         
         var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>()
-        snapshot.appendSections([.match, .transfer, .injury])
+        snapshot.appendSections([.match, .transfer, .injury, .player])
         dataSource?.apply(snapshot)
     }
     
@@ -117,7 +126,7 @@ class TeamDataStack: UIStackView {
         let insetSize: CGFloat = 10
         let spacingSize: CGFloat = 5
         
-        let cellSize = (totalHeight / 4.0) - titleHeight - (insetSize * 2)
+        let cellSize: CGFloat = 200
         
         let sectionProvider = { (sectionIndex: Int,
                                  layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
@@ -135,7 +144,7 @@ class TeamDataStack: UIStackView {
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .continuous
             section.interGroupSpacing = spacingSize
-            section.contentInsets = NSDirectionalEdgeInsets(top: insetSize, leading: insetSize, bottom: 0, trailing: insetSize)
+            section.contentInsets = NSDirectionalEdgeInsets(top: insetSize, leading: insetSize, bottom: insetSize, trailing: insetSize)
             
             let titleSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                    heightDimension: .estimated(titleHeight))
@@ -165,11 +174,12 @@ class TeamDataStack: UIStackView {
         
         // Create a snapshot that define the current state of data source's data
         var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>()
-        snapshot.appendSections([.match, .injury, .transfer])
+        snapshot.appendSections([.match, .injury, .transfer, .player])
 
         updateMatchSection()
         updateTransferSection()
         updateInjurySection()
+        updatePlayerSection()
     }
     
     func setUpColors() {
@@ -265,6 +275,34 @@ extension TeamDataStack {
         }
     }
     
+    func updatePlayerSection() {
+
+        print("TeamDataStack - Update Player Section for \(team)")
+        
+        if playerLoading {
+            self.load(.player)
+            return
+        }
+        
+        DispatchQueue.main.async {
+
+            guard let dataSource = self.dataSource, let teamId = self.team?.id, let playerIDs = Cached.playersByTeam[teamId] else { return }
+
+            var snapshot = dataSource.snapshot(for: .player)
+
+            var players = [TeamDataObject]()
+            
+            for playerId in playerIDs.sorted(by: { $0 < $1 } ) {
+                players.append(TeamDataObject(playerId: playerId))
+            }
+            
+            snapshot.deleteAll()
+            snapshot.append(players)
+            dataSource.apply(snapshot, to: .player, animatingDifferences: false)
+        }
+    }
+
+    
     func load(_ sectionType: TeamDataObjectType) {
         print("TeamDataStack - Loading Section for \(team)")
         guard let dataSource = self.dataSource else { return }
@@ -276,6 +314,8 @@ extension TeamDataStack {
             self.injuryLoading = true
         case .transfer:
             self.transferLoading = true
+        case .player:
+            self.playerLoading = true
         }
         
         var snapshot = dataSource.snapshot(for: .injury)

@@ -25,6 +25,15 @@ class PlayerObject: Codable {
     
     var id: PlayerID
     var name: String
+    var photo: String?
+    var age: Int?
+    var number: Int?
+    var position: String?
+    var teams = [TeamID]()
+    
+    /*
+    var id: PlayerID
+    var name: String
     var firstName: String?
     var lastName: String?
     var age: Int?
@@ -37,11 +46,20 @@ class PlayerObject: Codable {
     var photo: String?
     
     var teams = [TeamID]()
+     */
     
     init(id: PlayerID, name: String, photo: String?) {
         self.id = id
         self.name = name
         self.photo = photo
+    }
+    
+    convenience init(getSquadInformationPlayer player: GetSquadInformation_Player, team: TeamID) {
+        self.init(id: player.id, name: player.name, photo: player.photo)
+        self.age = player.age
+        self.number = player.number
+        self.position = player.position.rawValue
+        self.teams.append(team)
     }
     
     convenience init(getInjuriesInformationPlayer player: GetInjuriesInformation_Player) {

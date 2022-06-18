@@ -50,7 +50,7 @@ enum TeamDataObjectType: String {
     case match = "Matches"
     case injury = "Injuries and Absences"
     case transfer = "Transfers"
-    // case squad = "Squad"
+    case player = "Squad"
 }
 
 

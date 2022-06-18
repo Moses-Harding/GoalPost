@@ -30,7 +30,6 @@ class TeamDataStackCellModel: UICollectionViewCell {
     // MARK: Loading
     
     var loadingView = UIView()
-    var loadingLabel = UILabel()
     
     
     override init(frame: CGRect) {
@@ -51,17 +50,14 @@ class TeamDataStackCellModel: UICollectionViewCell {
         contentView.constrain(mainStack, using: .edges, padding: 10, debugName: "MainStack To ContentView - TeamDataStackCellModel")
         
         mainStack.add([contentStack, loadingView])
+        
+        layer.cornerRadius = 15
+        layer.borderColor = Colors.teamDataStackCellBorderColor.cgColor
+        layer.borderWidth = 1
     }
     
     func setUpLoadingView() {
-        /*
-        loadingView.constrain(loadingLabel, debugName: "Loading Label to Loading View - MatchCollectionCell")
-        
-        loadingLabel.text = "LOADING"
-        loadingLabel.font = UIFont.preferredFont(forTextStyle: .title1)
-        loadingLabel.textAlignment = .center
-         */
-        
+
         loadingView.constrain(indicator)
         loadingView.isHidden = true
     }

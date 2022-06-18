@@ -51,7 +51,7 @@ class TeamsViewController: UIViewController {
         super.viewDidAppear(animated)
         addAdView()
         
-        teamsView.refresh()
+        teamsView.refresh(calledBy: "TeamsViewController - viewDidAppear")
     }
     
     override func viewWillTransition(

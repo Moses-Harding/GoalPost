@@ -129,10 +129,11 @@ struct Cached {
     
     @Cache(key: "*Matches By Date", defaultValue: [:]) static var matchesByDateSet: [DateString: Set<MatchUniqueID>]
     @Cache(key: "*Matches By League", defaultValue: [:]) static var matchesByLeagueSet: [LeagueID: Set<MatchUniqueID>]
+   
     @Cache(key: "*Matches By Team", defaultValue: [:]) static var matchesByTeam: [TeamID:Set<MatchUniqueID>]
-    
     @Cache(key: "*Injuries By Team", defaultValue: [:]) static var injuriesByTeam: [TeamID:Set<InjuryID>]
     @Cache(key: "*Transfers By Team", defaultValue: [:]) static var transfersByTeam: [TeamID:Set<TransferID>]
+    @Cache(key: "*Players By Team", defaultValue: [:]) static var playersByTeam: [TeamID:Set<PlayerID>]
     
     // Dictionaries
     @Cache(key: "*Team Dictionary", defaultValue: [:]) static var teamDictionary: [TeamID:TeamObject]

@@ -75,14 +75,12 @@ class TeamsView: UIView {
         setUpDataSource()
         setUpColors()
         collectionView.delegate = self
-
-        self.refresh()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     // MARK: - Private Methods
     
     func createCollectionViewLayout() -> UICollectionViewLayout {
@@ -91,13 +89,13 @@ class TeamsView: UIView {
         let padding: CGFloat = 0
         
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                             heightDimension: .estimated(50))
+                                              heightDimension: .estimated(50))
         
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-      
+        
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: itemSize,
-                                                         subitems: [item])
-
+                                                       subitems: [item])
+        
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 20
         section.contentInsets = .init(top: 20, leading: padding, bottom: padding, trailing: padding)
@@ -121,19 +119,23 @@ class TeamsView: UIView {
     
     private func setUpDataSource() {
         
-        var foundTeams = [TeamObject]()
+        print("TeamsView - setUpDataSource")
         
-        for team in Cached.favoriteTeams.sorted(by: { $0.value.name > $1.value.name} ) {
-            foundTeams.append(team.value)
-        }
+        /*
+         var foundTeams = [TeamObject]()
+         
+         for team in Cached.favoriteTeams.sorted(by: { $0.value.name < $1.value.name} ) {
+         foundTeams.append(team.value)
+         }
+         */
         
         dataSource = UICollectionViewDiffableDataSource<Section, TeamObject>(collectionView: collectionView) {
             (collectionView, indexPath, teamInformation) -> UICollectionViewCell? in
-
+            
             guard let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: String(describing: TeamCollectionCell.self),
                 for: indexPath) as? TeamCollectionCell else {
-                    fatalError("Could not cast cell as \(TeamCollectionCell.self)")
+                fatalError("Could not cast cell as \(TeamCollectionCell.self)")
             }
             cell.teamInformation = teamInformation
             cell.teamsViewDelegate = self
@@ -143,17 +145,18 @@ class TeamsView: UIView {
         
         var snapshot = NSDiffableDataSourceSnapshot<Section, TeamObject>()
         snapshot.appendSections([.main])
-        snapshot.appendItems(foundTeams)
+        //snapshot.appendItems(foundTeams)
         dataSource?.apply(snapshot)
     }
     
     func applyTeamsToDataSourceSnapshot(_ teamObjects: [TeamObject]?) {
         // MARK: Setup snap shots
-
+        print("TeamsView - applyTeamsToDataSourceSnapshot ")
+        
         guard let result = teamObjects, let dataSource = dataSource else { return }
         
         let teams = result.map { $0 }
-
+        
         // Create a snapshot that define the current state of data source's data
         var snapshot = NSDiffableDataSourceSnapshot<Section, TeamObject>()
         snapshot.appendSections([.main])
@@ -204,13 +207,13 @@ extension TeamsView {
 extension TeamsView: TeamsViewDelegate {
     
     // Refresh
-    func refresh() {
+    func refresh(calledBy function: String) {
         
-        print("TeamsView - Refreshing")
+        print("TeamsView - Refreshing - called by \(function)")
         
         var foundTeams = [TeamObject]()
         
-        for team in Cached.favoriteTeams {
+        for team in Cached.favoriteTeams.sorted(by: { $0.value.name < $1.value.name }) {
             foundTeams.append(team.value)
         }
         
@@ -235,22 +238,26 @@ extension TeamsView: TeamsViewDelegate {
         cell.teamDataStack.load(.match)
         cell.teamDataStack.load(.transfer)
         cell.teamDataStack.load(.injury)
+        cell.teamDataStack.load(.player)
         
         Task.init {
             let team = try await DataFetcher.helper.addLeaguesFor(team: team)
-                try await DataFetcher.helper.addMatchesFor(team: team) {
-                    print("\n\n******\n******\n******\nCalling Completion For Matches\n******\n******\n******\n")
-                    cell.teamDataStack.matchLoading = false
-                    cell.teamDataStack.updateMatchSection()
-                }
-                try await DataFetcher.helper.addTransfersFor(team: team) {
-                    print("\n\n******\n******\n******\nCalling Completion For Transfer\n******\n******\n******\n")
-                    cell.teamDataStack.transferLoading = false
-                    cell.teamDataStack.updateTransferSection() }
-                try await DataFetcher.helper.addInjuriesFor(team: team) {
-                    print("\n\n******\n******\n******\nCalling Completion For Injury\n******\n******\n******\n")
-                    cell.teamDataStack.injuryLoading = false
-                    cell.teamDataStack.updateInjurySection() }
+            try await DataFetcher.helper.addMatchesFor(team: team) {
+                print("\n\n******\n******\n******\nCalling Completion For Matches\n******\n******\n******\n")
+                cell.teamDataStack.matchLoading = false
+                cell.teamDataStack.updateMatchSection() }
+            try await DataFetcher.helper.addInjuriesFor(team: team) {
+                print("\n\n******\n******\n******\nCalling Completion For Injury\n******\n******\n******\n")
+                cell.teamDataStack.injuryLoading = false
+                cell.teamDataStack.updateInjurySection() }
+            try await DataFetcher.helper.addSquadFor(team: team) {
+                print("\n\n******\n******\n******\nCalling Completion For Player\n******\n******\n******\n")
+                cell.teamDataStack.playerLoading = false
+                cell.teamDataStack.updatePlayerSection() }
+            try await DataFetcher.helper.addTransfersFor(team: team) {
+                print("\n\n******\n******\n******\nCalling Completion For Transfer\n******\n******\n******\n")
+                cell.teamDataStack.transferLoading = false
+                cell.teamDataStack.updateTransferSection() }
         }
         
         cell.isSelected = true
@@ -258,7 +265,7 @@ extension TeamsView: TeamsViewDelegate {
     
     func remove(team: TeamObject) {
         Cached.favoriteTeams.removeValue(forKey: team.id)
-        self.refresh()
+        self.refresh(calledBy: "TeamsView - Remove Team")
     }
 }
 
