@@ -13,14 +13,14 @@ import Foundation
 
 class InjuryObject: Codable {
     
-    var team: TeamObject? {
-        return Cached.teamDictionary[teamId]
+    func team() async -> TeamObject? {
+        return await Cached.data.teamDictionary(teamId)
     }
-    var player: PlayerObject? {
-        return Cached.playerDictionary[playerId]
+    func player() async -> PlayerObject? {
+        return await Cached.data.playerDictionary(playerId)
     }
-    var league: LeagueObject? {
-        return Cached.leagueDictionary[leagueId]
+    func league() async -> LeagueObject? {
+        return await Cached.data.leagueDictionary(leagueId)
     }
     
     var teamId: TeamID
@@ -43,15 +43,18 @@ class InjuryObject: Codable {
         leagueId = info.league.id
         matchId = MatchObject.getUniqueID(id: info.fixture.id, timestamp: info.fixture.timestamp)
         date = Date(timeIntervalSince1970: TimeInterval(info.fixture.timestamp))
-        
-        Cached.playerDictionary.addIfNoneExists(PlayerObject(getInjuriesInformationPlayer: info.player), key: playerId)
-        Cached.leagueDictionary.addIfNoneExists(LeagueObject(getInjuriesInformationLeague: info.league) , key: leagueId)
 
          
         self.type = info.player.type
         self.reason = info.player.reason
         
         self.id = "\(info.fixture.timestamp)\(matchId)\(playerId)\(reason)"
+        
+        
+        Task.init {
+            await Cached.data.playerDictionaryAddIfNoneExists(PlayerObject(getInjuriesInformationPlayer: info.player), key: playerId)
+            await Cached.data.leagueDictionaryAddIfNoneExists(LeagueObject(getInjuriesInformationLeague: info.league), key: leagueId)
+        }
     }
 }
 

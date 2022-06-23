@@ -124,7 +124,7 @@ class TeamsView: UIView {
         /*
          var foundTeams = [TeamObject]()
          
-         for team in Cached.favoriteTeams.sorted(by: { $0.value.name < $1.value.name} ) {
+         for team in await Cached.data.favoriteTeams.sorted(by: { $0.value.name < $1.value.name} ) {
          foundTeams.append(team.value)
          }
          */
@@ -213,11 +213,13 @@ extension TeamsView: TeamsViewDelegate {
         
         var foundTeams = [TeamObject]()
         
-        for team in Cached.favoriteTeams.sorted(by: { $0.value.name < $1.value.name }) {
+        Task.init {
+        for team in await Cached.data.getFavoriteTeams().sorted(by: { $0.value.name < $1.value.name }) {
             foundTeams.append(team.value)
         }
         
         applyTeamsToDataSourceSnapshot(foundTeams)
+        }
     }
     
     func add(team: TeamObject) {
@@ -264,8 +266,10 @@ extension TeamsView: TeamsViewDelegate {
     }
     
     func remove(team: TeamObject) {
-        Cached.favoriteTeams.removeValue(forKey: team.id)
+        Task.init {
+        await Cached.data.favoriteTeamsRemoveValue(forKey: team.id)
         self.refresh(calledBy: "TeamsView - Remove Team")
+        }
     }
 }
 

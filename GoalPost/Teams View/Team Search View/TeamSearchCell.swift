@@ -18,7 +18,7 @@ class TeamSearchCell: UICollectionViewListCell {
         var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
         backgroundConfiguration.backgroundColor = .clear
         self.backgroundConfiguration = backgroundConfiguration
-            
+        
         // Create new configuration object and update it base on state
         var newConfiguration = TeamSearchContentConfiguration().updated(for: state)
         
@@ -55,7 +55,7 @@ struct TeamSearchContentConfiguration: UIContentConfiguration, Hashable {
         } else {
             // Other states
         }
-
+        
         return updatedConfiguration
     }
     
@@ -65,7 +65,7 @@ struct TeamSearchContentConfiguration: UIContentConfiguration, Hashable {
 class TeamSearchContentView: UIView, UIContentView {
     
     // MARK: Labels
-
+    
     var teamLabel = UILabel()
     var countryLabel = UILabel()
     
@@ -75,12 +75,12 @@ class TeamSearchContentView: UIView, UIContentView {
     var teamLogo = UIImageView()
     
     // MARK: Views
-
+    
     var mainStack = UIStackView(.vertical)
     
     var topStack = UIStackView(.horizontal)
     var bottomStack = UIStackView(.horizontal)
-
+    
     private var currentConfiguration: TeamSearchContentConfiguration!
     
     //Allows easy application of a new configuration or retrieval of existing configuration
@@ -100,13 +100,13 @@ class TeamSearchContentView: UIView, UIContentView {
         }
     }
     
-
+    
     init(configuration: TeamSearchContentConfiguration) {
         super.init(frame: .zero)
         
         // Create the content view UI
         setupAllViews()
-
+        
         
         // Apply the configuration (set data to UI elements / define custom content view appearance)
         apply(configuration: configuration)
@@ -121,7 +121,7 @@ class TeamSearchContentView: UIView, UIContentView {
 private extension TeamSearchContentView {
     
     private func setupAllViews() {
-
+        
         addSubview(mainStack)
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -157,7 +157,7 @@ private extension TeamSearchContentView {
     }
     
     private func apply(configuration: TeamSearchContentConfiguration) {
-    
+        
         // Only apply configuration if new configuration and current configuration are not the same
         guard currentConfiguration != configuration, let teamInformation = configuration.teamInformation else {
             return
@@ -177,15 +177,17 @@ private extension TeamSearchContentView {
         
         let imageName = "\(team.name) - \(team.id).png"
         
-        if let image = Cached.data.retrieveImage(from: imageName) {
-            
-            self.teamLogo.image = image
-            
-            return
+        Task.init {
+            if let image = await Cached.data.retrieveImage(from: imageName) {
+                
+                self.teamLogo.image = image
+                
+                return
+            }
         }
         
         guard let url = URL(string: team.logo!) else { return }
-
+        
         DispatchQueue.global().async {
             if let data = try? Data(contentsOf: url) {
                 DispatchQueue.main.async {
@@ -194,7 +196,9 @@ private extension TeamSearchContentView {
                     
                     self.teamLogo.image = image
                     
-                    Cached.data.save(image: image, uniqueName: imageName)
+                    Task.init {
+                        await Cached.data.save(image: image, uniqueName: imageName)
+                    }
                 }
             }
         }

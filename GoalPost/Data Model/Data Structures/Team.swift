@@ -19,12 +19,14 @@ class TeamObject: Codable {
     var leagueSet = Set<LeagueID>()
     
     // This should be used for searching
-    lazy var mostRecentSeason: Int? = {
+    func mostRecentSeason() async -> Int? {
         
         var season: Int?
         // Iterate through the league dictionary and return the most recent league
         for leagueId in leagueSet {
-            if let leagueSeason = Cached.leagueDictionary[leagueId]?.currentSeason {
+
+            let league = await Cached.data.leagueDictionary(leagueId)
+            if let leagueSeason = league?.currentSeason {
                 if let currentSeason = season {
                     if leagueSeason > currentSeason {
                         season = leagueSeason
@@ -33,9 +35,10 @@ class TeamObject: Codable {
                     season = leagueSeason
                 }
             }
-        }
+            }
+
         return season
-    } ()
+    }
     
     // Returned on Team Search
     

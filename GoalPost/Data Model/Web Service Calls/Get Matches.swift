@@ -26,7 +26,7 @@ class GetMatches {
         let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?league=\(String(league.id))&season=\(season)"
 
         let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
-        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try convert(data: data)
+        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await convert(data: data)
         
         return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary)
     }
@@ -36,7 +36,7 @@ class GetMatches {
         let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?team=\(String(team.id))&last=\(String(numberOfMatches))"
         
         let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
-        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try convert(data: data)
+        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await convert(data: data)
         
         return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary)
     }
@@ -46,17 +46,17 @@ class GetMatches {
         let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?team=\(String(team.id))&next=\(String(numberOfMatches))"
         
         let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
-        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try convert(data: data)
+        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await convert(data: data)
         
         return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary)
     }
     
     func getMatchesFor(team: TeamObject) async throws -> ([MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [MatchUniqueID:MatchObject]) {
         
-        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?team=\(String(team.id))&season=\(String(team.mostRecentSeason))"
+        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?team=\(String(team.id))&season=\(await String(team.mostRecentSeason()))"
         
         let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
-        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try convert(data: data)
+        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await convert(data: data)
         
         return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary)
     }
@@ -70,12 +70,14 @@ class GetMatches {
         let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?date=\(searchDate)"
         
         let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
-        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try convert(data: data)
+        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await convert(data: data)
         
         return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary)
     }
     
-    func convert(data: Data?) throws -> ([MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [MatchUniqueID:MatchObject]) {
+    func convert(data: Data?) async throws -> ([MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [MatchUniqueID:MatchObject]) {
+        
+        // Task.init {
         
         var matchesDictionary = [MatchUniqueID:MatchObject]()
         var matchesByTeam = [TeamID:Set<MatchUniqueID>]()
@@ -101,13 +103,13 @@ class GetMatches {
             let matchData = MatchObject(getMatchesStructure: result, favoriteTeam: false)
 
             // Add if it's in a favorite league
-            if Cached.favoriteLeagues.keys.contains(leagueId) {
+            if await Cached.data.favoriteLeagues.keys.contains(leagueId) {
                 
                 matchesByDateSet.add(matchUniqueId, toSetWithKey: matchDate.asKey)
             }
             
             // Add if it's a favorite team
-            if Cached.favoriteTeams.keys.contains(homeTeamId) || Cached.favoriteTeams.keys.contains(awayTeamId) {
+            if await Cached.data.favoriteTeams.keys.contains(homeTeamId) {
                 
                 let favoriteMatchId = DefaultIdentifier.favoriteTeam.rawValue + matchId
                 let favoriteMatchUniqueID = MatchObject.getUniqueID(id: favoriteMatchId, timestamp: result.fixture.timestamp)
@@ -116,6 +118,16 @@ class GetMatches {
                 favoriteMatchesByDateSet.add(favoriteMatchUniqueID, toSetWithKey: matchDate.asKey)
                 favoriteMatchesDictionary[favoriteMatchUniqueID] = favoriteMatchData
             }
+            
+            if await Cached.data.favoriteTeams.keys.contains(awayTeamId) {
+                let favoriteMatchId = DefaultIdentifier.favoriteTeam.rawValue + matchId
+                let favoriteMatchUniqueID = MatchObject.getUniqueID(id: favoriteMatchId, timestamp: result.fixture.timestamp)
+                let favoriteMatchData = MatchObject(getMatchesStructure: result, favoriteTeam: true)
+                
+                favoriteMatchesByDateSet.add(favoriteMatchUniqueID, toSetWithKey: matchDate.asKey)
+                favoriteMatchesDictionary[favoriteMatchUniqueID] = favoriteMatchData
+            }
+        
             
             // Add to dictionary of all matches
             matchesDictionary[matchUniqueId] = matchData
@@ -128,5 +140,6 @@ class GetMatches {
         }
         
         return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary)
+        //}
     }
 }

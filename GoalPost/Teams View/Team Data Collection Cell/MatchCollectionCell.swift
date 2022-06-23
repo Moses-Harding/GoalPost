@@ -59,7 +59,7 @@ class MatchCollectionCell: TeamDataStackCellModel {
     
     // MARK: - Private Methods
     private func setUp() {
-
+        
         contentStack.add(children: [(UIView(), 0.05), (dateStack, 0.2), (UIView(), 0.05), (greenLine, 0.02), (UIView(), 0.05), (homeTeamStack, nil), (awayTeamStack, nil), (UIView(), 0.05),])
         
         mainStack.setCustomSpacing(10, after: dateStack)
@@ -93,17 +93,19 @@ class MatchCollectionCell: TeamDataStackCellModel {
     
     override func updateContent() {
         
+        Task.init {
+        
         guard let teamDataObject = teamDataObject else { return }
-
-            guard let match = teamDataObject.match else { print("Attempting to update content for match cell but matchInformation not found")
-                return
-            }
-            guard let homeTeam = Cached.teamDictionary[match.homeTeamId] else { print("Attempting to update content for match cell but home team with id \(match.homeTeamId) not found")
-                return
-            }
-            guard let awayTeam = match.awayTeam else { print("Attempting to update content for match cell but away Team with id \(match.awayTeamId) not found")
-                return
-            }
+        
+            guard let match = await teamDataObject.match() else { print("Attempting to update content for match cell but matchInformation not found")
+            return
+        }
+            guard let homeTeam = await Cached.data.teamDictionary(match.homeTeamId) else { print("Attempting to update content for match cell but home team with id \(match.homeTeamId) not found")
+            return
+        }
+            guard let awayTeam = await match.awayTeam() else { print("Attempting to update content for match cell but away Team with id \(match.awayTeamId) not found")
+            return
+        }
         
         // Set data to UI elements
         homeTeamLabel.text = homeTeam.name
@@ -114,6 +116,8 @@ class MatchCollectionCell: TeamDataStackCellModel {
         
         loadImage(for: homeTeam, teamType: .home)
         loadImage(for: awayTeam, teamType: .away)
+            
+        }
     }
     
     enum TeamType {
@@ -131,15 +135,17 @@ class MatchCollectionCell: TeamDataStackCellModel {
         
         let imageName = "\(team.name) - \(team.id).png"
         
-        if let image = Cached.data.retrieveImage(from: imageName) {
-            
-            if teamType == .home {
-                self.homeImageView.image = image
-            } else {
-                self.awayImageView.image = image
+        Task.init {
+            if let image = await Cached.data.retrieveImage(from: imageName) {
+                
+                if teamType == .home {
+                    self.homeImageView.image = image
+                } else {
+                    self.awayImageView.image = image
+                }
+                
+                return
             }
-            
-            return
         }
         
         guard let logo = team.logo, let url = URL(string: logo)  else { return }
@@ -157,7 +163,9 @@ class MatchCollectionCell: TeamDataStackCellModel {
                         self.awayImageView.image = image
                     }
                     
-                    Cached.data.save(image: image, uniqueName: imageName)
+                    Task.init {
+                        await Cached.data.save(image: image, uniqueName: imageName)
+                    }
                 }
             }
         }

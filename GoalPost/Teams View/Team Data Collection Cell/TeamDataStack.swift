@@ -194,6 +194,24 @@ class TeamDataStack: UIStackView {
 
 extension TeamDataStack {
     
+    func update(_ section: TeamDataObjectType, with objects: [TeamDataObject]) {
+        guard let dataSource = self.dataSource else {
+                print("TeamDataStack - DataSource not found!")
+            return
+        }
+        
+        self.load(section)
+        
+        DispatchQueue.main.async {
+
+            var snapshot = dataSource.snapshot(for: section)
+            
+            snapshot.deleteAll()
+            snapshot.append(objects)
+            dataSource.apply(snapshot, to: section, animatingDifferences: false)
+        }
+    }
+    
     func updateTransferSection() {
         
         print("TeamDataStack - Update Transfer Section for \(team)")
@@ -203,9 +221,9 @@ extension TeamDataStack {
             return
         }
         
-        DispatchQueue.main.async {
+        Task.init {
             
-            guard let dataSource = self.dataSource, let teamId = self.team?.id, let transferIDs = Cached.transfersByTeam[teamId] else { return }
+            guard let dataSource = self.dataSource, let teamId = self.team?.id, let transferIDs = await Cached.data.transfersByTeam[teamId] else { return }
 
             var snapshot = dataSource.snapshot(for: .transfer)
 
@@ -217,7 +235,7 @@ extension TeamDataStack {
             
             snapshot.deleteAll()
             snapshot.append(transfers)
-            dataSource.apply(snapshot, to: .transfer, animatingDifferences: false)
+            await dataSource.apply(snapshot, to: .transfer, animatingDifferences: false)
         }
     }
     
@@ -230,9 +248,9 @@ extension TeamDataStack {
             return
         }
         
-        DispatchQueue.main.async {
+        Task.init {
 
-            guard let dataSource = self.dataSource, let teamId = self.team?.id, let matchIDs = Cached.matchesByTeam[teamId] else { return }
+            guard let dataSource = self.dataSource, let teamId = self.team?.id, let matchIDs = await Cached.data.matchesByTeam[teamId] else { return }
 
             var snapshot = dataSource.snapshot(for: .match)
 
@@ -244,7 +262,7 @@ extension TeamDataStack {
 
             snapshot.deleteAll()
             snapshot.append(matches)
-            dataSource.apply(snapshot, to: .match, animatingDifferences: false)
+            await dataSource.apply(snapshot, to: .match, animatingDifferences: false)
         }
     }
     
@@ -257,9 +275,9 @@ extension TeamDataStack {
             return
         }
         
-        DispatchQueue.main.async {
+        Task.init {
 
-            guard let dataSource = self.dataSource, let teamId = self.team?.id, let injuryIDs = Cached.injuriesByTeam[teamId] else { return }
+            guard let dataSource = self.dataSource, let teamId = self.team?.id, let injuryIDs = await Cached.data.injuriesByTeam[teamId] else { return }
 
             var snapshot = dataSource.snapshot(for: .injury)
 
@@ -271,7 +289,7 @@ extension TeamDataStack {
 
             snapshot.deleteAll()
             snapshot.append(injuries)
-            dataSource.apply(snapshot, to: .injury, animatingDifferences: false)
+            await dataSource.apply(snapshot, to: .injury, animatingDifferences: false)
         }
     }
     
@@ -284,9 +302,9 @@ extension TeamDataStack {
             return
         }
         
-        DispatchQueue.main.async {
+        Task.init {
 
-            guard let dataSource = self.dataSource, let teamId = self.team?.id, let playerIDs = Cached.playersByTeam[teamId] else { return }
+            guard let dataSource = self.dataSource, let teamId = self.team?.id, let playerIDs = await Cached.data.playersByTeam[teamId] else { return }
 
             var snapshot = dataSource.snapshot(for: .player)
 
@@ -298,7 +316,7 @@ extension TeamDataStack {
             
             snapshot.deleteAll()
             snapshot.append(players)
-            dataSource.apply(snapshot, to: .player, animatingDifferences: false)
+            await dataSource.apply(snapshot, to: .player, animatingDifferences: false)
         }
     }
 

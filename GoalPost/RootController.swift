@@ -40,8 +40,10 @@ class RootController: UITabBarController {
         // Cached.transferDictionary = [:]
         // Cached.transfersByTeam = [:]
         
-        print("Favorite leagues - \(Cached.favoriteLeagues.values)")
-        print("Favorite teams - \(Cached.favoriteTeams.values)")
+        Task.init {
+            print("Favorite leagues - \(await Cached.data.favoriteLeagues.values)")
+            print("Favorite teams - \(await Cached.data.favoriteTeams.values)")
+        }
     }
     
     func gatherData() {
@@ -55,24 +57,8 @@ class RootController: UITabBarController {
         
         Saved.firstRun = true
         
-        Cached.favoriteLeagues = [:]
-        Cached.favoriteTeams = [:]
-        
-        Cached.favoriteMatchesByDateSet = [:]
-        Cached.favoriteMatchesDictionary = [:]
-        
-        Cached.matchesByDateSet = [:]
-        Cached.matchesByLeagueSet = [:]
-        Cached.matchesByTeam = [:]
-        
-        Cached.injuriesByTeam = [:]
-        Cached.transfersByTeam = [:]
-
-        Cached.teamDictionary = [:]
-        Cached.leagueDictionary = [:]
-        Cached.matchesDictionary = [:]
-        Cached.injuryDictionary = [:]
-        Cached.playerDictionary = [:]
-        Cached.transferDictionary = [:]
+        Task.init {
+            await Cached.data.clearData()
+        }
     }
 }

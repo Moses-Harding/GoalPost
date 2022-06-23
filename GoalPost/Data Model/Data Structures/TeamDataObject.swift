@@ -14,24 +14,24 @@ class TeamDataObject {
     
     var type: TeamDataObjectType
     
-    var injury: InjuryObject? {
+    func injury() async -> InjuryObject? {
         guard let id = injuryId else { return nil }
-        return Cached.injuryDictionary[id]
+        return await Cached.data.injuryDictionary(id)
     }
     
-    var match: MatchObject? {
+    func match() async -> MatchObject? {
         guard let id = matchId else { return nil }
-        return Cached.matchesDictionary[id]
+        return await Cached.data.matchesDictionary(id)
     }
     
-    var transfer: TransferObject? {
+    func transfer() async -> TransferObject? {
         guard let id = transferId else { return nil }
-        return Cached.transferDictionary[id]
+        return await Cached.data.transferDictionary(id)
     }
     
-    var player: PlayerObject? {
+    func player() async -> PlayerObject? {
         guard let id = playerID else { return nil }
-        return Cached.playerDictionary[id]
+        return await Cached.data.playerDictionary(id)
     }
 
     var injuryId: InjuryID?

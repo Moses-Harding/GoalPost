@@ -9,14 +9,16 @@ import Foundation
 
 class TransferObject: Codable {
     
-    var teamTo: TeamObject? {
-        return Cached.teamDictionary[teamToId]
+    func teamTo() async -> TeamObject? {
+        return await Cached.data.teamDictionary(teamToId)
     }
-    var teamFrom: TeamObject? {
-        return Cached.teamDictionary[teamFromId]
+    
+    func teamFrom() async -> TeamObject? {
+        return await Cached.data.teamDictionary(teamFromId)
     }
-    var player: PlayerObject? {
-        return Cached.playerDictionary[playerId]
+    
+    func player() async -> PlayerObject? {
+        return await Cached.data.playerDictionary(playerId)
     }
     
     var playerId: PlayerID
@@ -49,8 +51,10 @@ class TransferObject: Codable {
         
         self.id = "\(year)\(month)\(day) - \(playerId) - \(teamToId) - \(teamFromId)"
          
-        Cached.teamDictionary.addIfNoneExists(TeamObject(id: teamToId, name: teamToName, logo: teamsIn.logo), key: teamToId)
-        Cached.teamDictionary.addIfNoneExists(TeamObject(id: teamFromId, name: teamFromName, logo: teamsOut.logo), key: teamFromId)
-        Cached.playerDictionary.addIfNoneExists(PlayerObject(id: player.id, name: playerName, photo: nil), key: player.id)
+        Task.init{
+            await Cached.data.teamDictionaryAddIfNoneExists(TeamObject(id: teamToId, name: teamToName, logo: teamsIn.logo), key: teamToId)
+            await Cached.data.teamDictionaryAddIfNoneExists(TeamObject(id: teamFromId, name: teamFromName, logo: teamsOut.logo), key: teamFromId)
+            await Cached.data.playerDictionaryAddIfNoneExists(PlayerObject(id: player.id, name: playerName, photo: nil), key: player.id)
+        }
     }
 }

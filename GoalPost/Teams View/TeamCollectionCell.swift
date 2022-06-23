@@ -68,7 +68,7 @@ class TeamCollectionCell: UICollectionViewCell {
     // MARK: - Private Methods
     
     func setUp() {
-
+        
         self.backgroundColor = Colors.teamCellViewBackgroundColor
         layer.cornerRadius = 8
         
@@ -110,7 +110,7 @@ class TeamCollectionCell: UICollectionViewCell {
     }
     
     func setUpBodyStack() {
-
+        
         teamDataStack = TeamDataStack(team: self.teamInformation)
         bodyStack.add(children: [(UIView(), 0.05), (removalButton, nil), (UIView(), 0.05), (teamDataStack, nil), (UIView(), 0.05)])
         
@@ -172,11 +172,13 @@ class TeamCollectionCell: UICollectionViewCell {
         
         let imageName = "\(team.name) - \(team.id).png"
         
-        if let image = Cached.data.retrieveImage(from: imageName) {
-            
-            self.teamLogo.image = image
-            
-            return
+        Task.init {
+            if let image = await Cached.data.retrieveImage(from: imageName) {
+                
+                self.teamLogo.image = image
+                
+                return
+            }
         }
         
         guard let url = URL(string: team.logo!) else { return }
@@ -189,12 +191,14 @@ class TeamCollectionCell: UICollectionViewCell {
                     
                     self.teamLogo.image = image
                     
-                    Cached.data.save(image: image, uniqueName: imageName)
+                    Task.init {
+                        await Cached.data.save(image: image, uniqueName: imageName)
+                    }
                 }
             }
         }
     }
-
+    
 }
 
 extension TeamCollectionCell {

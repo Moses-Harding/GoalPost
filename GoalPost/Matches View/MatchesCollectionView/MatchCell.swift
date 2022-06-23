@@ -18,13 +18,13 @@ class MatchCell: UICollectionViewListCell {
         var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
         backgroundConfiguration.backgroundColor = Colors.cellBodyColor
         self.backgroundConfiguration = backgroundConfiguration
-            
+        
         // Create new configuration object and update it base on state
         var newConfiguration = MatchCellContentConfiguration().updated(for: state)
         
         // Update any configuration parameters related to data item
         newConfiguration.match = match
-
+        
         // Set content configuration in order to update custom content view
         contentConfiguration = newConfiguration
     }
@@ -54,7 +54,7 @@ struct MatchCellContentConfiguration: UIContentConfiguration, Hashable {
         } else {
             // Other states
         }
-
+        
         return updatedConfiguration
     }
     
@@ -98,7 +98,7 @@ class MatchCellContentView: UIView, UIContentView {
     var labelStack = UIStackView(.vertical)
     var statusStack = UIStackView(.horizontal)
     var statusOutline = UIView()
-
+    
     
     var homeImage = UIView()
     var awayImage = UIView()
@@ -109,7 +109,7 @@ class MatchCellContentView: UIView, UIContentView {
     //MARK: Lines
     
     var line = UIView()
-
+    
     private var currentConfiguration: MatchCellContentConfiguration!
     
     //Allows easy application of a new configuration or retrieval of existing configuration
@@ -121,7 +121,7 @@ class MatchCellContentView: UIView, UIContentView {
             apply(configuration: newConfiguration)
         }
     }
-
+    
     init(configuration: MatchCellContentConfiguration) {
         super.init(frame: .zero)
         
@@ -134,7 +134,7 @@ class MatchCellContentView: UIView, UIContentView {
     }
     
     private func setupAllViews() {
-
+        
         addSubview(mainStack)
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -145,7 +145,7 @@ class MatchCellContentView: UIView, UIContentView {
         ])
         
         mainStack.add([topStack, bottomStack])
-
+        
         mainStack.setCustomSpacing(10, after: topStack)
         
         topStack.add(children: [(homeTeamStack, 0.75), (startTimeLabel, nil)])
@@ -205,7 +205,7 @@ class MatchCellContentView: UIView, UIContentView {
         let finished = { [self] in
             statusOutline.layer.borderWidth = 0
             statusOutline.backgroundColor = Colors.titleAreaColor
-                //timeElapsedLabel.backgroundColor = Colors.statusRed
+            //timeElapsedLabel.backgroundColor = Colors.statusRed
             timeElapsedLabel.text = "FT"
         }
         
@@ -234,14 +234,16 @@ class MatchCellContentView: UIView, UIContentView {
     }
     
     private func apply(configuration: MatchCellContentConfiguration) {
-    
+        
+        Task.init {
+        
         // Only apply configuration if new configuration and current configuration are not the same
         guard currentConfiguration != configuration, let match = configuration.match else { return }
         
         // Replace current configuration with new configuration
         currentConfiguration = configuration
         
-        guard let homeTeam = match.homeTeam, let awayTeam = match.awayTeam else { return }
+            guard let homeTeam = await match.homeTeam(), let awayTeam = await match.awayTeam() else { return }
         
         // Set data to UI elements
         homeTeamLabel.text = homeTeam.name
@@ -257,6 +259,7 @@ class MatchCellContentView: UIView, UIContentView {
         
         loadImage(for: homeTeam, teamType: .home)
         loadImage(for: awayTeam, teamType: .away)
+        }
     }
     
     enum TeamType {
@@ -267,21 +270,23 @@ class MatchCellContentView: UIView, UIContentView {
         
         let imageName = "\(team.name) - \(team.id).png"
         
-        if let image = Cached.data.retrieveImage(from: imageName) {
-            
-            if teamType == .home {
-                self.homeImageView.image = image
-            } else {
-                self.awayImageView.image = image
+        Task.init {
+            if let image = await Cached.data.retrieveImage(from: imageName) {
+                
+                if teamType == .home {
+                    self.homeImageView.image = image
+                } else {
+                    self.awayImageView.image = image
+                }
+                
+                return
             }
-            
-            return
         }
         
         guard let logo = team.logo, let url = URL(string: logo)  else { return }
-
+        
         //let url = URL(string: team.logo)!
-
+        
         DispatchQueue.global().async {
             if let data = try? Data(contentsOf: url) {
                 DispatchQueue.main.async {
@@ -293,7 +298,9 @@ class MatchCellContentView: UIView, UIContentView {
                         self.awayImageView.image = image
                     }
                     
-                    Cached.data.save(image: image, uniqueName: imageName)
+                    Task.init {
+                        await Cached.data.save(image: image, uniqueName: imageName)
+                    }
                 }
             }
         }

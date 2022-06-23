@@ -11,19 +11,19 @@ class MatchObject: Codable {
     
     var id: MatchID
     var uniqueID: MatchUniqueID
-
+    
     var timeStamp: Date
     var timezone: String?
     var timeElapsed: Int?
     
-    var homeTeam: TeamObject? {
-        return Cached.teamDictionary[homeTeamId]
+    func homeTeam() async -> TeamObject? {
+        return await Cached.data.teamDictionary(homeTeamId)
     }
     var homeTeamId: TeamID
     var homeTeamScore: Int?
     
-    var awayTeam: TeamObject? {
-        return Cached.teamDictionary[awayTeamId]
+    func awayTeam() async -> TeamObject? {
+        return await Cached.data.teamDictionary(awayTeamId)
     }
     var awayTeamId: TeamID
     var awayTeamScore: Int?
@@ -31,10 +31,10 @@ class MatchObject: Codable {
     var status: MatchStatusCode
     
     var favoriteTeam: Bool
-
-    var league: LeagueObject? {
+    
+    func league() async -> LeagueObject? {
         if let id = leagueId {
-            return Cached.leagueDictionary[id]
+            return await Cached.data.leagueDictionary(id)
         } else {
             return nil
         }
@@ -68,11 +68,13 @@ class MatchObject: Codable {
         
         let homeTeam = TeamObject(getMatchInfoTeam: getMatchesStructure.teams.home)
         let awayTeam = TeamObject(getMatchInfoTeam: getMatchesStructure.teams.away)
-
-        Cached.teamDictionary.addIfNoneExists(homeTeam, key: getMatchesStructure.teams.home.id)
-        Cached.teamDictionary.addIfNoneExists(awayTeam, key: getMatchesStructure.teams.away.id)
-         
-        Cached.leagueDictionary.addIfNoneExists(LeagueObject(getMatchInformationLeague: getMatchesStructure.league), key: getMatchesStructure.league.id)
+        
+        Task.init {
+            await Cached.data.teamDictionaryAddIfNoneExists(homeTeam, key: getMatchesStructure.teams.home.id)
+            await Cached.data.teamDictionaryAddIfNoneExists(awayTeam, key: getMatchesStructure.teams.away.id)
+            
+            await Cached.data.leagueDictionaryAddIfNoneExists(LeagueObject(getMatchInformationLeague: getMatchesStructure.league), key: getMatchesStructure.league.id)
+        }
     }
 }
 
@@ -99,6 +101,6 @@ extension MatchObject: Hashable {
 
 extension MatchObject: CustomStringConvertible {
     var description: String {
-        return "\(self.timeStamp.formatted(date: .numeric, time: .omitted)) - \(String(describing: self.homeTeam?.name)) vs \(self.awayTeam?.name) - \(self.uniqueID)"
+        return "\(self.timeStamp.formatted(date: .numeric, time: .omitted)) - \(self.uniqueID)"
     }
 }

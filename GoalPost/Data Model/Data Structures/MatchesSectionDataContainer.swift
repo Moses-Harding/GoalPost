@@ -26,8 +26,9 @@ struct MatchesSectionDataContainer: Codable, Hashable {
         case .league(let leagueData):
             self.name = leagueData.name
         case .match(let matchData):
-            guard let homeTeam = matchData.homeTeam, let awayTeam = matchData.awayTeam else { fatalError("Home team and away team not passed to match \(matchData)") }
-            self.name = String(homeTeam.id) + String(awayTeam.id) + DateFormatter().string(from: matchData.timeStamp) + String(matchData.favoriteTeam ? "Favorite" : "")
+            //guard let homeTeam = matchData.homeTeam(), let awayTeam = matchData.awayTeam else { fatalError("Home team and away team not passed to match \(matchData)") }
+            //self.name = String(homeTeam.id) + String(awayTeam().id) + DateFormatter().string(from: matchData.timeStamp) + String(matchData.favoriteTeam ? "Favorite" : "")
+            self.name = matchData.uniqueID
         case .ad(let adData):
             self.name = adData.name
         }

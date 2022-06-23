@@ -165,18 +165,20 @@ class MatchesView: UIView {
     func setUpDataSourceSnapshots(from date: Date) {
         // MARK: Setup snap shots
         
+        Task.init {
+        
         // Create new datasource snapshot
         var dataSourceSnapshot = NSDiffableDataSourceSnapshot<MatchesSectionDataContainer, MatchesCellType>()
         
         // Get only the matches for the current date
-        //let currentMatches = Cached.matchesByDay[date.asKey] ?? [:]
-        let matchesByDay = Cached.matchesByDateSet[date.asKey] ?? Set<MatchUniqueID>()
+        //let currentMatches = await Cached.data.matchesByDay[date.asKey] ?? [:]
+        let matchesByDay = await Cached.data.matchesByDateSet(date.asKey) ?? Set<MatchUniqueID>()
         
         var leagueMatchDictionary = [LeagueID:Set<MatchUniqueID>]()
         var leagueDataContainers = [MatchesSectionDataContainer]()
 
-        for leagueId in Cached.favoriteLeagues.keys {
-            guard let leagueSet = Cached.matchesByLeagueSet[leagueId], let league = Cached.leagueDictionary[leagueId] else {
+        for leagueId in await Cached.data.favoriteLeagues.keys {
+            guard let leagueSet = await Cached.data.matchesByLeagueSet[leagueId], let league = await Cached.data.leagueDictionary[leagueId] else {
                 continue
             }
             
@@ -191,7 +193,7 @@ class MatchesView: UIView {
             }
         }
         
-        leagueMatchDictionary[DefaultIdentifier.favoriteTeam.rawValue] = Cached.favoriteMatchesByDateSet[date.asKey] ?? Set<MatchUniqueID>()
+        leagueMatchDictionary[DefaultIdentifier.favoriteTeam.rawValue] = await Cached.data.favoriteMatchesByDateSet[date.asKey] ?? Set<MatchUniqueID>()
         
         // Create a list of each league for that date and sort the leagues alphabetically
         
@@ -226,7 +228,7 @@ class MatchesView: UIView {
         dataSourceSnapshot.appendSections(leaguesList)
         
         // Apply the snapshot to the datasource
-        dataSource.apply(dataSourceSnapshot)
+            await dataSource.apply(dataSourceSnapshot)
         
         // Create a section snapshot for each league
         for sectionItem in leaguesList {
@@ -248,17 +250,20 @@ class MatchesView: UIView {
                 
                 var matchObjects = [MatchObject]()
                 
+                let favoriteMatchesDictionary = await Cached.data.favoriteMatchesDictionary
+                let matchesDictionary = await Cached.data.matchesDictionary
+                
                 if league.id == DefaultIdentifier.favoriteTeam.rawValue {
-                    matchObjects = matchSet.compactMap { Cached.favoriteMatchesDictionary[$0] }
+                    matchObjects = matchSet.compactMap { favoriteMatchesDictionary[$0] }
                 } else {
-                    matchObjects = matchSet.compactMap { Cached.matchesDictionary[$0] }
+                    matchObjects = matchSet.compactMap { matchesDictionary[$0] }
                 }
                 
                 let matchCells = matchObjects.sorted(by: {
                     if $0.timeStamp < $1.timeStamp {
                         return true
                     } else if $0.timeStamp == $1.timeStamp {
-                        return $0.homeTeam?.name ?? "" < $1.homeTeam?.name ?? ""
+                        return $0.homeTeamId < $1.homeTeamId
                     } else {
                         return false
                     } }).map { MatchesCellType.match($0) }
@@ -268,14 +273,15 @@ class MatchesView: UIView {
                 sectionSnapshot.expand([leagueListItem])
                 
                 // Apply section snapshot to the respective collection view section
-                dataSource.apply(sectionSnapshot, to: sectionItem, animatingDifferences: true)
+                await dataSource.apply(sectionSnapshot, to: sectionItem, animatingDifferences: true)
             case .ad(let adData):
                 let adItem = MatchesCellType.ad(adData)
                 sectionSnapshot.append([adItem])
-                dataSource.apply(sectionSnapshot, to: sectionItem, animatingDifferences: true)
+                await dataSource.apply(sectionSnapshot, to: sectionItem, animatingDifferences: true)
             case .match(_):
                 return
             }
+        }
             
         }
     }

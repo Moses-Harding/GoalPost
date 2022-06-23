@@ -77,12 +77,14 @@ class InjuryCollectionCell: TeamDataStackCellModel {
 
     override func updateContent() {
         
+        Task.init {
         guard let teamDataObject = teamDataObject else { return }
-            guard let injuryInfo = teamDataObject.injury else { return }
+        guard let injuryInfo = await teamDataObject.injury() else { return }
             
             reasonLabel.text = "\(injuryInfo.reason)"
             timeOfInjuryLabel.text = "\(injuryInfo.date.formatted(date: .numeric, time: .omitted))"
-            playerNameLabel.text = injuryInfo.player?.name ?? "CANNOT LOCATE PLAYER"
+        playerNameLabel.text = await injuryInfo.player()?.name ?? "CANNOT LOCATE PLAYER"
+        }
     }
 
     func setUpColors() {
