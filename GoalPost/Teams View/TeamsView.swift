@@ -167,11 +167,15 @@ class TeamsView: UIView {
     }
     
     func addTeamToDataSource(team: TeamObject) {
+        
+        print("TeamsView - Adding Team To Data Source")
         guard let dataSource = dataSource else { return }
         
         var snapshot = dataSource.snapshot(for: .main)
         snapshot.append([team])
-        dataSource.apply(snapshot, to: .main)
+        
+        print(snapshot)
+        dataSource.apply(snapshot, to: .main, animatingDifferences: true)
     }
     
     func setUpColors() {
@@ -214,11 +218,11 @@ extension TeamsView: TeamsViewDelegate {
         var foundTeams = [TeamObject]()
         
         Task.init {
-        for team in await Cached.data.getFavoriteTeams().sorted(by: { $0.value.name < $1.value.name }) {
-            foundTeams.append(team.value)
-        }
-        
-        applyTeamsToDataSourceSnapshot(foundTeams)
+            for team in await Cached.data.getFavoriteTeams().sorted(by: { $0.value.name < $1.value.name }) {
+                foundTeams.append(team.value)
+            }
+            
+            applyTeamsToDataSourceSnapshot(foundTeams)
         }
     }
     
@@ -243,7 +247,8 @@ extension TeamsView: TeamsViewDelegate {
         cell.teamDataStack.load(.player)
         
         Task.init {
-            let team = try await DataFetcher.helper.addLeaguesFor(team: team)
+            let team = try await DataFetcher.helper.addLeaguesFor(team: team) {
+                self.refresh(calledBy: "TeamsView - Add - AddLeaguesFor - Completion Handler") }
             try await DataFetcher.helper.addMatchesFor(team: team) {
                 print("\n\n******\n******\n******\nCalling Completion For Matches\n******\n******\n******\n")
                 cell.teamDataStack.matchLoading = false
@@ -267,8 +272,8 @@ extension TeamsView: TeamsViewDelegate {
     
     func remove(team: TeamObject) {
         Task.init {
-        await Cached.data.favoriteTeamsRemoveValue(forKey: team.id)
-        self.refresh(calledBy: "TeamsView - Remove Team")
+            await Cached.data.favoriteTeamsRemoveValue(forKey: team.id)
+            self.refresh(calledBy: "TeamsView - Remove Team")
         }
     }
 }

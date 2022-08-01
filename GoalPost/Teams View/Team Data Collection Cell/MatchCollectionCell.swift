@@ -94,28 +94,28 @@ class MatchCollectionCell: TeamDataStackCellModel {
     override func updateContent() {
         
         Task.init {
-        
-        guard let teamDataObject = teamDataObject else { return }
-        
+            
+            guard let teamDataObject = teamDataObject else { return }
+            
             guard let match = await teamDataObject.match() else { print("Attempting to update content for match cell but matchInformation not found")
-            return
-        }
+                return
+            }
             guard let homeTeam = await Cached.data.teamDictionary(match.homeTeamId) else { print("Attempting to update content for match cell but home team with id \(match.homeTeamId) not found")
-            return
-        }
+                return
+            }
             guard let awayTeam = await match.awayTeam() else { print("Attempting to update content for match cell but away Team with id \(match.awayTeamId) not found")
-            return
-        }
-        
-        // Set data to UI elements
-        homeTeamLabel.text = homeTeam.name
-        awayTeamLabel.text = awayTeam.name
-        dateLabel.text = match.timeStamp.formatted(date: .numeric, time: .omitted)
-        homeTeamScore.text = String(match.homeTeamScore)
-        awayTeamScore.text = String(match.awayTeamScore)
-        
-        loadImage(for: homeTeam, teamType: .home)
-        loadImage(for: awayTeam, teamType: .away)
+                return
+            }
+            
+            // Set data to UI elements
+            homeTeamLabel.text = homeTeam.name
+            awayTeamLabel.text = awayTeam.name
+            dateLabel.text = match.timeStamp.formatted(date: .numeric, time: .omitted)
+            homeTeamScore.text = String(match.homeTeamScore)
+            awayTeamScore.text = String(match.awayTeamScore)
+            
+            loadImage(for: homeTeam, teamType: .home)
+            loadImage(for: awayTeam, teamType: .away)
             
         }
     }

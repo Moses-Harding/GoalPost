@@ -198,7 +198,6 @@ class TeamCollectionCell: UICollectionViewCell {
             }
         }
     }
-    
 }
 
 extension TeamCollectionCell {

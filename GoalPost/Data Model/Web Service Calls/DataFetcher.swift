@@ -176,7 +176,7 @@ struct DataFetcher {
     
     private func getDataFor(team teamObject: TeamObject, group: DispatchGroup) async throws -> ([MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [MatchUniqueID:MatchObject], [MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [MatchUniqueID:MatchObject], [InjuryID:InjuryObject], [TeamID:Set<InjuryID>], [PlayerID:PlayerObject], [TeamID:Set<PlayerID>], [TransferID:TransferObject], [TeamID:Set<TransferID>]) {
         
-        let team = try await DataFetcher.helper.addLeaguesFor(team: teamObject)
+        let team = try await DataFetcher.helper.addLeaguesFor(team: teamObject) {}
         
         let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
         let (lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, lastFavoriteMatchesByDateSet, lastFavoriteMatchesDictionary) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
@@ -261,7 +261,7 @@ struct DataFetcher {
     
     /* Functions for adding Team */
     
-    func addLeaguesFor(team teamObject: TeamObject) async throws -> TeamObject {
+    func addLeaguesFor(team teamObject: TeamObject, completion: @escaping () async -> ()) async throws -> TeamObject {
         
         let (team, leagueDictionary) = try await GetLeagues.helper.getLeaguesFrom(team: teamObject)
         
@@ -272,6 +272,8 @@ struct DataFetcher {
         for (key, _) in await Cached.data.favoriteLeagues {
             await Cached.data.setFavoriteLeagues(with: key, to: Cached.data.leagueDictionary[key])
         }
+        
+        await completion()
         
         return team
     }

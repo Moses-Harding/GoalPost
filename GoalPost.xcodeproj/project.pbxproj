@@ -46,9 +46,9 @@
 		1578B84F282217AC00B71838 /* Get Matches Structure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1578B84E282217AC00B71838 /* Get Matches Structure.swift */; };
 		1578B85128222B7200B71838 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1578B85028222B7200B71838 /* Protocols.swift */; };
 		1578B8532822D98000B71838 /* Cached.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1578B8522822D98000B71838 /* Cached.swift */; };
-		158120FA2843D94C0060AF5F /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158120F92843D94C0060AF5F /* Keys.swift */; };
 		1581E377282B546500BC39FA /* TeamsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1581E376282B546500BC39FA /* TeamsViewController.swift */; };
 		1581E379282B549600BC39FA /* TeamsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1581E378282B549600BC39FA /* TeamsView.swift */; };
+		1585B1242898649A008DF519 /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1585B1232898649A008DF519 /* Keys.swift */; };
 		158B5AA0284EC836007F1989 /* MatchesSectionDataContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158B5A9F284EC834007F1989 /* MatchesSectionDataContainer.swift */; };
 		15A74164283DF5F30054BAD4 /* Team.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A74163283DF5F30054BAD4 /* Team.swift */; };
 		15A74166283DF6120054BAD4 /* Match.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A74165283DF6120054BAD4 /* Match.swift */; };
@@ -117,9 +117,9 @@
 		1578B84E282217AC00B71838 /* Get Matches Structure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Get Matches Structure.swift"; sourceTree = "<group>"; };
 		1578B85028222B7200B71838 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		1578B8522822D98000B71838 /* Cached.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cached.swift; sourceTree = "<group>"; };
-		158120F92843D94C0060AF5F /* Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keys.swift; sourceTree = "<group>"; };
 		1581E376282B546500BC39FA /* TeamsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamsViewController.swift; sourceTree = "<group>"; };
 		1581E378282B549600BC39FA /* TeamsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamsView.swift; sourceTree = "<group>"; };
+		1585B1232898649A008DF519 /* Keys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keys.swift; sourceTree = "<group>"; };
 		158B5A9F284EC834007F1989 /* MatchesSectionDataContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesSectionDataContainer.swift; sourceTree = "<group>"; };
 		15A74163283DF5F30054BAD4 /* Team.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Team.swift; sourceTree = "<group>"; };
 		15A74165283DF6120054BAD4 /* Match.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Match.swift; sourceTree = "<group>"; };
@@ -351,7 +351,7 @@
 				15C6215F28146379005A13E7 /* Custom Classes.swift */,
 				15C6214F28145A01005A13E7 /* Enums.swift */,
 				153376C32840777000C03610 /* GAD.swift */,
-				158120F92843D94C0060AF5F /* Keys.swift */,
+				1585B1232898649A008DF519 /* Keys.swift */,
 				1578B85028222B7200B71838 /* Protocols.swift */,
 				1548A154282377D000741179 /* TestingManager.swift */,
 				155CD96C284577F800F5C4CE /* Types.swift */,
@@ -438,6 +438,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				15D01B18282CA285003BDB30 /* Get Teams.swift in Sources */,
+				1585B1242898649A008DF519 /* Keys.swift in Sources */,
 				15C6216028146379005A13E7 /* Custom Classes.swift in Sources */,
 				15C6215C28145A97005A13E7 /* UIView.swift in Sources */,
 				15C6213B2814592D005A13E7 /* MatchesViewController.swift in Sources */,
@@ -486,7 +487,6 @@
 				15275C81282DA7460005565E /* TeamSearchCell.swift in Sources */,
 				153689832839928D00BBDAE7 /* LeagueCollectionCell.swift in Sources */,
 				15E6B11E2833F5B70038345A /* AdCell.swift in Sources */,
-				158120FA2843D94C0060AF5F /* Keys.swift in Sources */,
 				15A7416D283DF71E0054BAD4 /* Web Service Call Object.swift in Sources */,
 				1536897F2839928D00BBDAE7 /* LeagueSearchViewController.swift in Sources */,
 				1536897E2839928D00BBDAE7 /* LeagueSearchCell.swift in Sources */,

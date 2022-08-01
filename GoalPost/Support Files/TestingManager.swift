@@ -17,3 +17,10 @@ struct Testing {
     
     var disableAds = false
 }
+
+func note(fileName: String, _ message: String) {
+    print("\n[N O T A T I O N]\n-------------------------------------")
+    print("--- Note called in \(fileName) ---")
+    print(message)
+    print("-------------------------------------\n[E N D_N O T A T I O N]\n")
+}

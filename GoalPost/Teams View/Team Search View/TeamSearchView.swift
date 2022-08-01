@@ -311,14 +311,16 @@ extension TeamSearchView: UITextFieldDelegate {
 
 
 extension TeamSearchView: UICollectionViewDelegate {
+    
+    // Called when a cell is selected (a team is added)
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         guard let cell = collectionView.cellForItem(at: indexPath) as? TeamSearchCell, let team = cell.teamInformation else { return }
         
         self.addAnimation() {
             self.viewController?.dismiss(animated: true)
-            self.viewController?.refreshableParent?.refresh(calledBy: "TeamSearchView - didSelectItemAt (adding team)")
             self.viewController?.refreshableParent?.add(team: team)
+            self.viewController?.refreshableParent?.refresh(calledBy: "TeamSearchView - didSelectItemAt (adding team)")
         }
     }
 }
