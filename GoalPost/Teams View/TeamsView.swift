@@ -8,6 +8,36 @@
 import Foundation
 import UIKit
 
+/*
+ DOCUMENTATION
+ 
+ TeamsView includes each team that is added to favorites, as well as a button that triggers TeamSearchView (which searches for / adds additional teams). Each team from favorites is given a cell called TeamCollectionCell, which includes a TeamDataStack. This in turn includes data abotu different categories, e.g. Match, Transfer, Injury, Player.
+ 
+ Set Up Sequence
+ 1. TeamsViewController loads TeamsView
+ 2. TeamsView init sets up UI
+ 3. TeamsView init sets up collectionview / datasource, registering TeamCollectionCell with one section (.main)
+ 4. View appears and Refresh is called, grabbing data for all favorite teams and applying to datasource
+ 
+ External Triggers
+ - Refresh: Called when view appears, when a team is added, and when a team is removed. This searches through favorite teams, then adds their data to the collectionview's datasource and applies it, replacing existing cells.
+ - Add: When a cell is selected in TeamSearchView, an animation plays and then add() is called. A new cell is inserted into the existing snapshot and that cell is passed to the DataFetcher, which retrieves information about the team and adds it favorites. Once that information is retrieved, the cell's data is updated via cell-specific methods.
+ - Remove: Called by removal button for a given team collection cell. Removes team from favorites and then simply called Refresh
+ - PresentTeamSearchViewController: The "+ Add Teams" button presents the TeamSearchViewController
+ 
+ 
+ --------
+ TitleStack
+    Add Button
+ --------
+ CollectionView
+    TeamCollectionCell
+        TeamDataStack
+            CollectionView
+                TitleSupplementaryView
+                    MatchCollectionCell
+ */
+
 class TeamsView: UIView {
     
     enum Section {
@@ -23,9 +53,6 @@ class TeamsView: UIView {
     var mainStack = UIStackView(.vertical)
     var titleArea = UIStackView(.horizontal)
     var addTeamStack = UIStackView(.horizontal)
-    
-    // Other Views
-    var collectionViewArea = UIView()
     var addTeamLabelView = UIView()
     
     // MARK: Buttons
@@ -51,15 +78,6 @@ class TeamsView: UIView {
         return label
     } ()
     
-    var favoriteTeamsLabel: UILabel = {
-        let label = UILabel()
-        label.text = "My Teams"
-        label.font = UIFont.systemFont(ofSize: 20)
-        label.textAlignment = .center
-        label.numberOfLines = -1
-        return label
-    } ()
-    
     // MARK: Logic
     
     var viewController: TeamsViewController?
@@ -81,9 +99,26 @@ class TeamsView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - Private Methods
+    // MARK: Set Up
     
-    func createCollectionViewLayout() -> UICollectionViewLayout {
+    // 1
+    private func setUpStacks() {
+        self.constrain(mainStack, safeAreaLayout: true)
+        mainStack.add(children: [(titleArea, 0.075), (UIView(), 0.05), (addTeamStack, 0.1), (collectionView, nil), (UIView(), 0.05)])
+        
+        // Might as well set up the title area as long as we're at it
+        titleArea.constrain(titleLabel, using: .scale, widthScale: 0.5, heightScale: 1, padding: 5, except: [], safeAreaLayout: true, debugName: "My Teams Title Label")
+        
+        addTeamStack.add(children: [(UIView(), 0.25), (addTeamButton, 0.5), (UIView(), nil)])
+    }
+    
+    // 2
+    private func setUpCollectionView() {
+        collectionView.register(TeamCollectionCell.self, forCellWithReuseIdentifier: String(describing: TeamCollectionCell.self))
+    }
+    
+    // 2.5 - Called via lazy initialization of collectionview
+    private func createCollectionViewLayout() -> UICollectionViewLayout {
         // The item and group will share this size to allow for automatic sizing of the cell's height
         
         let padding: CGFloat = 0
@@ -103,31 +138,10 @@ class TeamsView: UIView {
         return UICollectionViewCompositionalLayout(section: section)
     }
     
-    private func setUpStacks() {
-        self.constrain(mainStack, safeAreaLayout: true)
-        mainStack.add(children: [(titleArea, 0.075), (UIView(), 0.05), (addTeamStack, 0.1), (collectionView, nil), (UIView(), 0.05)])
-        
-        // Might as well set up the title area as long as we're at it
-        titleArea.constrain(titleLabel, using: .scale, widthScale: 0.5, heightScale: 1, padding: 5, except: [], safeAreaLayout: true, debugName: "My Teams Title Label")
-        
-        addTeamStack.add(children: [(UIView(), 0.25), (addTeamButton, 0.5), (UIView(), nil)])
-    }
-    
-    private func setUpCollectionView() {
-        collectionView.register(TeamCollectionCell.self, forCellWithReuseIdentifier: String(describing: TeamCollectionCell.self))
-    }
-    
+    // 3
     private func setUpDataSource() {
         
         print("TeamsView - setUpDataSource")
-        
-        /*
-         var foundTeams = [TeamObject]()
-         
-         for team in await Cached.data.favoriteTeams.sorted(by: { $0.value.name < $1.value.name} ) {
-         foundTeams.append(team.value)
-         }
-         */
         
         dataSource = UICollectionViewDiffableDataSource<Section, TeamObject>(collectionView: collectionView) {
             (collectionView, indexPath, teamInformation) -> UICollectionViewCell? in
@@ -141,6 +155,7 @@ class TeamsView: UIView {
             cell.teamsViewDelegate = self
             return cell
         }
+        
         collectionView.dataSource = dataSource
         
         var snapshot = NSDiffableDataSourceSnapshot<Section, TeamObject>()
@@ -149,35 +164,7 @@ class TeamsView: UIView {
         dataSource?.apply(snapshot)
     }
     
-    func applyTeamsToDataSourceSnapshot(_ teamObjects: [TeamObject]?) {
-        // MARK: Setup snap shots
-        print("TeamsView - applyTeamsToDataSourceSnapshot ")
-        
-        guard let result = teamObjects, let dataSource = dataSource else { return }
-        
-        let teams = result.map { $0 }
-        
-        // Create a snapshot that define the current state of data source's data
-        var snapshot = NSDiffableDataSourceSnapshot<Section, TeamObject>()
-        snapshot.appendSections([.main])
-        snapshot.appendItems(teams, toSection: .main)
-        
-        // Display data on the collection view by applying the snapshot to data source
-        dataSource.apply(snapshot, animatingDifferences: true)
-    }
-    
-    func addTeamToDataSource(team: TeamObject) {
-        
-        print("TeamsView - Adding Team To Data Source")
-        guard let dataSource = dataSource else { return }
-        
-        var snapshot = dataSource.snapshot(for: .main)
-        snapshot.append([team])
-        
-        print(snapshot)
-        dataSource.apply(snapshot, to: .main, animatingDifferences: true)
-    }
-    
+    // 4
     func setUpColors() {
         // Views
         mainStack.backgroundColor = Colors.backgroundColor
@@ -198,6 +185,8 @@ class TeamsView: UIView {
 // MARK: Actions
 
 extension TeamsView {
+    
+    // The add button presents the search view
     @objc func presentTeamSearchViewController() {
         
         if let controller = viewController {
@@ -210,67 +199,86 @@ extension TeamsView {
 
 extension TeamsView: TeamsViewDelegate {
     
-    // Refresh
-    func refresh(calledBy function: String) {
+    func refresh(calledBy function: String, expandingCell id: Int? = nil) {
         
         print("TeamsView - Refreshing - called by \(function)")
         
-        var foundTeams = [TeamObject]()
-        
         Task.init {
+            
+            // 1. Retrieve all teams from cache. It must be async to deal with concurrency issues.
+            var foundTeams = [TeamObject]()
+            
             for team in await Cached.data.getFavoriteTeams().sorted(by: { $0.value.name < $1.value.name }) {
                 foundTeams.append(team.value)
             }
             
-            applyTeamsToDataSourceSnapshot(foundTeams)
+            guard let dataSource = dataSource else { return }
+            
+            // 2. Create a new snapshot using .main and append the teams that were found
+            var snapshot = NSDiffableDataSourceSnapshot<Section, TeamObject>()
+            snapshot.appendSections([.main])
+            snapshot.appendItems(foundTeams, toSection: .main)
+            
+            // 3. Apply to datasource
+            await dataSource.apply(snapshot, animatingDifferences: true)
+            
+            if let teamId = id {
+                for item in 0 ... collectionView.numberOfItems(inSection: 0) - 1 {
+                    let path = IndexPath(item: item, section: 0)
+                    guard let teamCell = collectionView.cellForItem(at: path) as? TeamCollectionCell else {
+                        print("Could not cast \(path) as a teamcollectioncell")
+                        continue }
+                    if teamCell.teamInformation?.id == teamId {
+                        collectionView.selectItem(at: path, animated: true, scrollPosition: .centeredVertically)
+                    }
+                }
+            }
         }
     }
     
     func add(team: TeamObject) {
         
-        addTeamToDataSource(team: team)
+        guard let dataSource = dataSource else { return }
         
-        var capturedCell: TeamCollectionCell?
+        // 1. Add team to datasource
+        //      Retrieve snapshot and append new team. Even though refreshing will accomplish the same thing, this is done here first because we need to pass a cell to the Data Fetcher
+        var snapshot = dataSource.snapshot(for: .main)
+        snapshot.append([team])
+        dataSource.apply(snapshot, to: .main, animatingDifferences: true)
         
-        for eachCell in collectionView.visibleCells {
-            guard let teamCell = eachCell as? TeamCollectionCell else { continue }
+        // 2. Find the cell, initiate the "load" functionality, and pass it to DataFetcher
+
+        for item in 0 ... collectionView.numberOfItems(inSection: 0) - 1 {
+            let path = IndexPath(item: item, section: 0)
+            guard let teamCell = collectionView.cellForItem(at: path) as? TeamCollectionCell else {
+                print("Could not cast \(path) as a teamcollectioncell")
+                continue }
             if teamCell.teamInformation?.id == team.id {
-                capturedCell = teamCell
+                teamCell.teamDataStack.load(.match)
+                collectionView.selectItem(at: path, animated: true, scrollPosition: .centeredVertically)
             }
         }
         
-        guard let cell = capturedCell else { fatalError("TeamsView - Could not locate cell to update") }
-        
-        cell.teamDataStack.load(.match)
-        cell.teamDataStack.load(.transfer)
-        cell.teamDataStack.load(.injury)
-        cell.teamDataStack.load(.player)
-        
         Task.init {
-            let team = try await DataFetcher.helper.addLeaguesFor(team: team) {
+            
+            // 3. Add team to favorites. Once complete, update the Match section
+            let team = try await DataFetcher.helper.addFavorite(team: team) {
                 self.refresh(calledBy: "TeamsView - Add - AddLeaguesFor - Completion Handler") }
             try await DataFetcher.helper.addMatchesFor(team: team) {
                 print("\n\n******\n******\n******\nCalling Completion For Matches\n******\n******\n******\n")
-                cell.teamDataStack.matchLoading = false
-                cell.teamDataStack.updateMatchSection() }
-            try await DataFetcher.helper.addInjuriesFor(team: team) {
-                print("\n\n******\n******\n******\nCalling Completion For Injury\n******\n******\n******\n")
-                cell.teamDataStack.injuryLoading = false
-                cell.teamDataStack.updateInjurySection() }
-            try await DataFetcher.helper.addSquadFor(team: team) {
-                print("\n\n******\n******\n******\nCalling Completion For Player\n******\n******\n******\n")
-                cell.teamDataStack.playerLoading = false
-                cell.teamDataStack.updatePlayerSection() }
-            try await DataFetcher.helper.addTransfersFor(team: team) {
-                print("\n\n******\n******\n******\nCalling Completion For Transfer\n******\n******\n******\n")
-                cell.teamDataStack.transferLoading = false
-                cell.teamDataStack.updateTransferSection() }
+                self.refresh(calledBy: "add(team)", expandingCell: team.id)
+                //cell.teamDataStack.matchLoading = false
+                //cell.teamDataStack.updateMatchSection()
+            }
         }
         
-        cell.isSelected = true
+        // 4. Trigger the cell selection process
+        
+        self.refresh(calledBy: "TeamsView - Add")
     }
     
     func remove(team: TeamObject) {
+        /// Called By removal button in Team Collection Cell
         Task.init {
             await Cached.data.favoriteTeamsRemoveValue(forKey: team.id)
             self.refresh(calledBy: "TeamsView - Remove Team")

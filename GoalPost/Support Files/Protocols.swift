@@ -13,7 +13,7 @@ protocol Refreshable {
 }
 
 protocol TeamsViewDelegate {
-    func refresh(calledBy: String)
+    func refresh(calledBy: String, expandingCell id: Int?)
     func add(team: TeamObject)
     func remove(team: TeamObject)
 }

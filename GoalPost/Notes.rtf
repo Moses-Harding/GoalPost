@@ -7,4 +7,31 @@
 
 \f0\fs24 \cf0 6/10 - Issues with concurrently updating teamdatastack - causes some of the cells not to populate. Solution to force refresh, or not run concurrently?\
 \
-6/18 - Issue: problem when adding concurrently to cache - retrieving existing team + adding new team at the same time}
+6/18 - Issue: problem when adding concurrently to cache - retrieving existing team + adding new team at the same time\
+\
+8/2 - \
+Problems\
+- When a team is removed, ensure that it cancels ongoing web service calls\
+- Ensure that a team is fully removed when remove button is tapped (removed from favorites)\
+- Matches are loaded and then disappear\
+- Idea - simplify down to only showing matches for v1\
+\
+\
+V1 Plan:\
+1. Match page\
+	- Display my teams\
+	- Display my leagues\
+	- Update live\
+	- Option to see all live matches\
+2. Teams page\
+	- Search for and add teams\
+	- Teams are added to favorites\
+	- Teams display upcoming / previous matches\
+	- Teams display basic biographical information\
+		- NOTE: Single call\
+	- Teams are removeable\
+3. Leagues page\
+	- Search for and add leagues\
+	- Leagues are added to favorites\
+	- Leagues display table\
+	- Leagues are removeable}

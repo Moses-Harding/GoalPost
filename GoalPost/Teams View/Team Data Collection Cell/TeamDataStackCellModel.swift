@@ -8,6 +8,18 @@
 import Foundation
 import UIKit
 
+/*
+ DOCUMENTATION
+ 
+ All cells that live in the collectionView in the TeamDataStack are subclasses of this class. This class primarily handles the "loading" functionality.
+ 
+ 1. ConctentView adds MainStack, which contains both "contentStack" and "LoadingView"
+ 2. LoadingView is hidden by default
+ 3. When a teamDataObject is assigned to the cell, checkForContent() fires. If the teamDataObject has the property "loading", then the contentView is hidden, the loadingView is unhidden, and the loading(true) method is called. Otherwise, the reverse happens, and the function "updateContent" is called (which is overrided on a subclass level).
+ 4. If loading(true) is called, start animating the indicator (waiting wheel); otherwise do the reverse.
+ 
+ */
+
 class TeamDataStackCellModel: UICollectionViewCell {
     
     // MARK: Data
@@ -83,13 +95,17 @@ class TeamDataStackCellModel: UICollectionViewCell {
     }
     
     func loading(_ loading: Bool) {
+        
         if loading {
-            self.backgroundColor = UIColor.clear
+            self.backgroundColor = UIColor.red
+            //self.loadingView.backgroundColor = .black
+            //self.indicator.color = .green
+            //self.indicator.backgroundColor = .yellow
             self.indicator.startAnimating()
+            print(self.loadingView.isHidden, self.indicator.layer.zPosition, self.indicator.isHidden, self.indicator.isOpaque, self.indicator.isAnimating)
         } else {
             self.backgroundColor = Colors.teamDataStackCellBackgroundColor
             self.indicator.stopAnimating()
         }
-
     }
 }

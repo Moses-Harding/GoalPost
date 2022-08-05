@@ -8,7 +8,18 @@
 import Foundation
 import UIKit
 
+/*
+ DOCUMENTATION
+ 
+ 
+ 
+ */
+
 class MatchCollectionCell: TeamDataStackCellModel {
+    
+    enum TeamType {
+        case home, away
+    }
     
     //MARK: Labels
     
@@ -25,15 +36,9 @@ class MatchCollectionCell: TeamDataStackCellModel {
     
     //MARK: Views
     
-    var topStack = UIStackView(.horizontal)
-    var bottomStack = UIStackView(.horizontal)
-    
     var dateStack = UIStackView(.horizontal)
     var homeTeamStack = UIStackView(.horizontal)
     var awayTeamStack = UIStackView(.horizontal)
-    
-    var imageStack = UIStackView(.horizontal)
-    var labelStack = UIStackView(.vertical)
     
     var homeImage = UIView()
     var awayImage = UIView()
@@ -54,11 +59,15 @@ class MatchCollectionCell: TeamDataStackCellModel {
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        
         setUp()
+        setUpColors()
     }
     
-    // MARK: - Private Methods
+    // 1
     private func setUp() {
+        
+        //print("Set up for \(teamDataObject?.id)")
         
         contentStack.add(children: [(UIView(), 0.05), (dateStack, 0.2), (UIView(), 0.05), (greenLine, 0.02), (UIView(), 0.05), (homeTeamStack, nil), (awayTeamStack, nil), (UIView(), 0.05),])
         
@@ -87,11 +96,21 @@ class MatchCollectionCell: TeamDataStackCellModel {
         homeImageView.widthAnchor.constraint(equalToConstant: 20).isActive = true
         awayImageView.heightAnchor.constraint(equalToConstant: 20).isActive = true
         awayImageView.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        
-        imageStack.alignment = .center
     }
     
+    
+    // 2
+    func setUpColors() {
+        self.backgroundColor = Colors.teamDataStackCellBackgroundColor
+        
+        allLabels.forEach { $0.textColor = Colors.teamDataStackCellTextColor }
+        greenLine.backgroundColor = Colors.teamDataStackCellTextColor
+    }
+    
+    
     override func updateContent() {
+        
+        //print("Update Content for \(teamDataObject?.id)")
         
         Task.init {
             
@@ -110,25 +129,14 @@ class MatchCollectionCell: TeamDataStackCellModel {
             // Set data to UI elements
             homeTeamLabel.text = homeTeam.name
             awayTeamLabel.text = awayTeam.name
-            dateLabel.text = match.timeStamp.formatted(date: .numeric, time: .omitted)
+            //dateLabel.text = match.timeStamp.formatted(date: .numeric, time: .omitted)
+            dateLabel.text = String(teamDataObject.id)
             homeTeamScore.text = String(match.homeTeamScore)
             awayTeamScore.text = String(match.awayTeamScore)
             
             loadImage(for: homeTeam, teamType: .home)
             loadImage(for: awayTeam, teamType: .away)
-            
         }
-    }
-    
-    enum TeamType {
-        case home, away
-    }
-    
-    func setUpColors() {
-        self.backgroundColor = Colors.teamDataStackCellBackgroundColor
-        
-        allLabels.forEach { $0.textColor = Colors.teamDataStackCellTextColor }
-        greenLine.backgroundColor = Colors.teamDataStackCellTextColor
     }
     
     private func loadImage(for team: TeamObject, teamType: TeamType) {
@@ -143,19 +151,15 @@ class MatchCollectionCell: TeamDataStackCellModel {
                 } else {
                     self.awayImageView.image = image
                 }
-                
                 return
             }
         }
         
         guard let logo = team.logo, let url = URL(string: logo)  else { return }
-        
-        //let url = URL(string: team.logo)!
-        
+
         DispatchQueue.global().async {
             if let data = try? Data(contentsOf: url) {
                 DispatchQueue.main.async {
-                    
                     guard let image = UIImage(data: data) else { return }
                     if teamType == .home {
                         self.homeImageView.image = image
@@ -172,6 +176,9 @@ class MatchCollectionCell: TeamDataStackCellModel {
     }
     
     override func prepareForReuse() {
+        
+        //print("prepareForResue for \(teamDataObject?.id)")
+        
         homeTeamLabel.text = "-"
         awayTeamLabel.text = "-"
         dateLabel.text = "-"

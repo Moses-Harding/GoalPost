@@ -8,6 +8,15 @@
 import Foundation
 import UIKit
 
+/*
+ DOCUMENTATION
+ 
+ 1. Add both bannerView (for ads) and teamsView as children, constrained with autoLayout
+ 2. When view appears, refresh teamsView and adView
+ 3. When view transitions, refresh adView
+ 
+ */
+
 class TeamsViewController: UIViewController {
     
     var teamsView = TeamsView()
@@ -15,18 +24,17 @@ class TeamsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
         
-        addViews()
+        setUpViews()
         
         teamsView.viewController = self
         
         GAD.helper.bannerViews[.teamsViewBanner]?.rootViewController = self
         
-        addAdView()
+        loadAdView()
     }
     
-    func addViews() {
+    func setUpViews() {
         self.view.constrain(adView, using: .scale, widthScale: 1, heightScale: 0.1, padding: 0, except: [.centerY], safeAreaLayout: true, debugName: "TeamsView - AdView")
         adView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         adView.backgroundColor = Colors.white.hexFFFCF9
@@ -40,7 +48,7 @@ class TeamsViewController: UIViewController {
         adView.constrain(bannerView)
     }
     
-    func addAdView() {
+    func loadAdView() {
 
         let width = view.frame.inset(by: view.safeAreaInsets)
         
@@ -49,7 +57,7 @@ class TeamsViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        addAdView()
+        loadAdView()
         
         teamsView.refresh(calledBy: "TeamsViewController - viewDidAppear")
     }
@@ -58,7 +66,7 @@ class TeamsViewController: UIViewController {
       to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator
     ) {
       coordinator.animate(alongsideTransition: { _ in
-          self.addAdView()
+          self.loadAdView()
       })
     }
 }

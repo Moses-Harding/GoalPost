@@ -8,6 +8,25 @@
 import Foundation
 import UIKit
 
+/*
+ DOCUMENTATION
+ 
+ TeamCollectionCell contains information about a team, a button that removes the team from favorites, and a collapsible section that contains a TeamDataStack (which contains data such as Match information). The TeamDataStack shows or hides based off of "isSelected". The other data is populated when the "teamInformation" is sset.
+ 
+ 1. SetUp - UI (title, button, body is set up)
+ 2. TeamsView registers TeamCollectionCell, then assigns a teamObject to the teamInformation variable. This triggeres "updateContent", which populates the label and image.
+ 3. When the cell is tapped, "isSelected" is triggered, which triggers updateAppearance. If selected, bodyStack is unhidden and the contentView is contrained to the bottom of it. If !isSelected, the bodyStack is hidden (alpha first, then hidden) and the contentView is constrained to the titleStack
+ 4. If the remove button is tapped, teamsView (which is a delegate) triggers the remove(team) method.
+ 
+ contentView
+    mainStack
+        titleStack
+            nameArea --- nameLogo
+        bodyStack
+            removalButton
+            teamDataStack
+ */
+
 class TeamCollectionCell: UICollectionViewCell {
     
     // MARK: - Public Properties
@@ -65,7 +84,7 @@ class TeamCollectionCell: UICollectionViewCell {
         setUp()
     }
     
-    // MARK: - Private Methods
+    // MARK: - Set Up
     
     func setUp() {
         
@@ -77,6 +96,7 @@ class TeamCollectionCell: UICollectionViewCell {
         setUpBodyStack()
     }
     
+    // 1
     func setUpMainStack() {
         let padding: CGFloat = 5
         contentView.constrain(mainStack, using: .edges, padding: padding, except: [.bottom], debugName: "Main Stack to Content View - Team Collection Cell")
@@ -93,6 +113,7 @@ class TeamCollectionCell: UICollectionViewCell {
         closedConstraint?.isActive = true
     }
     
+    // 2
     func setUpTitleStack() {
         titleStack.add(children: [(nameArea, 0.8), (UIView(), nil), (logoArea, nil)])
         titleStack.alignment = .center
@@ -109,6 +130,7 @@ class TeamCollectionCell: UICollectionViewCell {
         teamLogo.widthAnchor.constraint(equalToConstant: 25).isActive = true
     }
     
+    // 3
     func setUpBodyStack() {
         
         teamDataStack = TeamDataStack(team: self.teamInformation)
@@ -119,28 +141,12 @@ class TeamCollectionCell: UICollectionViewCell {
         bodyStack.isHidden = true
     }
     
-    func updateContent() {
-        
-        guard let teamInfo = teamInformation else { return }
-        nameLabel.text = teamInfo.name
-        foundedLabel.text = "Founded: \(teamInfo.founded ?? 0)"
-        countryLabel.text = "Country: \(teamInfo.country ?? "")"
-        codeLabel.text = "Code: \(teamInfo.code ?? "")"
-        nationalLabel.text = "National: \(teamInfo.national)"
-        
-        loadImage(for: teamInfo)
-        
-        DispatchQueue.main.async { [self] in
-            teamDataStack.team = teamInformation
-        }
-    }
+    // MARK: Externally Triggered
     
     func updateAppearance() {
         
         if isSelected {
-            DispatchQueue.main.async {
-                self.teamDataStack.manualRefresh()
-            }
+            self.teamDataStack.manualRefresh()
         }
         
         if isSelected {
@@ -166,6 +172,22 @@ class TeamCollectionCell: UICollectionViewCell {
                 
             })
         }
+    }
+    
+    func updateContent() {
+        
+        guard let teamInfo = teamInformation else { return }
+        nameLabel.text = teamInfo.name
+        foundedLabel.text = "Founded: \(teamInfo.founded ?? 0)"
+        countryLabel.text = "Country: \(teamInfo.country ?? "")"
+        codeLabel.text = "Code: \(teamInfo.code ?? "")"
+        nationalLabel.text = "National: \(teamInfo.national)"
+        
+        loadImage(for: teamInfo)
+        
+        // DispatchQueue.main.async { [self] in
+            teamDataStack.team = teamInformation
+        // }
     }
     
     func loadImage(for team: TeamObject) {

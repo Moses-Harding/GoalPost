@@ -31,7 +31,7 @@ class TeamSearchView: UIView {
     var spinner: UIActivityIndicatorView?
     
     // MARK: Buttons
-
+    
     // MARK: Labels
     
     var searchLabel:  UILabel = {
@@ -41,7 +41,7 @@ class TeamSearchView: UIView {
         label.textAlignment = .center
         return label
     } ()
-
+    
     
     // MARK: Data
     var dataSource: UICollectionViewDiffableDataSource<Int, TeamObject>!
@@ -57,7 +57,7 @@ class TeamSearchView: UIView {
     
     var currentTeamNameSearch: String? = nil
     var currentCountrySearch: String? = nil
-
+    
     
     init() {
         super.init(frame: CGRect.zero)
@@ -76,7 +76,7 @@ class TeamSearchView: UIView {
     }
     
     func testing() {
-
+        
     }
     
     required init?(coder: NSCoder) {
@@ -125,7 +125,7 @@ class TeamSearchView: UIView {
         layoutConfig.separatorConfiguration = UIListSeparatorConfiguration(listAppearance: .grouped)
         layoutConfig.backgroundColor = Colors.backgroundColor
         let listLayout = UICollectionViewCompositionalLayout.list(using: layoutConfig)
-
+        
         // MARK: Configure Collection View
         collectionView = UICollectionView(frame: self.bounds, collectionViewLayout: listLayout)
         collectionViewArea.constrain(collectionView, using: .edges, padding: 20)
@@ -136,7 +136,7 @@ class TeamSearchView: UIView {
             
             cell.teamInformation = teamInformation
         })
-            
+        
         // MARK: Initialize data source - In order to initialize a datasource, you must pass a "Cell Provider" closure. This closure instructs the datasource what to do for each index
         dataSource = UICollectionViewDiffableDataSource<Int, TeamObject>(collectionView: collectionView) {
             (collectionView, indexPath, teamInformation) -> UICollectionViewCell? in
@@ -152,7 +152,7 @@ class TeamSearchView: UIView {
         guard let result = searchResult else { return }
         
         let teams = result.map { $0 }//result.filter { !Saved.leagues.contains($0.team.id) }
-
+        
         
         // Create a snapshot that define the current state of data source's data
         var snapshot = NSDiffableDataSourceSnapshot<Int, TeamObject>()
@@ -194,21 +194,21 @@ class TeamSearchView: UIView {
     
     
     func returnSearchResults(teamResult: [TeamObject]) {
-
+        
         DispatchQueue.main.async {
             self.setUpDataSourceSnapshots(searchResult: teamResult)
         }
     }
     
     func addAnimation(completion: @escaping () -> ()) {
-
+        
         // Create a blur effect
         let blurEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
         let blurImageView = UIVisualEffectView(effect: blurEffect)
         blurImageView.clipsToBounds = true
         blurImageView.layer.cornerRadius = 25
         blurImageView.alpha = 0
-
+        
         constrain(blurImageView, using: .scale, widthScale: 0.8, except: [.height], debugName: "BlurImageView Constrained To TeamSearchView")
         blurImageView.heightAnchor.constraint(equalTo: blurImageView.widthAnchor).isActive = true
         
@@ -283,28 +283,28 @@ extension TeamSearchView: UITextFieldDelegate {
     private func searchForTeams() {
         
         Task.init {
-        
-        var searchResults = [TeamObject]()
-        
-        for searchData in await Cached.data.teamDictionary.values {
-            if let country = currentCountrySearch, let team = currentTeamNameSearch {
-                if searchData.name.lowercased().contains(team.lowercased()) && searchData.country != nil && searchData.country!.lowercased().contains(country.lowercased()) {
-                    searchResults.append(searchData)
-                }
-            } else if let country = currentCountrySearch {
-                if searchData.country != nil && searchData.country!.lowercased().contains(country.lowercased()) {
-                    searchResults.append(searchData)
-                }
-            } else if let team = currentTeamNameSearch {
-                if searchData.name.lowercased().contains(team.lowercased()) {
-                    searchResults.append(searchData)
+            
+            var searchResults = [TeamObject]()
+            
+            for searchData in await Cached.data.teamDictionary.values {
+                if let country = currentCountrySearch, let team = currentTeamNameSearch {
+                    if searchData.name.lowercased().contains(team.lowercased()) && searchData.country != nil && searchData.country!.lowercased().contains(country.lowercased()) {
+                        searchResults.append(searchData)
+                    }
+                } else if let country = currentCountrySearch {
+                    if searchData.country != nil && searchData.country!.lowercased().contains(country.lowercased()) {
+                        searchResults.append(searchData)
+                    }
+                } else if let team = currentTeamNameSearch {
+                    if searchData.name.lowercased().contains(team.lowercased()) {
+                        searchResults.append(searchData)
+                    }
                 }
             }
-        }
-        
-        searchResults.sort { $0.id < $1.id }
-        
-        self.returnSearchResults(teamResult: searchResults)
+            
+            searchResults.sort { $0.id < $1.id }
+            
+            self.returnSearchResults(teamResult: searchResults)
         }
     }
 }
@@ -313,6 +313,9 @@ extension TeamSearchView: UITextFieldDelegate {
 extension TeamSearchView: UICollectionViewDelegate {
     
     // Called when a cell is selected (a team is added)
+    // 1. Play "add" animation
+    // 2. Dismiss this view
+    // 3. Tell TeamsView to perform add function
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         guard let cell = collectionView.cellForItem(at: indexPath) as? TeamSearchCell, let team = cell.teamInformation else { return }
@@ -320,7 +323,6 @@ extension TeamSearchView: UICollectionViewDelegate {
         self.addAnimation() {
             self.viewController?.dismiss(animated: true)
             self.viewController?.refreshableParent?.add(team: team)
-            self.viewController?.refreshableParent?.refresh(calledBy: "TeamSearchView - didSelectItemAt (adding team)")
         }
     }
 }
