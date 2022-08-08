@@ -13,11 +13,13 @@ class GetTeams {
     
     func search(for teamName: String, countryName: String?) async throws -> [TeamID:TeamObject] {
         
-        let encodedTeam = teamName.replacingOccurrences(of: " ", with: "+")
+        var encodedTeam = teamName.replacingOccurrences(of: " ", with: "+")
         var requestURL = "https://api-football-v1.p.rapidapi.com/v3/teams?search=\(encodedTeam)"
         
         if let encodedCountry = countryName?.replacingOccurrences(of: " ", with: "+") {
-            requestURL += "+country=\(encodedCountry)"
+            if encodedCountry != "" {
+                requestURL += "&country=\(encodedCountry)"
+            }
         }
 
         

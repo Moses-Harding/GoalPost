@@ -95,17 +95,13 @@ class TeamDataStackCellModel: UICollectionViewCell {
     }
     
     func loading(_ loading: Bool) {
-        
         if loading {
-            self.backgroundColor = UIColor.red
-            //self.loadingView.backgroundColor = .black
-            //self.indicator.color = .green
-            //self.indicator.backgroundColor = .yellow
+            self.backgroundColor = UIColor.clear
             self.indicator.startAnimating()
-            print(self.loadingView.isHidden, self.indicator.layer.zPosition, self.indicator.isHidden, self.indicator.isOpaque, self.indicator.isAnimating)
         } else {
             self.backgroundColor = Colors.teamDataStackCellBackgroundColor
             self.indicator.stopAnimating()
         }
+
     }
 }

@@ -8,6 +8,10 @@
 import Foundation
 import UIKit
 
+/*
+ 
+ */
+
 class TeamSearchView: UIView {
     
     // MARK: Views
@@ -48,7 +52,6 @@ class TeamSearchView: UIView {
     
     // MARK: Gestures
     
-    
     // MARK: Constraints
     
     // MARK: Logic
@@ -68,8 +71,7 @@ class TeamSearchView: UIView {
         setUpColors()
         
         testing()
-        
-        //GetTeams.helper.delegate = self
+
         teamSearchInputField.delegate = self
         countrySearchInputField.delegate = self
         collectionView.delegate = self
@@ -85,11 +87,13 @@ class TeamSearchView: UIView {
     
     //MARK: Set Up
     
+    // 1
     func setUpMainStack() {
         self.constrain(mainStack, safeAreaLayout: true)
         mainStack.add(children: [(UIView(), 0.05), (teamSearchInputArea, 0.1), (countrySearchInputArea, 0.1), (collectionViewArea, nil), (UIView(), nil)])
     }
     
+    // 2
     func setUpSearchInputFields() {
         
         teamSearchInputArea.constrain(teamSearchInputFieldView, using: .scale, widthScale: 0.75, except: [.height], safeAreaLayout: true, debugName: "Team Name Input Field View")
@@ -117,6 +121,7 @@ class TeamSearchView: UIView {
         countrySearchInputField.tag = 1
     }
     
+    // 3
     func setUpCollectionView() {
         
         // MARK: Create list layout
@@ -145,24 +150,7 @@ class TeamSearchView: UIView {
         }
     }
     
-    func setUpDataSourceSnapshots(searchResult: [TeamObject]?) {
-        // MARK: Setup snap shots
-        
-        
-        guard let result = searchResult else { return }
-        
-        let teams = result.map { $0 }//result.filter { !Saved.leagues.contains($0.team.id) }
-        
-        
-        // Create a snapshot that define the current state of data source's data
-        var snapshot = NSDiffableDataSourceSnapshot<Int, TeamObject>()
-        snapshot.appendSections([0])
-        snapshot.appendItems(teams, toSection: 0)
-        
-        // Display data on the collection view by applying the snapshot to data source
-        dataSource.apply(snapshot, animatingDifferences: false)
-    }
-    
+    // 4
     func setUpColors() {
         // Views
         mainStack.backgroundColor = Colors.backgroundColor
@@ -176,6 +164,8 @@ class TeamSearchView: UIView {
         
         countrySearchInputField.textColor = Colors.searchResultViewTextColor
     }
+    
+
     
     // MARK: Retrieving search result
     
@@ -198,6 +188,22 @@ class TeamSearchView: UIView {
         DispatchQueue.main.async {
             self.setUpDataSourceSnapshots(searchResult: teamResult)
         }
+    }
+    
+    func setUpDataSourceSnapshots(searchResult: [TeamObject]?) {
+        // MARK: Setup snap shots
+        
+        guard let result = searchResult else { return }
+        
+        let teams = result.map { $0 }//result.filter { !Saved.leagues.contains($0.team.id) }
+        
+        // Create a snapshot that define the current state of data source's data
+        var snapshot = NSDiffableDataSourceSnapshot<Int, TeamObject>()
+        snapshot.appendSections([0])
+        snapshot.appendItems(teams, toSection: 0)
+        
+        // Display data on the collection view by applying the snapshot to data source
+        dataSource.apply(snapshot, animatingDifferences: false)
     }
     
     func addAnimation(completion: @escaping () -> ()) {
@@ -316,6 +322,7 @@ extension TeamSearchView: UICollectionViewDelegate {
     // 1. Play "add" animation
     // 2. Dismiss this view
     // 3. Tell TeamsView to perform add function
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         guard let cell = collectionView.cellForItem(at: indexPath) as? TeamSearchCell, let team = cell.teamInformation else { return }

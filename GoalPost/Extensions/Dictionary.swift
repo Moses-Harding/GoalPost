@@ -39,7 +39,7 @@ extension Dictionary {
         }
     }
     
-    mutating func integrate<T>(dictionaryWithSet dictionary: [Key:Set<T>]) where Value == Set<T> {
+    mutating func integrateSet<T>(_ dictionary: [Key:Set<T>]) where Value == Set<T> {
         for (key, value) in dictionary {
             self.add(value, toSetWithKey: key)
         }

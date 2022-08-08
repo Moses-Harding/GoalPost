@@ -304,8 +304,8 @@
 			isa = PBXGroup;
 			children = (
 				153A6BB82852FE7F00CC1154 /* Notes.rtf */,
-				15A7415E283DF29A0054BAD4 /* Data Model */,
 				15D01B11282C3C7C003BDB30 /* RootController.swift */,
+				15A7415E283DF29A0054BAD4 /* Data Model */,
 				1581E374282B52C500BC39FA /* Matches View */,
 				153689712839928D00BBDAE7 /* Leagues View */,
 				1581E375282B534F00BC39FA /* Teams View */,

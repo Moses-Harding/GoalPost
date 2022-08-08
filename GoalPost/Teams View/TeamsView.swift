@@ -222,6 +222,7 @@ extension TeamsView: TeamsViewDelegate {
             // 3. Apply to datasource
             await dataSource.apply(snapshot, animatingDifferences: true)
             
+            /*
             if let teamId = id {
                 for item in 0 ... collectionView.numberOfItems(inSection: 0) - 1 {
                     let path = IndexPath(item: item, section: 0)
@@ -229,7 +230,28 @@ extension TeamsView: TeamsViewDelegate {
                         print("Could not cast \(path) as a teamcollectioncell")
                         continue }
                     if teamCell.teamInformation?.id == teamId {
-                        collectionView.selectItem(at: path, animated: true, scrollPosition: .centeredVertically)
+                        //teamCell.teamDataStack.matchLoading = false
+                        if !teamCell.isSelected {
+                            collectionView.selectItem(at: path, animated: true, scrollPosition: .centeredVertically)
+                        }
+                    }
+                }
+            }
+             */
+        }
+    }
+    
+    func refresh(cell id: Int?) {
+        if let teamId = id {
+            for item in 0 ... collectionView.numberOfItems(inSection: 0) - 1 {
+                let path = IndexPath(item: item, section: 0)
+                guard let teamCell = collectionView.cellForItem(at: path) as? TeamCollectionCell else {
+                    print("Could not cast \(path) as a teamcollectioncell")
+                    continue }
+                if teamCell.teamInformation?.id == teamId {
+                    //teamCell.teamDataStack.matchLoading = false
+                    Task.init {
+                        await teamCell.teamDataStack.manualRefresh()
                     }
                 }
             }
@@ -240,6 +262,7 @@ extension TeamsView: TeamsViewDelegate {
         
         guard let dataSource = dataSource else { return }
         
+        /*
         // 1. Add team to datasource
         //      Retrieve snapshot and append new team. Even though refreshing will accomplish the same thing, this is done here first because we need to pass a cell to the Data Fetcher
         var snapshot = dataSource.snapshot(for: .main)
@@ -254,10 +277,11 @@ extension TeamsView: TeamsViewDelegate {
                 print("Could not cast \(path) as a teamcollectioncell")
                 continue }
             if teamCell.teamInformation?.id == team.id {
-                teamCell.teamDataStack.load(.match)
+                //teamCell.teamDataStack.load(.match)
                 collectionView.selectItem(at: path, animated: true, scrollPosition: .centeredVertically)
             }
         }
+         */
         
         Task.init {
             
@@ -266,9 +290,8 @@ extension TeamsView: TeamsViewDelegate {
                 self.refresh(calledBy: "TeamsView - Add - AddLeaguesFor - Completion Handler") }
             try await DataFetcher.helper.addMatchesFor(team: team) {
                 print("\n\n******\n******\n******\nCalling Completion For Matches\n******\n******\n******\n")
-                self.refresh(calledBy: "add(team)", expandingCell: team.id)
-                //cell.teamDataStack.matchLoading = false
-                //cell.teamDataStack.updateMatchSection()
+                //self.refresh(calledBy: "add(team)", expandingCell: team.id)
+                self.refresh(cell: team.id)
             }
         }
         

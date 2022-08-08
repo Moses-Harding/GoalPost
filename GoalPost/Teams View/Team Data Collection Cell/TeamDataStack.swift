@@ -35,15 +35,16 @@ class TeamDataStack: UIStackView {
     
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCollectionViewLayout())
     
-    var totalHeight: CGFloat = 1200
+    //var totalHeight: CGFloat = 1200
+    var totalHeight: CGFloat = 300
     
     // Data
     var team: TeamObject?
     
-    var matchLoading = false
-    var injuryLoading = false
-    var transferLoading = false
-    var playerLoading = false
+    //var matchLoading = false
+    //var injuryLoading = false
+    //var transferLoading = false
+    //var playerLoading = false
     
     init(team: TeamObject?) {
         super.init(frame: .zero)
@@ -201,8 +202,15 @@ class TeamDataStack: UIStackView {
 
 extension TeamDataStack {
 
+    func clearCollectionView() {
+        guard let dataSource = self.dataSource else { return }
+        
+        var snapShot = dataSource.snapshot(for: .match)
+        snapShot.deleteAll()
+        dataSource.apply(snapShot, to: .match, animatingDifferences: true)
+    }
     
-    func manualRefresh() {
+    func manualRefresh() async {
         /// Called when a cell is selected.
         /// This should call each "updateSection".
         /// __NOTE: As of 8/4, only Matches are included
@@ -216,35 +224,50 @@ extension TeamDataStack {
         //var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>()
         //snapshot.appendSections([.match])
 
-        updateMatchSection()
+        await updateMatchSection()
     }
     
-    func updateMatchSection() {
+    func updateMatchSection() async {
         /// Called when 1. the cell is selected or 2. when teamsView has called DataFetcher to retrieve info about a team, and that operation has completed
         /// Get all of the matches in the dictionary, create a TeamDataObject for each, then apply to datasource. (This triggers the creation of the matchCollectionCells)
         
         print("TeamDataStack - Update Match Section for \(team)")
         
-        guard !matchLoading else { return }
-
-        Task.init {
-
-            guard let dataSource = self.dataSource, let teamId = self.team?.id, let matchIDs = await Cached.data.matchesByTeam[teamId] else { return }
-
-            var snapshot = dataSource.snapshot(for: .match)
-
-            var matches = [TeamDataObject]()
-            
-            for matchId in matchIDs.sorted(by: { $0 > $1 } ) {
-                matches.append(TeamDataObject(matchId: matchId))
-            }
-
-            snapshot.deleteAll()
-            snapshot.append(matches)
-            await dataSource.apply(snapshot, to: .match, animatingDifferences: false)
+        /*
+        if matchLoading {
+            self.load(.match)
+            return
         }
+         */
+
+        guard let dataSource = self.dataSource, let teamId = self.team?.id, let matchIDs = await Cached.data.matchesByTeam[teamId] else { return }
+
+        var snapshot = dataSource.snapshot(for: .match)
+
+        var matches = [TeamDataObject]()
+        
+        var position: Int = 0
+        var index: Int = 0
+        
+        for matchId in matchIDs.sorted(by: { $0 > $1 } ) {
+            matches.append(TeamDataObject(matchId: matchId))
+            if let matchDate = Double(String(matchId.split(separator: "|")[0])) {
+                if matchDate > Date.now.timeIntervalSince1970 {
+                    position = index
+                }
+            }
+            index += 1
+        }
+
+        snapshot.deleteAll()
+        snapshot.append(matches)
+        await dataSource.apply(snapshot, to: .match, animatingDifferences: false)
+        
+        let indexPath = IndexPath(item: position, section: 0)
+        collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
     }
     
+    /*
     func load(_ sectionType: TeamDataObjectType) {
         /// Called by teamsView before it calls DataFetcher to retrieve data about the team for a given section. "Loading" is cancelled once this is complete.
         /// Create a "loading" cell of the given section type, remove everything else in the section, and then apply it
@@ -268,6 +291,7 @@ extension TeamDataStack {
         snapshot.append([loading])
         dataSource.apply(snapshot, to: sectionType, animatingDifferences: false)
     }
+     */
 }
 
 extension TeamDataStack {
@@ -278,7 +302,12 @@ extension TeamDataStack {
         
         print("TeamDataStack - Update Transfer Section for \(team)")
         
-        guard !transferLoading else { return }
+        /*
+        if transferLoading {
+            self.load(.transfer)
+            return
+        }
+         */
         
         Task.init {
             
@@ -303,7 +332,12 @@ extension TeamDataStack {
 
         print("TeamDataStack - Update Injury Section for \(team)")
         
-        guard !injuryLoading else { return }
+        /*
+        if injuryLoading {
+            self.load(.injury)
+            return
+        }
+         */
         
         Task.init {
 
@@ -327,7 +361,12 @@ extension TeamDataStack {
 
         print("TeamDataStack - Update Player Section for \(team)")
         
-        guard !playerLoading else { return }
+        /*
+        if playerLoading {
+            self.load(.player)
+            return
+        }
+         */
         
         Task.init {
 

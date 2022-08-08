@@ -28,6 +28,7 @@ class TeamSearchCell: UICollectionViewListCell {
         // Set content configuration in order to update custom content view
         contentConfiguration = newConfiguration
     }
+    
 }
 
 
@@ -115,7 +116,6 @@ class TeamSearchContentView: UIView, UIContentView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 }
 
 private extension TeamSearchContentView {
@@ -163,27 +163,27 @@ private extension TeamSearchContentView {
             return
         }
         
-        // Replace current configuration with new configuration
-        currentConfiguration = configuration
-        
-        // Set data to UI elements
-        teamLabel.text = teamInformation.name + (teamInformation.national ? " (National Team)" : "")
-        countryLabel.text = teamInformation.country
-        
-        loadImage(for: teamInformation)
+        Task.init {
+            // Replace current configuration with new configuration
+            currentConfiguration = configuration
+            
+            // Set data to UI elements
+            teamLabel.text = teamInformation.name + (teamInformation.national ? " (National Team)" : "")
+            countryLabel.text = teamInformation.country
+            
+            await loadImage(for: teamInformation)
+        }
     }
     
-    private func loadImage(for team: TeamObject) {
+    private func loadImage(for team: TeamObject) async {
         
         let imageName = "\(team.name) - \(team.id).png"
         
-        Task.init {
-            if let image = await Cached.data.retrieveImage(from: imageName) {
-                
-                self.teamLogo.image = image
-                
-                return
-            }
+        if let image = await Cached.data.retrieveImage(from: imageName) {
+            
+            self.teamLogo.image = image
+            
+            return
         }
         
         guard let url = URL(string: team.logo!) else { return }

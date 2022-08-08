@@ -80,11 +80,11 @@ class MatchObject: Codable {
 
 extension MatchObject {
     static func getUniqueID(id: Int, timestamp: Int) -> MatchUniqueID {
-        return "\(timestamp)\(id)"
+        return "\(timestamp)|\(id)"
     }
     
     static func getUniqueID(id: Int, timestamp: Date) -> MatchUniqueID {
-        return "\(timestamp.timeIntervalSince1970)\(id)"
+        return "\(timestamp.timeIntervalSince1970)|\(id)"
     }
 }
 

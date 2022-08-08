@@ -112,6 +112,8 @@ class MatchCollectionCell: TeamDataStackCellModel {
         
         //print("Update Content for \(teamDataObject?.id)")
         
+        
+        
         Task.init {
             
             guard let teamDataObject = teamDataObject else { return }
@@ -129,21 +131,22 @@ class MatchCollectionCell: TeamDataStackCellModel {
             // Set data to UI elements
             homeTeamLabel.text = homeTeam.name
             awayTeamLabel.text = awayTeam.name
-            //dateLabel.text = match.timeStamp.formatted(date: .numeric, time: .omitted)
-            dateLabel.text = String(teamDataObject.id)
+            dateLabel.text = String(teamDataObject.id) + " - " + match.timeStamp.formatted(date: .numeric, time: .omitted)
             homeTeamScore.text = String(match.homeTeamScore)
             awayTeamScore.text = String(match.awayTeamScore)
             
-            loadImage(for: homeTeam, teamType: .home)
-            loadImage(for: awayTeam, teamType: .away)
+            await loadImage(for: homeTeam, teamType: .home)
+            await loadImage(for: awayTeam, teamType: .away)
+            
+            self.alpha = 1
         }
     }
     
-    private func loadImage(for team: TeamObject, teamType: TeamType) {
+    private func loadImage(for team: TeamObject, teamType: TeamType) async {
         
         let imageName = "\(team.name) - \(team.id).png"
         
-        Task.init {
+
             if let image = await Cached.data.retrieveImage(from: imageName) {
                 
                 if teamType == .home {
@@ -153,7 +156,6 @@ class MatchCollectionCell: TeamDataStackCellModel {
                 }
                 return
             }
-        }
         
         guard let logo = team.logo, let url = URL(string: logo)  else { return }
 
@@ -178,6 +180,8 @@ class MatchCollectionCell: TeamDataStackCellModel {
     override func prepareForReuse() {
         
         //print("prepareForResue for \(teamDataObject?.id)")
+        
+        self.alpha = 0
         
         homeTeamLabel.text = "-"
         awayTeamLabel.text = "-"

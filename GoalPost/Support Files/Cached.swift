@@ -273,16 +273,16 @@ actor Cached {
     
     //
     
-    func favoriteMatchesByDateSetIntegrate(_ favoriteMatchesByDateSet: [DateString: Set<MatchUniqueID>], replaceExistingValue: Bool) {
-        self.favoriteMatchesByDateSet.integrate(favoriteMatchesByDateSet, replaceExistingValue: replaceExistingValue)
+    func favoriteMatchesByDateSetIntegrate(_ favoriteMatchesByDateSet: [DateString: Set<MatchUniqueID>]) {
+        self.favoriteMatchesByDateSet.integrateSet(favoriteMatchesByDateSet)
     }
     
     func favoriteMatchesDictionaryIntegrate(_ favoriteMatchesDictionary: [MatchUniqueID:MatchObject], replaceExistingValue: Bool) {
         self.favoriteMatchesDictionary.integrate(favoriteMatchesDictionary, replaceExistingValue: replaceExistingValue)
     }
     
-    func injuriesByTeamIntegrate(_ injuriesByTeam: [TeamID:Set<InjuryID>], replaceExistingValue: Bool) {
-        self.injuriesByTeam.integrate(injuriesByTeam, replaceExistingValue: replaceExistingValue)
+    func injuriesByTeamIntegrate(_ injuriesByTeam: [TeamID:Set<InjuryID>]) {
+        self.injuriesByTeam.integrateSet(injuriesByTeam)
     }
     
     func injuryDictionaryIntegrate(_ injuryDictionary: [InjuryID:InjuryObject], replaceExistingValue: Bool) {
@@ -293,26 +293,26 @@ actor Cached {
         self.leagueDictionary.integrate(leagueDictionary, replaceExistingValue: replaceExistingValue)
     }
     
-    func matchesByLeagueSetIntegrate(_ matchesByLeagueSet: [LeagueID: Set<MatchUniqueID>], replaceExistingValue: Bool) {
-        self.matchesByLeagueSet.integrate(matchesByLeagueSet, replaceExistingValue: replaceExistingValue)
+    func matchesByLeagueSetIntegrate(_ matchesByLeagueSet: [LeagueID: Set<MatchUniqueID>]) {
+        self.matchesByLeagueSet.integrateSet(matchesByLeagueSet)
     }
     
     
-    func matchesByDateSetIntegrate(_ matchesByDateSet: [DateString: Set<MatchUniqueID>], replaceExistingValue: Bool) {
-        self.matchesByDateSet.integrate(matchesByDateSet, replaceExistingValue: replaceExistingValue)
+    func matchesByDateSetIntegrate(_ matchesByDateSet: [DateString: Set<MatchUniqueID>]) {
+        self.matchesByDateSet.integrateSet(matchesByDateSet)
     }
     
     
-    func matchesByTeamIntegrate(_ matchesByTeam: [TeamID:Set<MatchUniqueID>], replaceExistingValue: Bool) {
-        self.matchesByTeam.integrate(matchesByTeam, replaceExistingValue: replaceExistingValue)
+    func matchesByTeamIntegrate(_ matchesByTeam: [TeamID:Set<MatchUniqueID>]) {
+        self.matchesByTeam.integrateSet(matchesByTeam)
     }
     
     func matchesDictionaryIntegrate(_ matchesDictionary: [MatchUniqueID:MatchObject], replaceExistingValue: Bool) {
         self.matchesDictionary.integrate(matchesDictionary, replaceExistingValue: replaceExistingValue)
     }
     
-    func playersByTeamIntegrate(_ playersByTeam: [TeamID:Set<PlayerID>], replaceExistingValue: Bool) {
-        self.playersByTeam.integrate(playersByTeam, replaceExistingValue: replaceExistingValue)
+    func playersByTeamIntegrate(_ playersByTeam: [TeamID:Set<PlayerID>]) {
+        self.playersByTeam.integrateSet(playersByTeam)
     }
     
     func playerDictionaryIntegrate(_ playerDictionary: [PlayerID:PlayerObject], replaceExistingValue: Bool) {
@@ -323,8 +323,8 @@ actor Cached {
         self.teamDictionary.integrate(teamDictionary, replaceExistingValue: replaceExistingValue)
     }
     
-    func transfersByTeamIntegrate(_ transfersByTeam: [TeamID:Set<TransferID>], replaceExistingValue: Bool) {
-        self.transfersByTeam.integrate(transfersByTeam, replaceExistingValue: replaceExistingValue)
+    func transfersByTeamIntegrate(_ transfersByTeam: [TeamID:Set<TransferID>]) {
+        self.transfersByTeam.integrateSet(transfersByTeam)
     }
     
     func transferDictionaryIntegrate(_ transferDictionary: [TransferID:TransferObject], replaceExistingValue: Bool) {
@@ -432,7 +432,7 @@ class CacheHandler {
             guard let dictionary = dictionary as? MatchesByDateDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
             DispatchQueue.global().async {
                 Task.init {
-                    self.favoriteMatchesByDateSet.integrate(dictionary, replaceExistingValue: replaceExistingValue)
+                    self.favoriteMatchesByDateSet.integrateSet(dictionary)
                 }
             }
         case .favoriteMatchDictionary:
@@ -456,7 +456,7 @@ class CacheHandler {
             guard let dictionary = dictionary as? InjuriesByTeamDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
             DispatchQueue.global().async {
                 Task.init {
-                    self.injuriesByTeam.integrate(dictionary, replaceExistingValue: replaceExistingValue)
+                    self.injuriesByTeam.integrateSet(dictionary)
                 }
             }
         case .leagueDictionary:
@@ -472,7 +472,7 @@ class CacheHandler {
             guard let dictionary = dictionary as? MatchesByDateDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
             DispatchQueue.global().async {
                 Task.init {
-                    self.matchesByDateSet.integrate(dictionary, replaceExistingValue: replaceExistingValue)
+                    self.matchesByDateSet.integrateSet(dictionary)
                 }
             }
         case .matchesByLeague:
@@ -480,7 +480,7 @@ class CacheHandler {
             guard let dictionary = dictionary as? MatchesByLeagueDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
             DispatchQueue.global().async {
                 Task.init {
-                    self.matchesByLeagueSet.integrate(dictionary, replaceExistingValue: replaceExistingValue)
+                    self.matchesByLeagueSet.integrateSet(dictionary)
                 }
             }
         case .matchesByTeam:
@@ -488,7 +488,7 @@ class CacheHandler {
             guard let dictionary = dictionary as? MatchesByTeamDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
             DispatchQueue.global().async {
                 Task.init {
-                    self.matchesByTeam.integrate(dictionary, replaceExistingValue: replaceExistingValue)
+                    self.matchesByTeam.integrateSet(dictionary)
                 }
             }
         case .matchDictionary:
@@ -504,7 +504,7 @@ class CacheHandler {
             guard let dictionary = dictionary as? PlayersByTeamDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
             DispatchQueue.global().async {
                 Task.init {
-                    self.playersByTeam.integrate(dictionary, replaceExistingValue: replaceExistingValue)
+                    self.playersByTeam.integrateSet(dictionary)
                 }
             }
         case .playerDictionary:
@@ -528,7 +528,7 @@ class CacheHandler {
             guard let dictionary = dictionary as? TransfersByTeamDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
             DispatchQueue.global().async {
                 Task.init {
-                    self.transfersByTeam.integrate(dictionary, replaceExistingValue: replaceExistingValue)
+                    self.transfersByTeam.integrateSet(dictionary)
                 }
             }
         case .transferDictionary:

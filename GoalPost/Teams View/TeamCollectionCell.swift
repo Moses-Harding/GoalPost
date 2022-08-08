@@ -146,10 +146,6 @@ class TeamCollectionCell: UICollectionViewCell {
     func updateAppearance() {
         
         if isSelected {
-            self.teamDataStack.manualRefresh()
-        }
-        
-        if isSelected {
             self.openConstraint?.isActive = true
             self.closedConstraint?.isActive = false
             self.bodyStack.alpha = 1
@@ -158,7 +154,10 @@ class TeamCollectionCell: UICollectionViewCell {
                 self.layoutIfNeeded()
                 
             }) { _ in
-                self.bodyStack.isHidden = !self.isSelected
+                Task.init {
+                    await self.teamDataStack.manualRefresh()
+                    self.bodyStack.isHidden = false
+                }
             }
         } else if !isSelected {
             self.openConstraint?.isActive = false
@@ -177,30 +176,29 @@ class TeamCollectionCell: UICollectionViewCell {
     func updateContent() {
         
         guard let teamInfo = teamInformation else { return }
-        nameLabel.text = teamInfo.name
-        foundedLabel.text = "Founded: \(teamInfo.founded ?? 0)"
-        countryLabel.text = "Country: \(teamInfo.country ?? "")"
-        codeLabel.text = "Code: \(teamInfo.code ?? "")"
-        nationalLabel.text = "National: \(teamInfo.national)"
-        
-        loadImage(for: teamInfo)
-        
-        // DispatchQueue.main.async { [self] in
+        Task.init {
+            nameLabel.text = teamInfo.name
+            foundedLabel.text = "Founded: \(teamInfo.founded ?? 0)"
+            countryLabel.text = "Country: \(teamInfo.country ?? "")"
+            codeLabel.text = "Code: \(teamInfo.code ?? "")"
+            nationalLabel.text = "National: \(teamInfo.national)"
+            
+            await loadImage(for: teamInfo)
+            
             teamDataStack.team = teamInformation
-        // }
+        }
     }
     
-    func loadImage(for team: TeamObject) {
+    func loadImage(for team: TeamObject) async {
         
         let imageName = "\(team.name) - \(team.id).png"
         
-        Task.init {
-            if let image = await Cached.data.retrieveImage(from: imageName) {
-                
-                self.teamLogo.image = image
-                
-                return
-            }
+        
+        if let image = await Cached.data.retrieveImage(from: imageName) {
+            
+            self.teamLogo.image = image
+            
+            return
         }
         
         guard let url = URL(string: team.logo!) else { return }
@@ -219,6 +217,10 @@ class TeamCollectionCell: UICollectionViewCell {
                 }
             }
         }
+    }
+    
+    override func prepareForReuse() {
+        teamDataStack.clearCollectionView()
     }
 }
 
