@@ -125,14 +125,17 @@ class TeamSearchView: UIView {
     func setUpCollectionView() {
         
         // MARK: Create list layout
+        /*
         var layoutConfig = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         layoutConfig.showsSeparators = false
         layoutConfig.separatorConfiguration = UIListSeparatorConfiguration(listAppearance: .grouped)
         layoutConfig.backgroundColor = Colors.backgroundColor
         let listLayout = UICollectionViewCompositionalLayout.list(using: layoutConfig)
+         */
+        //let listLayout = UICollectionViewLayout()
         
         // MARK: Configure Collection View
-        collectionView = UICollectionView(frame: self.bounds, collectionViewLayout: listLayout)
+        collectionView = UICollectionView(frame: self.bounds, collectionViewLayout: createCOllectionViewLayout())
         collectionViewArea.constrain(collectionView, using: .edges, padding: 20)
         
         // MARK: Cell registration - What does the collectionview do to set up a cell - in this case simply passes data
@@ -148,6 +151,37 @@ class TeamSearchView: UIView {
             
             return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: teamInformation)
         }
+    }
+    
+    private func createCOllectionViewLayout() -> UICollectionViewLayout {
+        
+        let sectionProvider = { (sectionIndex: Int, NSCollectionLayoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
+            
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(0.2))
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+            item.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 5, bottom: 10, trailing: 5)
+            //item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .flexible(5), top: .flexible(5), trailing: .flexible(5), bottom: .flexible(5))
+            
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+           // group.interItemSpacing = .fixed(10)
+            //group.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 0, trailing: 0)
+            
+            let section = NSCollectionLayoutSection(group: group)
+            //section.interGroupSpacing = 10
+
+            //section.orthogonalScrollingBehavior = .continuous
+            
+            return section
+        }
+        
+        let config = UICollectionViewCompositionalLayoutConfiguration()
+        //config.interSectionSpacing = 10
+        
+        let layout = UICollectionViewCompositionalLayout(
+            sectionProvider: sectionProvider, configuration: config)
+        
+        return layout
     }
     
     // 4
@@ -275,13 +309,12 @@ extension TeamSearchView: UITextFieldDelegate {
         
         Task.init {
             // Note - Country search is optional
-            let teamDictionary: [TeamID:TeamObject] = try await GetTeams.helper.search(for: teamName, countryName: self.currentCountrySearch)
+            let teamDictionary: [TeamID:TeamObject] = try await DataFetcher.helper.search(for: teamName, countryName: self.currentCountrySearch)
             let resultList = teamDictionary.values.map { $0 }.sorted { $0.id < $1.id }
             self.returnSearchResults(teamResult: resultList)
-            await Cached.data.teamDictionaryIntegrate(teamDictionary, replaceExistingValue: false)
             self.removeSpinner()
+            textField.resignFirstResponder()
         }
-        textField.resignFirstResponder()
         
         return true
     }

@@ -181,8 +181,6 @@ struct DataFetcher {
             fatalError()
         }
         
-        print(await Cached.data.favoriteTeams)
-        
         let team = try await DataFetcher.helper.addFavorite(team: teamObject) {}
         
         let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
@@ -278,5 +276,12 @@ struct DataFetcher {
                 await Cached.data.matchesByLeagueSetIntegrate(matchesByLeagueSet)
             }
         }
+    }
+    
+    func search(for teamName: String, countryName: String?) async throws -> [TeamID:TeamObject] {
+        let teamDictionary: [TeamID:TeamObject] = try await GetTeams.helper.search(for: teamName, countryName: countryName)
+        await Cached.data.teamDictionaryIntegrate(teamDictionary, replaceExistingValue: true)
+        
+        return teamDictionary
     }
 }
