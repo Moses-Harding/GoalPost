@@ -57,6 +57,7 @@ class TeamCollectionCell: UICollectionViewCell {
     var titleStack = UIStackView(.horizontal)
     
     var bodyStack = UIStackView(.vertical)
+    var removalButtonStack = UIStackView(.horizontal)
     var teamDataStack: TeamDataStack!
     
     var closedConstraint: NSLayoutConstraint?
@@ -66,8 +67,8 @@ class TeamCollectionCell: UICollectionViewCell {
     let removalButton: UIButton = {
         let button = UIButton()
         button.setTitle("Remove Team", for: .normal)
-        button.backgroundColor = Colors.teamCellRemovalButtonBackgroundColor
-        button.setTitleColor(UIColor.white, for: .normal)
+        button.layer.borderWidth = 2
+        button.layer.cornerRadius = 5
         button.addTarget(self, action: #selector(removeTeam), for: .touchUpInside)
         return button
     } ()
@@ -88,12 +89,12 @@ class TeamCollectionCell: UICollectionViewCell {
     
     func setUp() {
         
-        self.backgroundColor = Colors.teamCellViewBackgroundColor
         layer.cornerRadius = 8
         
         setUpMainStack()
         setUpTitleStack()
         setUpBodyStack()
+        setUpColors()
     }
     
     // 1
@@ -115,7 +116,7 @@ class TeamCollectionCell: UICollectionViewCell {
     
     // 2
     func setUpTitleStack() {
-        titleStack.add(children: [(nameArea, 0.8), (UIView(), nil), (logoArea, nil)])
+        titleStack.add(children: [(UIView(), 0.05), (nameArea, 0.8), (UIView(), nil), (logoArea, nil), (UIView(), 0.05)])
         titleStack.alignment = .center
         
         nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - Team Collection Cell")
@@ -134,11 +135,22 @@ class TeamCollectionCell: UICollectionViewCell {
     func setUpBodyStack() {
         
         teamDataStack = TeamDataStack(team: self.teamInformation)
-        bodyStack.add(children: [(UIView(), 0.05), (removalButton, nil), (UIView(), 0.05), (teamDataStack, nil), (UIView(), 0.05)])
+        bodyStack.add(children: [(UIView(), 0.05), (removalButtonStack, nil), (UIView(), 0.05), (teamDataStack, nil), (UIView(), 0.05)])
         
-        removalButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        removalButtonStack.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        removalButtonStack.add(children: [(UIView(), 0.2), (removalButton, nil), (UIView(), 0.2)])
         
         bodyStack.isHidden = true
+    }
+    
+    // 4
+    func setUpColors() {
+        self.backgroundColor = Colors.teamCellViewBackgroundColor
+        removalButton.backgroundColor = Colors.teamCellRemovalButtonBackgroundColor
+        removalButton.layer.borderColor = Colors.teamCellRemovalButtonBorderColor.cgColor
+        removalButton.setTitleColor(UIColor.white, for: .normal)
+        nameLabel.textColor = .white
     }
     
     // MARK: Externally Triggered
@@ -155,8 +167,8 @@ class TeamCollectionCell: UICollectionViewCell {
                 
             }) { _ in
                 Task.init {
-                    await self.teamDataStack.manualRefresh()
                     self.bodyStack.isHidden = false
+                    await self.teamDataStack.manualRefresh()
                 }
             }
         } else if !isSelected {
@@ -228,6 +240,7 @@ extension TeamCollectionCell {
     @objc func removeTeam() {
         print("TeamCollectionCell - Removing team")
         guard let delegate = teamsViewDelegate, let team = self.teamInformation else { fatalError("No delegate passed to team collection cell") }
+
         delegate.remove(team: team)
     }
 }

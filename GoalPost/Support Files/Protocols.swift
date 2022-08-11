@@ -13,6 +13,8 @@ protocol Refreshable {
 }
 
 protocol TeamsViewDelegate {
+    var collectionView: UICollectionView { get set }
+    
     func refresh(calledBy: String, expandingCell id: Int?)
     func add(team: TeamObject)
     func remove(team: TeamObject)

@@ -104,12 +104,12 @@ class TeamsView: UIView {
     // 1
     private func setUpStacks() {
         self.constrain(mainStack, safeAreaLayout: true)
-        mainStack.add(children: [(titleArea, 0.075), (UIView(), 0.05), (addTeamStack, 0.1), (collectionView, nil), (UIView(), 0.05)])
+        mainStack.add(children: [(titleArea, 0.075), (UIView(), 0.025), (addTeamStack, 0.1), (UIView(), 0.025), (collectionView, nil), (UIView(), 0.05)])
         
         // Might as well set up the title area as long as we're at it
         titleArea.constrain(titleLabel, using: .scale, widthScale: 0.5, heightScale: 1, padding: 5, except: [], safeAreaLayout: true, debugName: "My Teams Title Label")
         
-        addTeamStack.add(children: [(UIView(), 0.25), (addTeamButton, 0.5), (UIView(), nil)])
+        addTeamStack.add(children: [(UIView(), 0.25), (addTeamButton, nil), (UIView(), 0.25)])
     }
     
     // 2
@@ -169,6 +169,7 @@ class TeamsView: UIView {
         // Views
         mainStack.backgroundColor = Colors.backgroundColor
         titleArea.backgroundColor = Colors.titleAreaColor
+        collectionView.backgroundColor = Colors.backgroundColor
         
         addTeamLabelView.backgroundColor = Colors.headerColor
         
@@ -215,32 +216,16 @@ extension TeamsView: TeamsViewDelegate {
             guard let dataSource = dataSource else { return }
             
             // 2. Create a new snapshot using .main and append the teams that were found
-            var snapshot = NSDiffableDataSourceSnapshot<Section, TeamObject>()
-            snapshot.appendSections([.main])
-            snapshot.appendItems(foundTeams, toSection: .main)
+            
+            var snapShot = dataSource.snapshot(for: .main)
+            snapShot.deleteAll()
+            snapShot.append(foundTeams)
             
             // 3. Apply to datasource
-            await dataSource.apply(snapshot, animatingDifferences: true)
-            
-            /*
-            if let teamId = id {
-                for item in 0 ... collectionView.numberOfItems(inSection: 0) - 1 {
-                    let path = IndexPath(item: item, section: 0)
-                    guard let teamCell = collectionView.cellForItem(at: path) as? TeamCollectionCell else {
-                        print("Could not cast \(path) as a teamcollectioncell")
-                        continue }
-                    if teamCell.teamInformation?.id == teamId {
-                        //teamCell.teamDataStack.matchLoading = false
-                        if !teamCell.isSelected {
-                            collectionView.selectItem(at: path, animated: true, scrollPosition: .centeredVertically)
-                        }
-                    }
-                }
-            }
-             */
+            await dataSource.apply(snapShot, to: .main, animatingDifferences: true)
         }
     }
-    
+
     func refresh(cell id: Int?) {
         if let teamId = id {
             for item in 0 ... collectionView.numberOfItems(inSection: 0) - 1 {
@@ -262,50 +247,109 @@ extension TeamsView: TeamsViewDelegate {
         
         guard let dataSource = dataSource else { return }
         
-        /*
-        // 1. Add team to datasource
-        //      Retrieve snapshot and append new team. Even though refreshing will accomplish the same thing, this is done here first because we need to pass a cell to the Data Fetcher
         var snapshot = dataSource.snapshot(for: .main)
-        snapshot.append([team])
-        dataSource.apply(snapshot, to: .main, animatingDifferences: true)
         
-        // 2. Find the cell, initiate the "load" functionality, and pass it to DataFetcher
-
-        for item in 0 ... collectionView.numberOfItems(inSection: 0) - 1 {
-            let path = IndexPath(item: item, section: 0)
-            guard let teamCell = collectionView.cellForItem(at: path) as? TeamCollectionCell else {
-                print("Could not cast \(path) as a teamcollectioncell")
-                continue }
-            if teamCell.teamInformation?.id == team.id {
-                //teamCell.teamDataStack.load(.match)
-                collectionView.selectItem(at: path, animated: true, scrollPosition: .centeredVertically)
+        /*
+        let sortedItems = (snapshot.items + [team]).sorted { $0.name > $1.name }
+        let foundIteam = sortedItems.firstIndex(of: team) + 1
+        */
+        
+        var current: TeamObject = team
+        for item in snapshot.items {
+            if team.name > item.name {
+                current = item
+            } else {
+                break
             }
         }
-         */
+        
+        if !snapshot.items.isEmpty && snapshot.items[0].name > team.name {
+            snapshot.insert([team], before: snapshot.items[0])
+        } else if current == team {
+            snapshot.append([team])
+        } else {
+            snapshot.insert([team], after: current)
+        }
+
+        dataSource.apply(snapshot, to: .main, animatingDifferences: true)
+        
         
         Task.init {
             
             // 3. Add team to favorites. Once complete, update the Match section
             let team = try await DataFetcher.helper.addFavorite(team: team) {
-                self.refresh(calledBy: "TeamsView - Add - AddLeaguesFor - Completion Handler") }
+                //self.refresh(calledBy: "TeamsView - Add - AddLeaguesFor - Completion Handler") }
+            }
             try await DataFetcher.helper.addMatchesFor(team: team) {
                 print("\n\n******\n******\n******\nCalling Completion For Matches\n******\n******\n******\n")
                 //self.refresh(calledBy: "add(team)", expandingCell: team.id)
                 self.refresh(cell: team.id)
             }
         }
+    }
+    
+    func removeAnimation(completion: @escaping () -> ()) {
         
-        // 4. Trigger the cell selection process
+        // Create a blur effect
+        let blurEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
+        let blurImageView = UIVisualEffectView(effect: blurEffect)
+        blurImageView.clipsToBounds = true
+        blurImageView.layer.cornerRadius = 25
+        blurImageView.alpha = 0
         
-        self.refresh(calledBy: "TeamsView - Add")
+        constrain(blurImageView, using: .scale, widthScale: 0.8, except: [.height], debugName: "BlurImageView Constrained To TeamSearchView")
+        blurImageView.heightAnchor.constraint(equalTo: blurImageView.widthAnchor).isActive = true
+        
+        // Add a label to blur effect
+        let addedTeamLabel = UILabel()
+        addedTeamLabel.text = "Removed"
+        addedTeamLabel.textColor = Colors.white.hexFFFCF9
+        addedTeamLabel.alpha = 0
+        addedTeamLabel.font = UIFont.systemFont(ofSize: 50)
+        addedTeamLabel.adjustsFontSizeToFitWidth = true
+        addedTeamLabel.numberOfLines = -1
+        addedTeamLabel.textAlignment = .center
+        blurImageView.contentView.constrain(addedTeamLabel, using: .scale, widthScale: 0.8, debugName: "Added Team Label Constrainted To BlurImageView")
+        
+        // Trigger feedback
+        let feedback = UINotificationFeedbackGenerator()
+        feedback.notificationOccurred(.success)
+        
+        // Animate
+        UIView.animate(withDuration: 0.5, delay: 0, options: [.curveLinear]) {
+            blurImageView.alpha = 0.75
+            addedTeamLabel.alpha = 1
+        } completion: { (Bool) in
+            UIView.animate(withDuration: 0.5, delay: 0.5, options: [.curveEaseInOut], animations: {
+                blurImageView.alpha = 0
+                addedTeamLabel.alpha = 0
+            }, completion: { (Bool) in
+                blurImageView.removeFromSuperview()
+                addedTeamLabel.removeFromSuperview()
+                completion()
+                return
+            })
+            return
+        }
     }
     
     func remove(team: TeamObject) {
         /// Called By removal button in Team Collection Cell
         Task.init {
             await Cached.data.favoriteTeamsRemoveValue(forKey: team.id)
-            self.refresh(calledBy: "TeamsView - Remove Team")
-        }
+            //self.removeAnimation {
+                //self.refresh(calledBy: "TeamsView - Remove Team")
+                guard let dataSource = self.dataSource else { return }
+                
+                // 2. Create a new snapshot using .main and append the teams that were found
+                
+                var snapShot = dataSource.snapshot(for: .main)
+                snapShot.delete([team])
+                
+                // 3. Apply to datasource
+                await dataSource.apply(snapShot, to: .main, animatingDifferences: true)
+            }
+        //}
     }
 }
 

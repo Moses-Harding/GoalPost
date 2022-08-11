@@ -131,7 +131,7 @@ class MatchCollectionCell: TeamDataStackCellModel {
             // Set data to UI elements
             homeTeamLabel.text = homeTeam.name
             awayTeamLabel.text = awayTeam.name
-            dateLabel.text = String(teamDataObject.id) + " - " + match.timeStamp.formatted(date: .numeric, time: .omitted)
+            dateLabel.text = match.timeStamp.formatted(date: .numeric, time: .omitted)
             homeTeamScore.text = String(match.homeTeamScore)
             awayTeamScore.text = String(match.awayTeamScore)
             
@@ -178,10 +178,6 @@ class MatchCollectionCell: TeamDataStackCellModel {
     }
     
     override func prepareForReuse() {
-        
-        //print("prepareForResue for \(teamDataObject?.id)")
-        
-        self.alpha = 0
         
         homeTeamLabel.text = "-"
         awayTeamLabel.text = "-"

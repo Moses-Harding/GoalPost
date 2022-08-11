@@ -135,7 +135,7 @@ class TeamSearchView: UIView {
         //let listLayout = UICollectionViewLayout()
         
         // MARK: Configure Collection View
-        collectionView = UICollectionView(frame: self.bounds, collectionViewLayout: createCOllectionViewLayout())
+        collectionView = UICollectionView(frame: self.bounds, collectionViewLayout: createCollectionViewLayout())
         collectionViewArea.constrain(collectionView, using: .edges, padding: 20)
         
         // MARK: Cell registration - What does the collectionview do to set up a cell - in this case simply passes data
@@ -153,7 +153,7 @@ class TeamSearchView: UIView {
         }
     }
     
-    private func createCOllectionViewLayout() -> UICollectionViewLayout {
+    private func createCollectionViewLayout() -> UICollectionViewLayout {
         
         let sectionProvider = { (sectionIndex: Int, NSCollectionLayoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
             
@@ -359,6 +359,7 @@ extension TeamSearchView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         guard let cell = collectionView.cellForItem(at: indexPath) as? TeamSearchCell, let team = cell.teamInformation else { return }
+        cell.showCheckmark()
         
         self.addAnimation() {
             self.viewController?.dismiss(animated: true)

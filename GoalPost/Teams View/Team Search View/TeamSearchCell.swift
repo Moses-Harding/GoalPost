@@ -16,6 +16,13 @@ class TeamSearchCell: UICollectionViewCell {
     
     var teamLabel = UILabel()
     var countryLabel = UILabel()
+    var checkmarkLabel: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "checkmark.square.fill")
+        imageView.tintColor = Colors.searchResultViewBorderColor
+        imageView.isHidden = true
+        return imageView
+    } ()
     
     // MARK: Images
     
@@ -32,6 +39,7 @@ class TeamSearchCell: UICollectionViewCell {
     // MARK: Data
     
     var teamInformation: TeamObject? { didSet { updateContent() } }
+    var favorite: Bool = false
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -60,18 +68,14 @@ class TeamSearchCell: UICollectionViewCell {
         mainStack.add(children: [(UIView(), 0.15), (topStack, nil), (UIView(), nil), (bottomStack, 0.3), (UIView(), 0.15)])
         
         topStack.add(children: [(UIView(), 0.05), (teamLogoView, nil), (UIView(), 0.05), (teamLabel, nil), (UIView(), 0.05)])
-        bottomStack.add(children: [(UIView(), 0.05), (bottomSpacer, nil), (UIView(), 0.05), (countryLabel, nil), (UIView(), 0.05)])
+         bottomStack.add(children: [(UIView(), 0.05), (bottomSpacer, nil), (UIView(), 0.05), (countryLabel, nil), (UIView(), 0.05), (checkmarkLabel, 0.1), (UIView(), 0.1)])
          //bottomStack.add([countryLabel])
         
         teamLabel.textColor = Colors.searchResultViewTextColor
         teamLabel.adjustsFontSizeToFitWidth = true
         countryLabel.textColor = Colors.searchResultViewSecondaryTextColor
         countryLabel.adjustsFontSizeToFitWidth = true
-         //countryLabel.textColor = .white
-         //teamLabel.textColor = .white
          
-         teamLabel.text = "Team Placeholder"
-         countryLabel.text = "Country Placeholder"
         
         teamLogoView.constrain(teamLogo, using: .scale, except: [.height], debugName: "Team Logo -> Constraint To Team Logo View")
         teamLogo.heightAnchor.constraint(equalToConstant: 20).isActive = true
@@ -88,10 +92,27 @@ class TeamSearchCell: UICollectionViewCell {
             guard let teamInformation = teamInformation else { return }
             // Set data to UI elements
             teamLabel.text = teamInformation.name + (teamInformation.national ? " (National Team)" : "")
-            //
             countryLabel.text = teamInformation.country
             
+            let favorites = await Cached.data.favoriteTeams
+            
+            if favorites.contains { $0.key == teamInformation.id } {
+                checkmarkLabel.isHidden = false
+            } else {
+                checkmarkLabel.isHidden = true
+            }
+            
             await loadImage(for: teamInformation)
+        }
+    }
+    
+    func showCheckmark() {
+        self.checkmarkLabel.isHidden = false
+        self.checkmarkLabel.alpha = 0
+        
+        UIView.animate(withDuration: 1, delay: 0) {
+            self.checkmarkLabel.alpha = 1
+            
         }
     }
     

@@ -44,7 +44,8 @@ struct Colors {
     static var teamCellViewTextColor = white.hexFFFCF9
     static var teamCellViewSecondaryTextColor = green.hex5C996C
     static var teamCellViewTertiaryTextColor = UIColor.lightGray
-    static var teamCellRemovalButtonBackgroundColor = red.hexFE5F55
+    static var teamCellRemovalButtonBackgroundColor = red.hexFC7168
+    static var teamCellRemovalButtonBorderColor = red.hexFE5F55
     
     static var teamDataStackBackgroundColor = gray.hex1C1F1C//gray.hex282B28
     static var teamDataStackTextColor = white.hexFFFCF9
@@ -98,6 +99,7 @@ struct PurpleColors {
 
 struct RedColors {
     var hexFE5F55 = UIColor(red: 1.00, green: 0.37, blue: 0.33, alpha: 1.00)
+    var hexFC7168 = UIColor(red: 0.99, green: 0.44, blue: 0.41, alpha: 0.1)
     var hexB14E4E = UIColor(red: 0.69, green: 0.31, blue: 0.31, alpha: 1.00)
 }
 

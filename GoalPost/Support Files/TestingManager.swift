@@ -15,7 +15,7 @@ struct Testing {
     var getMatchesForFavoriteLeagues = true
     var getLiveTestData = true
     
-    var disableAds = true
+    var disableAds = false
 }
 
 func note(fileName: String, _ message: String) {
