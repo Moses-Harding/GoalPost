@@ -21,10 +21,20 @@ enum ConstraintMethod {
 
 //MARK: CollectionView
 
+
+enum Section {
+    case main
+}
+
 enum MatchesCellType: Codable, Hashable {
     case league(LeagueObject)
     case match(MatchObject)
     case ad(AdObject)
+}
+
+enum MatchesViewCollectionSectionType {
+    case league
+    case ad
 }
 
 enum DefaultIdentifier: Int {
@@ -47,10 +57,11 @@ enum AdViewName: String, Codable, CaseIterable {
 // For Team Data Object
 
 enum TeamDataObjectType: String {
-    case match = "Matches"
     case injury = "Injuries and Absences"
-    case transfer = "Transfers"
+    case league = "League"
+    case match = "Matches"
     case player = "Squad"
+    case transfer = "Transfers"
 }
 
 

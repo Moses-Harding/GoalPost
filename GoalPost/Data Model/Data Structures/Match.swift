@@ -101,6 +101,6 @@ extension MatchObject: Hashable {
 
 extension MatchObject: CustomStringConvertible {
     var description: String {
-        return "\(self.timeStamp.formatted(date: .numeric, time: .omitted)) - \(self.uniqueID)"
+        return "Match Object - \(self.timeStamp.formatted(date: .numeric, time: .omitted)) - \(self.uniqueID)\(favoriteTeam ? " (Favorite)" : "")"
     }
 }

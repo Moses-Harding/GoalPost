@@ -28,7 +28,7 @@ class RootController: UITabBarController {
         teamsViewController.tabBarItem = UITabBarItem(title: "Teams", image: UIImage(systemName: "tshirt"), tag: 1)
         leaguesViewController.tabBarItem = UITabBarItem(title: "Leagues", image: UIImage(systemName: "rosette"), tag: 2)
 
-        self.selectedIndex = 1
+        self.selectedIndex = 0
 
         
         gatherData()

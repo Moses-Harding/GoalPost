@@ -10,7 +10,7 @@ import Foundation
 struct DataFetcher {
     static var helper = DataFetcher()
     
-    var testing = false
+    var testing = true
     
     func fetchDataIfValid(_ forceDataRetrieval: Bool) {
         
@@ -91,8 +91,8 @@ struct DataFetcher {
             await Cached.data.matchesDictionaryIntegrate(matchesDictionary, replaceExistingValue: true)
             await Cached.data.matchesByTeamIntegrate(matchesByTeam)
             await Cached.data.matchesByDateSetIntegrate(matchesByDateSet)
-            await Cached.data.favoriteMatchesByDateSetIntegrate(favoriteMatchesByDateSet)
-            await Cached.data.favoriteMatchesDictionaryIntegrate(favoriteMatchesDictionary, replaceExistingValue: true)
+            //await Cached.data.favoriteMatchesByDateSetIntegrate(favoriteMatchesByDateSet)
+            //await Cached.data.favoriteMatchesDictionaryIntegrate(favoriteMatchesDictionary, replaceExistingValue: true)
             await Cached.data.matchesByLeagueSetIntegrate(matchesByLeagueSet)
             
             completion()
@@ -112,6 +112,38 @@ struct DataFetcher {
         }
     }
     
+    private func getDataForFavoriteTeams() {
+        
+        print("DataFetcher - Getting data for favorite teams")
+        
+        let queue = DispatchQueue(label: "favoriteTeamQueue", qos: .background)
+        
+        let group = DispatchGroup()
+        group.setTarget(queue: queue)
+        
+        queue.async {
+            Task.init {
+                var index = 0
+                var teamIds = await Cached.data.favoriteTeams.keys.map { $0 }
+                while index < teamIds.count {
+                    //queue.async {
+                    //Task.init {
+                    guard let team = await Cached.data.favoriteTeams[teamIds[index]] else {
+                        print("DataFetcher - getDataForFavoriteTeams - Could not located team with id \(teamIds[index])")
+                        continue
+                    }
+                    
+                    try await addMatchesFor(team: team) {
+                        print("Added matches for \(team.name)")
+                    }
+                    
+                    index += 1
+                }
+            }
+        }
+    }
+    
+    /*
     private func getDataForFavoriteTeams() {
         
         print("DataFetcher - Getting data for favorite teams")
@@ -173,6 +205,7 @@ struct DataFetcher {
             }
         }
     }
+    */
     
     private func getDataFor(team teamObject: TeamObject) async throws -> ([MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [MatchUniqueID:MatchObject], [MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [MatchUniqueID:MatchObject], [InjuryID:InjuryObject], [TeamID:Set<InjuryID>], [PlayerID:PlayerObject], [TeamID:Set<PlayerID>], [TransferID:TransferObject], [TeamID:Set<TransferID>]) {
         
@@ -185,7 +218,7 @@ struct DataFetcher {
         
         let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, favoriteMatchesByDateSet, favoriteMatchesDictionary) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
         let (lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, lastFavoriteMatchesByDateSet, lastFavoriteMatchesDictionary) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
-        
+
         let (injuryDictionary, injuriesByTeam) = try await GetInjuries.helper.getInjuriesFor(team: team)
         
         let (playerDictionary, playersByTeam) = try await GetSquad.helper.getSquadFor(team: team)
@@ -249,15 +282,15 @@ struct DataFetcher {
         await Cached.data.matchesDictionaryIntegrate(matchesDictionary, replaceExistingValue: true)
         await Cached.data.matchesByTeamIntegrate(matchesByTeam)
         await Cached.data.matchesByDateSetIntegrate(matchesByDateSet)
-        await Cached.data.favoriteMatchesByDateSetIntegrate(favoriteMatchesByDateSet)
-        await Cached.data.favoriteMatchesDictionaryIntegrate(favoriteMatchesDictionary, replaceExistingValue: true)
+        //await Cached.data.favoriteMatchesByDateSetIntegrate(favoriteMatchesByDateSet)
+        //await Cached.data.favoriteMatchesDictionaryIntegrate(favoriteMatchesDictionary, replaceExistingValue: true)
         await Cached.data.matchesByLeagueSetIntegrate(matchesByLeagueSet)
         
         await Cached.data.matchesDictionaryIntegrate(lastMatchesDictionary, replaceExistingValue: true)
         await Cached.data.matchesByTeamIntegrate(lastMatchesByTeam)
         await Cached.data.matchesByDateSetIntegrate(lastMatchesByDateSet)
-        await Cached.data.favoriteMatchesByDateSetIntegrate(lastFavoriteMatchesByDateSet)
-        await Cached.data.favoriteMatchesDictionaryIntegrate(lastFavoriteMatchesDictionary, replaceExistingValue: true)
+        //await Cached.data.favoriteMatchesByDateSetIntegrate(lastFavoriteMatchesByDateSet)
+        //await Cached.data.favoriteMatchesDictionaryIntegrate(lastFavoriteMatchesDictionary, replaceExistingValue: true)
         await Cached.data.matchesByLeagueSetIntegrate(lastMatchesByLeagueSet)
         
         await completion()
@@ -271,8 +304,8 @@ struct DataFetcher {
                 await Cached.data.matchesDictionaryIntegrate(matchesDictionary, replaceExistingValue: true)
                 await Cached.data.matchesByTeamIntegrate(matchesByTeam)
                 await Cached.data.matchesByDateSetIntegrate(matchesByDateSet)
-                await Cached.data.favoriteMatchesByDateSetIntegrate(favoriteMatchesByDateSet)
-                await Cached.data.favoriteMatchesDictionaryIntegrate(favoriteMatchesDictionary, replaceExistingValue: true)
+                //await Cached.data.favoriteMatchesByDateSetIntegrate(favoriteMatchesByDateSet)
+                //await Cached.data.favoriteMatchesDictionaryIntegrate(favoriteMatchesDictionary, replaceExistingValue: true)
                 await Cached.data.matchesByLeagueSetIntegrate(matchesByLeagueSet)
             }
         }

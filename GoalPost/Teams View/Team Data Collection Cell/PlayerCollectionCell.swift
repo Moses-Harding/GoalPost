@@ -86,7 +86,7 @@ class PlayerCollectionCell: TeamDataStackCellModel {
                 print("no team data object found")
                 return }
             guard let player = await teamDataObject.player() else {
-                print("No player found for team data object \(teamDataObject.id) - id \(teamDataObject.playerID)")
+                print("No player found for team data object \(teamDataObject.id) - id \(teamDataObject.playerId)")
                 return }
             
             playerNameLabel.text = "\(player.name)"

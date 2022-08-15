@@ -24,7 +24,7 @@ class TeamDataStackCellModel: UICollectionViewCell {
     
     // MARK: Data
     
-    var teamDataObject: TeamDataObject? { didSet { checkForContent() } }
+    var teamDataObject: ObjectContainer? { didSet { checkForContent() } }
     
     // MARK: Indicator
     

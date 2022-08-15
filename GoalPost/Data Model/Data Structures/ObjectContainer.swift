@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class TeamDataObject {
+class ObjectContainer {
     
     static var universalCount = 0
     
@@ -30,14 +30,22 @@ class TeamDataObject {
     }
     
     func player() async -> PlayerObject? {
-        guard let id = playerID else { return nil }
+        guard let id = playerId else { return nil }
         return await Cached.data.playerDictionary(id)
+    }
+    
+    func league() async -> LeagueObject? {
+        guard let id = leagueId else { return nil }
+        return await Cached.data.leagueDictionary(id)
     }
 
     var injuryId: InjuryID?
+    var leagueId: LeagueID?
     var matchId: MatchUniqueID?
     var transferId: TransferID?
-    var playerID: PlayerID?
+    var playerId: PlayerID?
+    
+    var favoriteLeague = false
     
     var id: Int
     var loading: Bool = false
@@ -45,8 +53,8 @@ class TeamDataObject {
     private init(type: TeamDataObjectType) {
         self.type = type
         
-        TeamDataObject.universalCount += 1
-        id = TeamDataObject.universalCount
+        ObjectContainer.universalCount += 1
+        id = ObjectContainer.universalCount
     }
     
     convenience init(matchId: MatchUniqueID) {
@@ -67,7 +75,17 @@ class TeamDataObject {
     
     convenience init(playerId: PlayerID) {
         self.init(type: .player)
-        self.playerID = playerId
+        self.playerId = playerId
+    }
+    
+    convenience init(leagueId: LeagueID) {
+        self.init(type: .league)
+        self.leagueId = leagueId
+    }
+    
+    convenience init(favoriteLeague: Bool) {
+        self.init(type: .league)
+        self.favoriteLeague = favoriteLeague
     }
     
     convenience init(type: TeamDataObjectType, loading: Bool) {
@@ -76,8 +94,8 @@ class TeamDataObject {
     }
 }
 
-extension TeamDataObject: Hashable {
-    static func == (lhs: TeamDataObject, rhs: TeamDataObject) -> Bool {
+extension ObjectContainer: Hashable {
+    static func == (lhs: ObjectContainer, rhs: ObjectContainer) -> Bool {
         return lhs.id == rhs.id
     }
     

@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class MatchCell: UICollectionViewListCell {
+class OLDMatchCell: UICollectionViewListCell {
     
     var match: MatchObject?
     
@@ -236,29 +236,29 @@ class MatchCellContentView: UIView, UIContentView {
     private func apply(configuration: MatchCellContentConfiguration) {
         
         Task.init {
-        
-        // Only apply configuration if new configuration and current configuration are not the same
-        guard currentConfiguration != configuration, let match = configuration.match else { return }
-        
-        // Replace current configuration with new configuration
-        currentConfiguration = configuration
-        
+            
+            // Only apply configuration if new configuration and current configuration are not the same
+            guard currentConfiguration != configuration, let match = configuration.match else { return }
+            
+            // Replace current configuration with new configuration
+            currentConfiguration = configuration
+            
             guard let homeTeam = await match.homeTeam(), let awayTeam = await match.awayTeam() else { return }
-        
-        // Set data to UI elements
-        homeTeamLabel.text = homeTeam.name
-        awayTeamLabel.text = awayTeam.name
-        startTimeLabel.text = match.timeStamp.formatted(date: .omitted, time: .shortened)
-        homeTeamScore.text = String(match.homeTeamScore)
-        awayTeamScore.text = String(match.awayTeamScore)
-        setStatus(from: match.status, time: match.timeElapsed)
-        
-        vsLabel.text = "-"
-        vsLabel.sizeToFit()
-        //imageStack.layoutSubviews()
-        
-        loadImage(for: homeTeam, teamType: .home)
-        loadImage(for: awayTeam, teamType: .away)
+            
+            // Set data to UI elements
+            homeTeamLabel.text = homeTeam.name
+            awayTeamLabel.text = awayTeam.name
+            startTimeLabel.text = match.timeStamp.formatted(date: .omitted, time: .shortened)
+            homeTeamScore.text = String(match.homeTeamScore)
+            awayTeamScore.text = String(match.awayTeamScore)
+            setStatus(from: match.status, time: match.timeElapsed)
+            
+            vsLabel.text = "-"
+            vsLabel.sizeToFit()
+            //imageStack.layoutSubviews()
+            
+            loadImage(for: homeTeam, teamType: .home)
+            loadImage(for: awayTeam, teamType: .away)
         }
     }
     

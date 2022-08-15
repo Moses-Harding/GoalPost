@@ -108,6 +108,7 @@ class GetMatches {
                 matchesByDateSet.add(matchUniqueId, toSetWithKey: matchDate.asKey)
             }
             
+            /*
             // Add if it's a favorite team
             if await Cached.data.favoriteTeams.keys.contains(homeTeamId) {
                 
@@ -127,6 +128,7 @@ class GetMatches {
                 favoriteMatchesByDateSet.add(favoriteMatchUniqueID, toSetWithKey: matchDate.asKey)
                 favoriteMatchesDictionary[favoriteMatchUniqueID] = favoriteMatchData
             }
+             */
         
             
             // Add to dictionary of all matches

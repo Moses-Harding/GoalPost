@@ -29,7 +29,7 @@ NOTE: As of 8/4/22, only the matches section is included.
 class TeamDataStack: UIStackView {
     
     
-    var dataSource: UICollectionViewDiffableDataSource<TeamDataObjectType, TeamDataObject>?
+    var dataSource: UICollectionViewDiffableDataSource<TeamDataObjectType, ObjectContainer>?
     
     let collectionViewArea = UIView()
     
@@ -126,7 +126,7 @@ class TeamDataStack: UIStackView {
         
         
         // 2. Create the datasource, which expects a collectionview, indexpath, and teamdataobject. If the type is match, for example, the datasource dequeues a matchCollectionCell, assigns the teamDataObject to it (triggering 'updateAppearance') and returns the cell
-        dataSource = UICollectionViewDiffableDataSource<TeamDataObjectType, TeamDataObject>(collectionView: collectionView) {
+        dataSource = UICollectionViewDiffableDataSource<TeamDataObjectType, ObjectContainer>(collectionView: collectionView) {
             (collectionView, indexPath, teamDataObject) -> UICollectionViewCell? in
             
             switch teamDataObject.type {
@@ -166,6 +166,8 @@ class TeamDataStack: UIStackView {
                 
                 cell.teamDataObject = teamDataObject
                 return cell
+            case .league:
+                fatalError()
             }
         }
         collectionView.dataSource = dataSource
@@ -184,7 +186,7 @@ class TeamDataStack: UIStackView {
                 using: supplementaryRegistration, for: index)
         }
         
-        var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>()
+        var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, ObjectContainer>()
         snapshot.appendSections([.match])
         dataSource?.apply(snapshot)
     }
@@ -244,13 +246,13 @@ extension TeamDataStack {
 
         var snapshot = dataSource.snapshot(for: .match)
 
-        var matches = [TeamDataObject]()
+        var matches = [ObjectContainer]()
         
         var position: Int = 0
         var index: Int = 0
         
         for matchId in matchIDs.sorted(by: { $0 > $1 } ) {
-            matches.append(TeamDataObject(matchId: matchId))
+            matches.append(ObjectContainer(matchId: matchId))
             if let matchDate = Double(String(matchId.split(separator: "|")[0])) {
                 if matchDate > Date.now.timeIntervalSince1970 {
                     position = index
@@ -315,10 +317,10 @@ extension TeamDataStack {
 
             var snapshot = dataSource.snapshot(for: .transfer)
 
-            var transfers = [TeamDataObject]()
+            var transfers = [ObjectContainer]()
             
             for transferId in transferIDs.sorted(by: { $0 > $1 } ) {
-                transfers.append(TeamDataObject(transferId: transferId))
+                transfers.append(ObjectContainer(transferId: transferId))
             }
             
             snapshot.deleteAll()
@@ -345,10 +347,10 @@ extension TeamDataStack {
 
             var snapshot = dataSource.snapshot(for: .injury)
 
-            var injuries = [TeamDataObject]()
+            var injuries = [ObjectContainer]()
             
             for injuryId in injuryIDs.sorted(by: { $0 > $1 } ) {
-                injuries.append(TeamDataObject(injuryId: injuryId))
+                injuries.append(ObjectContainer(injuryId: injuryId))
             }
 
             snapshot.deleteAll()
@@ -374,10 +376,10 @@ extension TeamDataStack {
 
             var snapshot = dataSource.snapshot(for: .player)
 
-            var players = [TeamDataObject]()
+            var players = [ObjectContainer]()
             
             for playerId in playerIDs.sorted(by: { $0 < $1 } ) {
-                players.append(TeamDataObject(playerId: playerId))
+                players.append(ObjectContainer(playerId: playerId))
             }
             
             snapshot.deleteAll()

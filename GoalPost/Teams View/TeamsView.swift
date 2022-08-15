@@ -39,10 +39,7 @@ import UIKit
  */
 
 class TeamsView: UIView {
-    
-    enum Section {
-        case main
-    }
+
     
     // MARK: Views
     
@@ -218,9 +215,26 @@ extension TeamsView: TeamsViewDelegate {
             // 2. Create a new snapshot using .main and append the teams that were found
             
             var snapShot = dataSource.snapshot(for: .main)
-            snapShot.deleteAll()
-            snapShot.append(foundTeams)
             
+            var oldItems = snapShot.items
+
+            let differences = foundTeams.difference(from: oldItems)
+            
+            for difference in differences {
+                switch difference {
+                case let .insert(offset: offset, element: team, _):
+                    print("Insert \(team) at position \(offset)")
+                    if offset == 0 {
+                        snapShot.insert([team], before: oldItems[0])
+                    } else {
+                        snapShot.insert([team], after: oldItems[offset])
+                    }
+                case let .remove(offset: offset, element: team, _):
+                    print("Remove \(team) at position \(offset)")
+                    snapShot.delete([team])
+                }
+            }
+
             // 3. Apply to datasource
             await dataSource.apply(snapShot, to: .main, animatingDifferences: true)
         }

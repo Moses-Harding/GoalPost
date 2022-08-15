@@ -111,8 +111,8 @@ struct Cache<T: Codable> {
 
 enum DictionaryType {
     case favoriteLeagues
-    case favoriteMatchesByDate
-    case favoriteMatchDictionary
+    //case favoriteMatchesByDate
+    //case favoriteMatchDictionary
     case favoriteTeams
     
     case injuriesByTeam
@@ -149,8 +149,8 @@ actor Cached {
     //@Cache(key: "Favorite Team Matches By Day", defaultValue: [:]) static var favoriteTeamMatchesByDay: [DateString:LeagueObject]
     
     // References
-    @Cache(key: "*Favorite Matches By Date", defaultValue: [:]) var favoriteMatchesByDateSet: MatchesByDateDictionary
-    @Cache(key: "*Favorite Match Dictionary", defaultValue: [:]) var favoriteMatchesDictionary: [MatchUniqueID:MatchObject]
+    //@Cache(key: "*Favorite Matches By Date", defaultValue: [:]) var favoriteMatchesByDateSet: MatchesByDateDictionary
+    //@Cache(key: "*Favorite Match Dictionary", defaultValue: [:]) var favoriteMatchesDictionary: [MatchUniqueID:MatchObject]
     
     @Cache(key: "*Matches By Date", defaultValue: [:]) var matchesByDateSet: MatchesByDateDictionary
     @Cache(key: "*Matches By League", defaultValue: [:]) var matchesByLeagueSet: MatchesByLeagueDictionary
@@ -173,8 +173,8 @@ actor Cached {
         self.favoriteLeagues = [:]
         self.favoriteTeams = [:]
         
-        self.favoriteMatchesByDateSet = [:]
-        self.favoriteMatchesDictionary = [:]
+        //self.favoriteMatchesByDateSet = [:]
+        //self.favoriteMatchesDictionary = [:]
         
         self.matchesByDateSet = [:]
         self.matchesByLeagueSet = [:]
@@ -205,12 +205,18 @@ actor Cached {
     
     //
     
+    /*
     func getFavoriteMatchesDictionary() -> [MatchUniqueID:MatchObject] {
         return self.favoriteMatchesDictionary
     }
+     */
     
     func getMatchesDictionary() -> [MatchUniqueID:MatchObject] {
         return self.matchesDictionary
+    }
+    
+    func getMatchesByTeamDictionary() -> MatchesByTeamDictionary {
+        return self.matchesByTeam
     }
     
     func getFavoriteLeagues() -> [LeagueID:LeagueObject] {
@@ -225,6 +231,7 @@ actor Cached {
     
     func favoriteTeamsRemoveValue(forKey key: TeamID) {
         favoriteTeams.removeValue(forKey: key)
+        
     }
     
     //
@@ -273,6 +280,7 @@ actor Cached {
     
     //
     
+    /*
     func favoriteMatchesByDateSetIntegrate(_ favoriteMatchesByDateSet: [DateString: Set<MatchUniqueID>]) {
         self.favoriteMatchesByDateSet.integrateSet(favoriteMatchesByDateSet)
     }
@@ -280,6 +288,7 @@ actor Cached {
     func favoriteMatchesDictionaryIntegrate(_ favoriteMatchesDictionary: [MatchUniqueID:MatchObject], replaceExistingValue: Bool) {
         self.favoriteMatchesDictionary.integrate(favoriteMatchesDictionary, replaceExistingValue: replaceExistingValue)
     }
+     */
     
     func injuriesByTeamIntegrate(_ injuriesByTeam: [TeamID:Set<InjuryID>]) {
         self.injuriesByTeam.integrateSet(injuriesByTeam)
@@ -369,8 +378,8 @@ class CacheHandler {
     var favoriteLeagues: LeagueDictionary = [:]
     var favoriteTeams: TeamDictionary = [:]
     
-    var favoriteMatchesByDateSet: MatchesByDateDictionary = [:]
-    var favoriteMatchesDictionary: MatchesDictionary = [:]
+    //var favoriteMatchesByDateSet: MatchesByDateDictionary = [:]
+    //var favoriteMatchesDictionary: MatchesDictionary = [:]
     
     var matchesByDateSet: MatchesByDateDictionary = [:]
     var matchesByLeagueSet: MatchesByLeagueDictionary = [:]
@@ -393,9 +402,11 @@ class CacheHandler {
                 self.favoriteLeagues = await Cached.data.favoriteLeagues
                 self.favoriteTeams = await Cached.data.favoriteTeams
                 
+                /*
                 self.favoriteMatchesByDateSet = await Cached.data.favoriteMatchesByDateSet
                 self.favoriteMatchesDictionary = await Cached.data.favoriteMatchesDictionary
-                
+                */
+                 
                 self.matchesByDateSet = await Cached.data.matchesByDateSet
                 self.matchesByLeagueSet = await Cached.data.matchesByLeagueSet
                 
@@ -427,6 +438,7 @@ class CacheHandler {
                     self.favoriteLeagues.integrate(dictionary, replaceExistingValue: replaceExistingValue)
                 }
             }
+            /*
         case .favoriteMatchesByDate:
             //guard Key.self is MatchesByDateDictionary.Key.Type, Value.self is MatchesByDateDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
             guard let dictionary = dictionary as? MatchesByDateDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
@@ -443,6 +455,7 @@ class CacheHandler {
                     self.favoriteMatchesDictionary.integrate(dictionary, replaceExistingValue: replaceExistingValue)
                 }
             }
+             */
         case .favoriteTeams:
             //guard Key.self is TeamDictionary.Key.Type, Value.self is TeamDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
             guard let dictionary = dictionary as? TeamDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
