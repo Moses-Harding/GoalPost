@@ -196,7 +196,7 @@ extension TeamsView {
 }
 
 extension TeamsView: TeamsViewDelegate {
-    
+
     func refresh(calledBy function: String, expandingCell id: Int? = nil) {
         
         print("TeamsView - Refreshing - called by \(function)")
@@ -215,25 +215,8 @@ extension TeamsView: TeamsViewDelegate {
             // 2. Create a new snapshot using .main and append the teams that were found
             
             var snapShot = dataSource.snapshot(for: .main)
-            
-            var oldItems = snapShot.items
 
-            let differences = foundTeams.difference(from: oldItems)
-            
-            for difference in differences {
-                switch difference {
-                case let .insert(offset: offset, element: team, _):
-                    print("Insert \(team) at position \(offset)")
-                    if offset == 0 {
-                        snapShot.insert([team], before: oldItems[0])
-                    } else {
-                        snapShot.insert([team], after: oldItems[offset])
-                    }
-                case let .remove(offset: offset, element: team, _):
-                    print("Remove \(team) at position \(offset)")
-                    snapShot.delete([team])
-                }
-            }
+            snapShot.applyDifferences(newItems: foundTeams)
 
             // 3. Apply to datasource
             await dataSource.apply(snapShot, to: .main, animatingDifferences: true)
@@ -251,6 +234,7 @@ extension TeamsView: TeamsViewDelegate {
                     //teamCell.teamDataStack.matchLoading = false
                     Task.init {
                         await teamCell.teamDataStack.manualRefresh()
+                        print("ATTEMPTING TO REFRESH CELL")
                     }
                 }
             }
@@ -263,11 +247,9 @@ extension TeamsView: TeamsViewDelegate {
         
         var snapshot = dataSource.snapshot(for: .main)
         
-        /*
-        let sortedItems = (snapshot.items + [team]).sorted { $0.name > $1.name }
-        let foundIteam = sortedItems.firstIndex(of: team) + 1
-        */
+        let newItems = (snapshot.items + [team]).sorted(by: {$0.name < $1.name})
         
+        /*
         var current: TeamObject = team
         for item in snapshot.items {
             if team.name > item.name {
@@ -284,6 +266,8 @@ extension TeamsView: TeamsViewDelegate {
         } else {
             snapshot.insert([team], after: current)
         }
+         */
+        snapshot.applyDifferences(newItems: newItems)
 
         dataSource.apply(snapshot, to: .main, animatingDifferences: true)
         
@@ -296,7 +280,6 @@ extension TeamsView: TeamsViewDelegate {
             }
             try await DataFetcher.helper.addMatchesFor(team: team) {
                 print("\n\n******\n******\n******\nCalling Completion For Matches\n******\n******\n******\n")
-                //self.refresh(calledBy: "add(team)", expandingCell: team.id)
                 self.refresh(cell: team.id)
             }
         }
@@ -364,6 +347,11 @@ extension TeamsView: TeamsViewDelegate {
                 await dataSource.apply(snapShot, to: .main, animatingDifferences: true)
             }
         //}
+    }
+    
+    func present(_ viewController: UIViewController, completion:
+    (() -> Void)?) {
+        self.viewController?.present(viewController, animated: true, completion: completion)
     }
 }
 

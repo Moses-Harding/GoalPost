@@ -32,7 +32,7 @@ class GetLeagues {
 
         guard let data = data else { throw WebServiceCallErrors.dataNotPassedToConversionFunction }
         
-        var team = teamObject
+        let team = teamObject
         var leagueDictionary = [LeagueID:LeagueObject]()
         
         let results: LeagueSearchStructure = try JSONDecoder().decode(LeagueSearchStructure.self, from: data)
@@ -57,10 +57,10 @@ class GetLeagues {
                 }
             }
             
-            guard let league = response.league else { print ("Get Leagues - \(response.league?.name) not found")
+            guard let league = response.league else { print ("Get Leagues - \(response.league?.name ?? "UNKNOWN LEAGUE") not found")
                 continue
             }
-            guard currentSeason > 0 else { print ("Get Leagues - \(response.league?.name) could not locate season")
+            guard currentSeason > 0 else { print ("Get Leagues - \(response.league?.name ?? "UNKNOWN LEAGUE") could not locate season")
                 continue }
             
             let leagueSearchData = LeagueObject(id: league.id, name: league.name, logo: league.logo, type: league.type, country: response.country?.name ?? "N/A", countryLogo: response.country?.flag, currentSeason: currentSeason, seasonStart: seasonStart, seasonEnd: seasonEnd)

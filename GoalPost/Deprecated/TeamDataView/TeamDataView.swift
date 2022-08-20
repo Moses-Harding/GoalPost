@@ -1,57 +1,55 @@
 //
-//  TeamDataStack.swift
+//  TeamDataView.swift
 //  GoalPost
 //
-//  Created by Moses Harding on 5/30/22.
+//  Created by Moses Harding on 8/15/22.
 //
 
 import Foundation
 import UIKit
 
-/*
- DOCUMENTATION
- 
- TeamDataStack includes a collectionView that has data for every relevant section (match, transfer, etc) split up into separate sections. The sections are divided with a titleSupplementaryView
- 
-NOTE: As of 8/4/22, only the matches section is included.
- 
- 1. Initialization requires a teamObject. The UI (MainStack) is implemented, which only contains the collectionView.
- 2. When the collectioNView is referenced, it is lazily constructed using createCollectionViewLayout()
- 3. Each relevant collectioncell is registered (e.g. matchCollectionCell), as well as titleSupplementaryViews for each section
- 
- External Triggers
- manualRefresh - Triggered when a teamCollectionCell is selected. At the same time, the body of that cell (which includes teamDataStack) is unhidden. This triggers each section of the teamDataStack's collectionView to update with the latest data from the cache.
- update_Section - Triggered one of two ways. 1. manualRefresh (above) is triggered by selecting the cell. 2. DataFetcher completes retrieving info about the given section (when a new team is added). Data is read from the dictionary, and then assigned to the datasource, which in turns creates relevant cells.
- load - Triggered by teamsView.add(). When a team is added, each section is set to "load" (simply show a cell with a waiting indicator). This cell gets removed once the DataFetcher retreives all relevant information and triggers update_Section
- 
- */
-
-class TeamDataStack: UIStackView {
+class TeamDataView: UIView {
     
     
     var dataSource: UICollectionViewDiffableDataSource<TeamDataObjectType, ObjectContainer>?
+    lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCollectionViewLayout())
     
+    let mainStack = UIStackView(.vertical)
+    
+    let nameArea = UIView()
+    let removalButtonStack = UIStackView(.horizontal)
     let collectionViewArea = UIView()
     
-    lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCollectionViewLayout())
+
+    // Labels
+    var nameLabel = UILabel()
     
     //var totalHeight: CGFloat = 1200
     var totalHeight: CGFloat = 300
     
     // Data
-    var team: TeamObject?
+    var team: TeamObject? { didSet { updateContent() } }
+    
+    var viewController: TeamDataViewController!
+    
+    // Buttons
+    let removalButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Remove Team", for: .normal)
+        button.layer.borderWidth = 2
+        button.layer.cornerRadius = 5
+        button.addTarget(self, action: #selector(removeTeam), for: .touchUpInside)
+        return button
+    } ()
     
     //var matchLoading = false
     //var injuryLoading = false
     //var transferLoading = false
     //var playerLoading = false
     
-    init(team: TeamObject?) {
+    init() {
         super.init(frame: .zero)
-        
-        self.team = team
-        self.axis = .vertical
-        
+
         setUpMainStack()
         setUpCollectionView()
         setUpColors()
@@ -60,8 +58,19 @@ class TeamDataStack: UIStackView {
     // 1
     func setUpMainStack() {
         // Set Up Structure
-        self.add([collectionViewArea])
+
+        self.constrain(mainStack)
+        
+        mainStack.add(children: [(UIView(), 0.05), (nameArea, 0.05), (UIView(), 0.05), (removalButtonStack, 0.1), (UIView(), 0.05), (collectionViewArea, nil), (UIView(), 0.05)])
+        
         collectionViewArea.constrain(collectionView, using: .edges, padding: 5, debugName: "CollectionView to CollectionViewArea - InjuryTeamDataStack")
+        nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - Team Collection Cell")
+        
+        nameLabel.font = UIFont.boldSystemFont(ofSize: 24)
+        
+        removalButtonStack.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        removalButtonStack.add(children: [(UIView(), 0.2), (removalButton, nil), (UIView(), 0.2)])
         
         self.heightAnchor.constraint(greaterThanOrEqualToConstant: totalHeight).isActive = true
     }
@@ -193,8 +202,10 @@ class TeamDataStack: UIStackView {
     
     // 3
     func setUpColors() {
-        self.collectionView.backgroundColor = Colors.teamDataStackBackgroundColor
-        
+        self.backgroundColor = Colors.teamCellViewBackgroundColor
+        removalButton.backgroundColor = Colors.teamCellRemovalButtonBackgroundColor
+        removalButton.layer.borderColor = Colors.teamCellRemovalButtonBorderColor.cgColor
+        removalButton.setTitleColor(UIColor.white, for: .normal)
     }
     
     required init(coder: NSCoder) {
@@ -202,7 +213,15 @@ class TeamDataStack: UIStackView {
     }
 }
 
-extension TeamDataStack {
+extension TeamDataView {
+    
+    func updateContent() {
+        Task.init {
+            guard let team = self.team else { return }
+            self.nameLabel.text = team.name
+            await updateMatchSection()
+        }
+    }
 
     func clearCollectionView() {
         guard let dataSource = self.dataSource else { return }
@@ -217,7 +236,7 @@ extension TeamDataStack {
         /// This should call each "updateSection".
         /// __NOTE: As of 8/4, only Matches are included
         
-        print("Team Data Stack - Refreshing for \(team)")
+        print("Team Data Stack - Refreshing for \(team?.name ?? "UKNOWN TEAM")")
         
         // MARK: Setup snap shots
         //guard let dataSource = dataSource, let teamID = team?.id  else { return }
@@ -233,7 +252,7 @@ extension TeamDataStack {
         /// Called when 1. the cell is selected or 2. when teamsView has called DataFetcher to retrieve info about a team, and that operation has completed
         /// Get all of the matches in the dictionary, create a TeamDataObject for each, then apply to datasource. (This triggers the creation of the matchCollectionCells)
         
-        print("TeamDataStack - Update Match Section for \(team)")
+        print("TeamDataStack - Update Match Section for \(team?.name ?? "UKNOWN TEAM")")
         
         /*
         if matchLoading {
@@ -261,8 +280,13 @@ extension TeamDataStack {
             index += 1
         }
 
-        snapshot.deleteAll()
-        snapshot.append(matches)
+        snapshot.applyDifferences(newItems: matches)
+        
+        
+        print(snapshot.items)
+        print(matches)
+
+        
         await dataSource.apply(snapshot, to: .match, animatingDifferences: false)
         
         let indexPath = IndexPath(item: position, section: 0)
@@ -296,7 +320,7 @@ extension TeamDataStack {
      */
 }
 
-extension TeamDataStack {
+extension TeamDataView {
     
     // VERSION 2
     
@@ -332,7 +356,7 @@ extension TeamDataStack {
     
     func updateInjurySection() {
 
-        print("TeamDataStack - Update Injury Section for \(team)")
+        print("TeamDataStack - Update Injury Section for \(team?.name ?? "UKNOWN TEAM")")
         
         /*
         if injuryLoading {
@@ -361,7 +385,7 @@ extension TeamDataStack {
     
     func updatePlayerSection() {
 
-        print("TeamDataStack - Update Player Section for \(team)")
+        print("TeamDataStack - Update Player Section for \(team?.name ?? "UKNOWN TEAM")")
         
         /*
         if playerLoading {
@@ -388,3 +412,14 @@ extension TeamDataStack {
         }
     }
 }
+
+
+extension TeamDataView {
+    @objc func removeTeam() {
+        print("TeamCollectionCell - Removing team")
+        guard let delegate = viewController.teamsViewDelegate, let team = self.team else { fatalError("No delegate passed to team collection cell") }
+
+        delegate.remove(team: team)
+    }
+}
+

@@ -48,11 +48,44 @@ struct Storage<T: Codable> {
 
 // Keeps all saved preferences
 struct Saved {
+    
+    static var data = Saved()
+    
     @Storage(key: "First Run", defaultValue: true) static var firstRun: Bool
     
     @Storage(key: "Daily Update", defaultValue: Date.now) static var dailyUpdate: Date
     @Storage(key: "Weekly Update", defaultValue: Date.now) static var weeklyUpdate: Date
     @Storage(key: "Monthly Update", defaultValue: Date.now) static var monthlyUpdate: Date
+    
+    func retrieveImage(from string: String) -> UIImage? {
+        
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = documents.appendingPathComponent(string)
+        
+        // If a value exists, return it as Data, else return nil
+        guard let data = try? Data(contentsOf: url) else {
+            return nil
+        }
+        
+        // Convert it from Data to whatever type it is
+        return UIImage(data: data)
+    }
+    
+    func save(image: UIImage, uniqueName: String) {
+        
+        guard let data = image.pngData() else { return }
+        
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = documents.appendingPathComponent(uniqueName)
+        
+        do {
+            // Write to Disk
+            try data.write(to: url)
+            
+        } catch {
+            print("Unable to Write Data to Disk (\(error))")
+        }
+    }
 }
 
 
@@ -371,191 +404,6 @@ actor Cached {
     }
 }
 
-class CacheHandler {
-    
-    static var shared = CacheHandler()
-    
-    var favoriteLeagues: LeagueDictionary = [:]
-    var favoriteTeams: TeamDictionary = [:]
-    
-    //var favoriteMatchesByDateSet: MatchesByDateDictionary = [:]
-    //var favoriteMatchesDictionary: MatchesDictionary = [:]
-    
-    var matchesByDateSet: MatchesByDateDictionary = [:]
-    var matchesByLeagueSet: MatchesByLeagueDictionary = [:]
-   
-    var injuriesByTeam: InjuriesByTeamDictionary = [:]
-    var matchesByTeam: MatchesByTeamDictionary = [:]
-    var playersByTeam: PlayersByTeamDictionary = [:]
-    var transfersByTeam: TransfersByTeamDictionary = [:]
-
-    var injuryDictionary: InjuryDictionary = [:]
-    var leagueDictionary: LeagueDictionary = [:]
-    var matchesDictionary: MatchesDictionary = [:]
-    var playerDictionary: PlayerDictionary = [:]
-    var teamDictionary: TeamDictionary = [:]
-    var transferDictionary: TransferDictionary = [:]
-    
-    init() {
-        //DispatchQueue.global().async {
-            Task.init {
-                self.favoriteLeagues = await Cached.data.favoriteLeagues
-                self.favoriteTeams = await Cached.data.favoriteTeams
-                
-                /*
-                self.favoriteMatchesByDateSet = await Cached.data.favoriteMatchesByDateSet
-                self.favoriteMatchesDictionary = await Cached.data.favoriteMatchesDictionary
-                */
-                 
-                self.matchesByDateSet = await Cached.data.matchesByDateSet
-                self.matchesByLeagueSet = await Cached.data.matchesByLeagueSet
-                
-                self.matchesByTeam = await Cached.data.matchesByTeam
-                self.injuriesByTeam = await Cached.data.injuriesByTeam
-                self.transfersByTeam = await Cached.data.transfersByTeam
-                self.playersByTeam = await Cached.data.playersByTeam
-                
-                self.teamDictionary = await Cached.data.teamDictionary
-                self.leagueDictionary = await Cached.data.leagueDictionary
-                self.playerDictionary = await Cached.data.playerDictionary
-                self.injuryDictionary = await Cached.data.injuryDictionary
-                self.matchesDictionary = await Cached.data.matchesDictionary
-                self.transferDictionary = await Cached.data.transferDictionary
-            }
-        //}
-    }
-    
-    func integrate<Key: Hashable, Value: Any>(_ dictionaryType: DictionaryType, _ dictionary:
-                                              Dictionary<Key,Value>, replaceExistingValue: Bool) {
-        
-        switch dictionaryType {
-        case .favoriteLeagues:
-            //guard Key.self as! LeagueDictionary.Key.Type, Value.self as! LeagueDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            
-            guard let dictionary = dictionary as? LeagueDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.favoriteLeagues.integrate(dictionary, replaceExistingValue: replaceExistingValue)
-                }
-            }
-            /*
-        case .favoriteMatchesByDate:
-            //guard Key.self is MatchesByDateDictionary.Key.Type, Value.self is MatchesByDateDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? MatchesByDateDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.favoriteMatchesByDateSet.integrateSet(dictionary)
-                }
-            }
-        case .favoriteMatchDictionary:
-            //guard Key.self is MatchesDictionary.Key.Type, Value.self is MatchesDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? MatchesDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.favoriteMatchesDictionary.integrate(dictionary, replaceExistingValue: replaceExistingValue)
-                }
-            }
-             */
-        case .favoriteTeams:
-            //guard Key.self is TeamDictionary.Key.Type, Value.self is TeamDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? TeamDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.favoriteTeams.integrate(dictionary, replaceExistingValue: replaceExistingValue)
-                }
-            }
-        case .injuriesByTeam:
-            //guard Key.self is InjuriesByTeamDictionary.Key.Type, Value.self is InjuriesByTeamDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? InjuriesByTeamDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.injuriesByTeam.integrateSet(dictionary)
-                }
-            }
-        case .leagueDictionary:
-            //guard Key.self is LeagueDictionary.Key.Type, Value.self is LeagueDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? LeagueDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.leagueDictionary.integrate(dictionary, replaceExistingValue: replaceExistingValue)
-                }
-            }
-        case .matchesByDate:
-            //guard Key.self is MatchesByDateDictionary.Key.Type, Value.self is MatchesByDateDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? MatchesByDateDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.matchesByDateSet.integrateSet(dictionary)
-                }
-            }
-        case .matchesByLeague:
-            //guard Key.self is MatchesByLeagueDictionary.Key.Type, Value.self is MatchesByLeagueDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? MatchesByLeagueDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.matchesByLeagueSet.integrateSet(dictionary)
-                }
-            }
-        case .matchesByTeam:
-            //guard Key.self is MatchesByTeamDictionary.Key.Type, Value.self is MatchesByTeamDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? MatchesByTeamDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.matchesByTeam.integrateSet(dictionary)
-                }
-            }
-        case .matchDictionary:
-            //guard Key.self is MatchesDictionary.Key.Type, Value.self is MatchesDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? MatchesDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.matchesDictionary.integrate(dictionary, replaceExistingValue: replaceExistingValue)
-                }
-            }
-        case .playersByTeam:
-            //guard Key.self is PlayersByTeamDictionary.Key.Type, Value.self is PlayersByTeamDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? PlayersByTeamDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.playersByTeam.integrateSet(dictionary)
-                }
-            }
-        case .playerDictionary:
-            //guard Key.self is PlayerDictionary.Key.Type, Value.self is PlayerDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? PlayerDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.playerDictionary.integrate(dictionary, replaceExistingValue: replaceExistingValue)
-                }
-            }
-        case .teamDictionary:
-            //guard Key.self is TeamDictionary.Key.Type, Value.self is TeamDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? TeamDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.teamDictionary.integrate(dictionary, replaceExistingValue: replaceExistingValue)
-                }
-            }
-        case .tranfersByTeam:
-            //guard Key.self is TransfersByTeamDictionary.Key.Type, Value.self is TransfersByTeamDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? TransfersByTeamDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.transfersByTeam.integrateSet(dictionary)
-                }
-            }
-        case .transferDictionary:
-            //guard Key.self is TransferDictionary.Key.Type, Value.self is TransferDictionary.Value.Type else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            guard let dictionary = dictionary as? TransferDictionary else { fatalError("CacheHandler - Integrate - Incorrect dictionary type passed") }
-            DispatchQueue.global().async {
-                Task.init {
-                    self.transferDictionary.integrate(dictionary, replaceExistingValue: replaceExistingValue)
-                }
-            }
-        }
-    }
-}
-
 /*
 func callTeamDictionary(_ key: TeamID, _ value: TeamObject, source: String) {
     print("---")
@@ -568,3 +416,111 @@ func callTeamDictionary(_ key: TeamID, _ value: TeamObject, source: String) {
     print()
 }
 */
+
+/*
+actor CachedMatchesActor {
+    
+    static var helper = CachedMatchesActor()
+    
+    @Cache(key: "*Match Dictionary", defaultValue: [:]) var matchesDictionary: MatchesDictionary
+    
+    func getMatchesDictionary() -> [MatchUniqueID:MatchObject] {
+        return self.matchesDictionary
+    }
+    
+    func matchesDictionaryIntegrate(_ matchesDictionary: [MatchUniqueID:MatchObject], replaceExistingValue: Bool) {
+        self.matchesDictionary.integrate(matchesDictionary, replaceExistingValue: replaceExistingValue)
+    }
+}
+ */
+
+class CachedFavorites {
+    
+    static var helper = CachedFavorites()
+    
+    var favoriteLeagues: LeagueDictionary = [:]
+    var favoriteTeams: TeamDictionary = [:]
+    
+    init() {
+        Task.init {
+            favoriteLeagues = await Cached.data.favoriteLeagues
+            favoriteTeams = await Cached.data.favoriteTeams
+        }
+    }
+    
+    func update() async {
+        favoriteLeagues = await Cached.data.favoriteLeagues
+        favoriteTeams = await Cached.data.favoriteTeams
+    }
+}
+
+class CachedMatches {
+    
+    static var helper = CachedMatches()
+    
+    var matchesDictionary: MatchesDictionary = [:]
+    
+    var matchesByDateSet: MatchesByDateDictionary = [:]
+    var matchesByLeagueSet: MatchesByLeagueDictionary = [:]
+   
+    var matchesByTeam: MatchesByTeamDictionary = [:]
+    var injuriesByTeam: InjuriesByTeamDictionary = [:]
+    var transfersByTeam: TransfersByTeamDictionary = [:]
+    var playersByTeam: PlayersByTeamDictionary = [:]
+    
+    init() {
+        Task.init {
+            matchesDictionary = await Cached.data.matchesDictionary
+            matchesByDateSet = await Cached.data.matchesByDateSet
+            matchesByLeagueSet = await Cached.data.matchesByLeagueSet
+           
+            matchesByTeam = await Cached.data.matchesByTeam
+            injuriesByTeam = await Cached.data.injuriesByTeam
+            transfersByTeam = await Cached.data.transfersByTeam
+            playersByTeam = await Cached.data.playersByTeam
+        }
+    }
+    
+    func update() async {
+        matchesDictionary = await Cached.data.matchesDictionary
+        matchesByDateSet = await Cached.data.matchesByDateSet
+        matchesByLeagueSet = await Cached.data.matchesByLeagueSet
+       
+        matchesByTeam = await Cached.data.matchesByTeam
+        injuriesByTeam = await Cached.data.injuriesByTeam
+        transfersByTeam = await Cached.data.transfersByTeam
+        playersByTeam = await Cached.data.playersByTeam
+    }
+}
+
+class CachedTeams {
+    static var helper = CachedTeams()
+    
+    var teamDictionary: TeamDictionary = [:]
+    
+    init() {
+        Task.init {
+            teamDictionary = await Cached.data.teamDictionary
+        }
+    }
+    
+    func update() async {
+            teamDictionary = await Cached.data.teamDictionary
+    }
+}
+
+class CachedLeagues {
+    static var helper = CachedLeagues()
+    
+    var leagueDictionary: LeagueDictionary = [:]
+    
+    init() {
+        Task.init {
+            leagueDictionary = await Cached.data.leagueDictionary
+        }
+    }
+    
+    func update() async {
+            leagueDictionary = await Cached.data.leagueDictionary
+    }
+}

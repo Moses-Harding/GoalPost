@@ -17,6 +17,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Initialize Ads
         GAD.helper.initialize()
+        
+        return true
+    }
+    
+    func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Override point for customization before application launch.
+        Task.init {
+            //await Cached.data.clearData()
+            await CachedMatches.helper.update()
+            await CachedTeams.helper.update()
+            await CachedLeagues.helper.update()
+            await CachedFavorites.helper.update()
+        }
         return true
     }
 

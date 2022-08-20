@@ -13,14 +13,25 @@ import Foundation
 
 class InjuryObject: Codable {
     
+    /*
     func team() async -> TeamObject? {
         return await Cached.data.teamDictionary(teamId)
     }
+
+    func league() async -> LeagueObject? {
+        return await Cached.data.leagueDictionary(leagueId)
+    }
+    */
+    
     func player() async -> PlayerObject? {
         return await Cached.data.playerDictionary(playerId)
     }
-    func league() async -> LeagueObject? {
-        return await Cached.data.leagueDictionary(leagueId)
+     
+    var team: TeamObject? {
+        return CachedTeams.helper.teamDictionary[teamId]
+    }
+    var league: LeagueObject? {
+        return CachedLeagues.helper.leagueDictionary[leagueId]
     }
     
     var teamId: TeamID

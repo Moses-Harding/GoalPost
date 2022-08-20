@@ -9,6 +9,7 @@ import Foundation
 
 class TransferObject: Codable {
     
+    /*
     func teamTo() async -> TeamObject? {
         return await Cached.data.teamDictionary(teamToId)
     }
@@ -16,10 +17,20 @@ class TransferObject: Codable {
     func teamFrom() async -> TeamObject? {
         return await Cached.data.teamDictionary(teamFromId)
     }
+     */
     
     func player() async -> PlayerObject? {
         return await Cached.data.playerDictionary(playerId)
     }
+    
+    var teamTo: TeamObject? {
+        return CachedTeams.helper.teamDictionary[teamToId]
+    }
+    
+    var teamFrom: TeamObject? {
+        return CachedTeams.helper.teamDictionary[teamFromId]
+    }
+    
     
     var playerId: PlayerID
     var transferDate: Date

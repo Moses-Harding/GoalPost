@@ -8,7 +8,19 @@
 import Foundation
 import UIKit
 
-class MatchesView: UIView, UIGestureRecognizerDelegate {
+/*
+ DOCUMENTATION
+ 
+ Setup
+ 1 - Set Up UI
+ 2 - Register MatchesContainerCell with the collectionView. This process triggers the construciton of a collectionViewLayout
+ 3 - DataSource is initialized
+ 4 - Set Up Colors
+ 5 - Set Up Gestures (accompanying next / previous day buttons)
+ 6 - Apply the data (find all favorite leagues and insert new ones as necessary)
+ */
+
+class MatchesView2: UIView, UIGestureRecognizerDelegate {
     
     // MARK: Views
     
@@ -46,7 +58,7 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
     
     var currentDate = Date()
     
-    var dataSource: UICollectionViewDiffableDataSource<Section, ObjectContainer>!
+    var dataSource: UICollectionViewDiffableDataSource<ObjectContainer, ObjectContainer>!
     
     // MARK: Gestures
     
@@ -73,7 +85,7 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
     
     // 1
     func setUpUI() {
-        print("Set up ui")
+        
         self.constrain(mainStack, safeAreaLayout: true)
         mainStack.add(children: [(dateArea, 0.075), (collectionArea, 0.9)])
         collectionArea.constrain(collectionView)
@@ -83,17 +95,25 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
         dateLabel.font = UIFont.systemFont(ofSize: 20)
         dateLabel.textAlignment = .center
         dateArea.add(children: [(previousDayButton, 0.2), (dateLabel, 0.6), (nextDayButton, nil)])
+        
+        // MARK: Set Up Refresh Control
+        refreshControl = UIRefreshControl()
+        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        refreshControl.addTarget(self, action: #selector(updateMatches), for: .valueChanged)
+        collectionView.addSubview(refreshControl)
     }
     
     // 2
     private func setUpCollectionView() {
-        print("set up collectionview")
-        collectionView.register(MatchesContainerCell.self, forCellWithReuseIdentifier: String(describing: MatchesContainerCell.self))
+        
+        collectionView.register(LeagueHeaderCell.self, forCellWithReuseIdentifier: String(describing: LeagueHeaderCell.self))
+        collectionView.register(MatchCell.self, forCellWithReuseIdentifier: String(describing: MatchCell.self))
+        collectionView.delegate = self
     }
     
     // 2.5 - Called via lazy initialization of collectionview
     private func createCollectionViewLayout() -> UICollectionViewLayout {
-        print("Initializing collectionview layout")
+        
         // The item and group will share this size to allow for automatic sizing of the cell's height
         
         let padding: CGFloat = 0
@@ -116,36 +136,38 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
     // 3
     private func setUpDataSource() {
         
-        print("MatchesView - setUpDataSource")
-        Task.init {
-            dataSource = UICollectionViewDiffableDataSource<Section, ObjectContainer>(collectionView: collectionView) {
-                (collectionView, indexPath, objectContainer) -> UICollectionViewCell? in
-                
+        dataSource = UICollectionViewDiffableDataSource<ObjectContainer, ObjectContainer>(collectionView: collectionView) {
+            (collectionView, indexPath, objectContainer) -> UICollectionViewCell? in
+            
+            switch objectContainer.type {
+            case .league:
                 guard let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: String(describing: MatchesContainerCell.self),
-                    for: indexPath) as? MatchesContainerCell else {
-                    fatalError("Could not cast cell as \(MatchesContainerCell.self)")
-                }
+                    withReuseIdentifier: String(describing: LeagueHeaderCell.self),
+                    for: indexPath) as? LeagueHeaderCell else {
+                    fatalError("Could not cast cell as \(LeagueHeaderCell.self)") }
                 
                 cell.objectContainer = objectContainer
-                
                 return cell
+            case .match:
+                guard let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: String(describing: MatchCell.self),
+                    for: indexPath) as? MatchCell else {
+                    fatalError("Could not cast cell as \(MatchCell.self)") }
+                
+                cell.objectContainer = objectContainer
+                return cell
+            default:
+                fatalError("Object container not valid")
             }
             
-            collectionView.dataSource = dataSource
-            
-            var snapshot = NSDiffableDataSourceSnapshot<Section, ObjectContainer>()
-            
-            snapshot.appendSections([.main])
-            //snapshot.appendItems(foundTeams)
-            await dataSource?.apply(snapshot)
         }
+        
+        collectionView.dataSource = dataSource
     }
     
     // 4
-    // NOTE: CollectionView backgroundColor is set up by changing the layout color in setUpCollectionView
     func setUpColors() {
-        
+        /// NOTE: CollectionView backgroundColor is set up by changing the layout color in setUpCollectionView
         // Buttons
         nextDayButton.tintColor = Colors.titleAreaTextColor
         previousDayButton.tintColor = Colors.titleAreaTextColor
@@ -173,37 +195,130 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
         swipeRight.direction = .right
     }
     
+    // 6
     func applyData() {
-        Task.init {
-            var leagues = [ObjectContainer]()
-            leagues.append(ObjectContainer(favoriteLeague: true))
-            let favoriteLeagues = await Cached.data.favoriteLeagues
-            for leagueID in favoriteLeagues.keys {
-                leagues.append(ObjectContainer(leagueId: leagueID))
-                
-                guard let dataSource = dataSource else { return }
-                
-                var snapShot = dataSource.snapshot(for: .main)
-                snapShot.deleteAll()
-                snapShot.append(leagues)
-                
-                // 3. Apply to datasource
-                await dataSource.apply(snapShot, to: .main, animatingDifferences: true)
+        
+        guard let dataSource = dataSource else { return }
+        
+        // Get favorite leagues and sort
+        var leagues = [ObjectContainer]()
+        leagues.append(ObjectContainer(favoriteLeague: true))
+        let favoriteLeagues = CachedFavorites.helper.favoriteLeagues
+        for (leagueID, leagueObject) in favoriteLeagues.sorted(by: {$0.value.name < $1.value.name}) {
+            leagues.append(ObjectContainer(leagueId: leagueID, name: leagueObject.name))
+        }
+        
+        // Add favorite leagues as section headers to snapshot
+        var snapShot = dataSource.snapshot()
+        snapShot.applyDifferences(newSections: leagues)
+        dataSource.apply(snapShot)
+        
+        // For each league, get the relevant matches
+        for league in leagues {
+            
+            var leagueID: LeagueID
+            
+            if league.favoriteLeague {
+                leagueID = DefaultIdentifier.favoriteTeam.rawValue
+            } else if let id = league.leagueId {
+                leagueID = id
+            } else {
+                print("MatchesView - could not get id for \(league)")
+                continue
             }
+            
+            var sectionSnapShot = dataSource.snapshot(for: league)
+            //sectionSnapShot.append([league])
+            
+            // Get matches for current day + current league
+            var matches = [ObjectContainer]()
+            let currentDayMatches = CachedMatches.helper.matchesByDateSet[currentDate.asKey]
+            let leagueMatches = CachedMatches.helper.matchesByLeagueSet[leagueID]
+            let intersectingMatchIDs = leagueMatches?.intersection(currentDayMatches ?? [])
+            for id in intersectingMatchIDs ?? [] {
+                let object = ObjectContainer(matchId: id)
+                matches.append(object)
+            }
+            
+            // Sort Matches
+            matches.sort { $0.matchId ?? "" < $1.matchId ?? "" }
+            
+            // guard !matches.isEmpty else { continue }
+            
+            
+            // Apply the matches to the section snapshot
+            //sectionSnapShot.append(matches, to: league
+            
+            sectionSnapShot.applyDifferences(newItems: [league] + matches)
+            sectionSnapShot.expand([league])
+            dataSource.apply(sectionSnapShot, to: league, animatingDifferences: true)
+        }
+    }
+    
+    @objc func updateMatches() {
+        Task.init {
+            print("MatchesView - Update matches")
+            let updatedDictionary = try await DataFetcher.helper.updateMatches()
+            print("MatchesView - Dictionary Retreived")
+            
+            let numberOfSections = collectionView.numberOfSections
+            for sectionIndex in 0 ..< numberOfSections {
+                let numberOfItems = collectionView.numberOfItems(inSection: sectionIndex)
+                for itemIndex in 0 ..< numberOfItems {
+                    let item = collectionView.cellForItem(at: IndexPath(item: itemIndex, section: sectionIndex))
+                    if let cell = item as? MatchCell, let matchId = cell.objectContainer?.matchId, let updatedMatch = updatedDictionary[matchId] {
+                        cell.updateScore(with: updatedMatch)
+                    }
+                }
+            }
+            
+            print("MatchesView - End refresh matches")
+            self.refreshControl.endRefreshing()
         }
     }
 }
 
-extension MatchesView {
+extension MatchesView2 {
+    
+    func clearCells() {
+        let dataSourceSnapshot = NSDiffableDataSourceSnapshot<ObjectContainer, ObjectContainer>()
+        dataSource.apply(dataSourceSnapshot, animatingDifferences: true)
+    }
+    
     @objc func nextDay() {
-        print("next day")
+        var dateComponent = DateComponents()
+        dateComponent.day = 1
+        
+        currentDate = Calendar.current.date(byAdding: dateComponent, to: currentDate) ?? currentDate
+        dateLabel.text = DateFormatter.localizedString(from: currentDate, dateStyle: .medium, timeStyle: .none)
+        
+        refresh()
     }
     
     @objc func previousDay() {
-        print("previous day")
+        var dateComponent = DateComponents()
+        dateComponent.day = -1
+        
+        currentDate = Calendar.current.date(byAdding: dateComponent, to: currentDate) ?? currentDate
+        dateLabel.text = DateFormatter.localizedString(from: currentDate, dateStyle: .medium, timeStyle: .none)
+        
+        refresh()
     }
     
     func refresh() {
-        print("refresh")
+        
+        clearCells()
+        applyData()
+    }
+}
+
+extension MatchesView2: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        print("Did select")
+        
+        guard let cell = collectionView.cellForItem(at: indexPath) as? MatchCell, let match = cell.objectContainer else { return }
+        
+        print(match.match?.homeTeamScore, match.match?.awayTeamScore)
     }
 }

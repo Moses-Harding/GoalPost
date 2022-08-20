@@ -19,9 +19,16 @@ class ObjectContainer {
         return await Cached.data.injuryDictionary(id)
     }
     
+    /*
     func match() async -> MatchObject? {
         guard let id = matchId else { return nil }
         return await Cached.data.matchesDictionary(id)
+    }
+    */
+    
+    var match: MatchObject? {
+        guard let id = matchId else { return nil }
+        return CachedMatches.helper.matchesDictionary[id]
     }
     
     func transfer() async -> TransferObject? {
@@ -47,50 +54,56 @@ class ObjectContainer {
     
     var favoriteLeague = false
     
-    var id: Int
+    var id: String!
     var loading: Bool = false
+    
+    var name: String!
     
     private init(type: TeamDataObjectType) {
         self.type = type
-        
-        ObjectContainer.universalCount += 1
-        id = ObjectContainer.universalCount
     }
     
     convenience init(matchId: MatchUniqueID) {
         self.init(type: .match)
+        self.name = String(matchId)
         self.matchId = matchId
+        self.id = matchId
     }
     
     convenience init(injuryId: InjuryID) {
         self.init(type: .injury)
+        self.name = String(injuryId)
         self.injuryId = injuryId
+        self.id = injuryId
     }
     
     
     convenience init(transferId: TransferID) {
         self.init(type: .transfer)
+        self.name = String(transferId)
         self.transferId = transferId
+        self.id = transferId
     }
     
     convenience init(playerId: PlayerID) {
         self.init(type: .player)
+        self.name = String(playerId)
         self.playerId = playerId
+        self.id = String(playerId)
     }
     
-    convenience init(leagueId: LeagueID) {
+    convenience init(leagueId: LeagueID, name: String) {
         self.init(type: .league)
+        self.name = name
         self.leagueId = leagueId
+        self.id = String(leagueId)
     }
     
     convenience init(favoriteLeague: Bool) {
         self.init(type: .league)
+        self.name = "** My teams"
         self.favoriteLeague = favoriteLeague
-    }
-    
-    convenience init(type: TeamDataObjectType, loading: Bool) {
-        self.init(type: type)
-        self.loading = true
+        self.id = "** My teams"
     }
 }
 
@@ -101,5 +114,11 @@ extension ObjectContainer: Hashable {
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+    }
+}
+
+extension ObjectContainer: CustomStringConvertible {
+    var description: String {
+        return "\(self.type) - \(String(self.id))"
     }
 }

@@ -18,6 +18,7 @@ protocol TeamsViewDelegate {
     func refresh(calledBy: String, expandingCell id: Int?)
     func add(team: TeamObject)
     func remove(team: TeamObject)
+    func present(_ viewController: UIViewController, completion: (() -> Void)?)
 }
 
 protocol MatchesViewDelegate {
@@ -25,7 +26,7 @@ protocol MatchesViewDelegate {
 }
 
 protocol LeagueSearchDelegate {
-    func returnSearchResults(leagueResult: [LeagueObject])
+    func refresh()
     func add(league: LeagueObject)
 }
 

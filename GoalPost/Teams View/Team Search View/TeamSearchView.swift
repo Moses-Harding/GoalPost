@@ -160,24 +160,14 @@ class TeamSearchView: UIView {
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(0.2))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             item.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 5, bottom: 10, trailing: 5)
-            //item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .flexible(5), top: .flexible(5), trailing: .flexible(5), bottom: .flexible(5))
-            
             let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
             let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-           // group.interItemSpacing = .fixed(10)
-            //group.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 0, trailing: 0)
-            
             let section = NSCollectionLayoutSection(group: group)
-            //section.interGroupSpacing = 10
-
-            //section.orthogonalScrollingBehavior = .continuous
-            
             return section
         }
         
         let config = UICollectionViewCompositionalLayoutConfiguration()
-        //config.interSectionSpacing = 10
-        
+
         let layout = UICollectionViewCompositionalLayout(
             sectionProvider: sectionProvider, configuration: config)
         
@@ -303,7 +293,7 @@ extension TeamSearchView: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         
-        guard let text = textField.text, let teamName = self.currentTeamNameSearch else { return false }
+        guard let _ = textField.text, let teamName = self.currentTeamNameSearch else { return false }
         
         self.addSpinner()
         
@@ -325,7 +315,7 @@ extension TeamSearchView: UITextFieldDelegate {
             
             var searchResults = [TeamObject]()
             
-            for searchData in await Cached.data.teamDictionary.values {
+            for searchData in CachedTeams.helper.teamDictionary.values {
                 if let country = currentCountrySearch, let team = currentTeamNameSearch {
                     if searchData.name.lowercased().contains(team.lowercased()) && searchData.country != nil && searchData.country!.lowercased().contains(country.lowercased()) {
                         searchResults.append(searchData)

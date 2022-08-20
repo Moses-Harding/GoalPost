@@ -11,7 +11,7 @@ import Foundation
 import UIKit
 import GoogleMobileAds
 
-class OLDMatchesView: UIView {
+class MatchesView: UIView {
     
     // MARK: Views
     
@@ -46,7 +46,7 @@ class OLDMatchesView: UIView {
     var dateLabel = UILabel()
     
     // MARK: Data
-
+    
     var currentDate = Date()
     
     var dataSource: UICollectionViewDiffableDataSource<MatchesSectionDataContainer, MatchesCellType>!
@@ -70,7 +70,7 @@ class OLDMatchesView: UIView {
     }
     
     func testing() {
-
+        
     }
     
     required init?(coder: NSCoder) {
@@ -83,7 +83,7 @@ class OLDMatchesView: UIView {
     func setUpUI() {
         self.constrain(mainStack, safeAreaLayout: true)
         mainStack.add(children: [(dateArea, 0.075), (collectionArea, 0.9)])
-
+        
         // Date
         dateLabel.text = DateFormatter.localizedString(from: currentDate, dateStyle: .medium, timeStyle: .none)
         dateLabel.font = UIFont.systemFont(ofSize: 20)
@@ -115,7 +115,7 @@ class OLDMatchesView: UIView {
             cell.accessories = [.outlineDisclosure(options:headerDisclosureOption)]
         })
         
-        let matchCellRegistration = UICollectionView.CellRegistration<OLDMatchCell, MatchObject>(handler: {
+        let matchCellRegistration = UICollectionView.CellRegistration<MatchesCell, MatchObject>(handler: {
             (cell, indexPath, match) in
             
             cell.match = match
@@ -160,33 +160,33 @@ class OLDMatchesView: UIView {
         // MARK: Setup snap shots
         
         Task.init {
-        
-        // Create new datasource snapshot
-        var dataSourceSnapshot = NSDiffableDataSourceSnapshot<MatchesSectionDataContainer, MatchesCellType>()
-        
-        // Get only the matches for the current date
-        let matchesByDay = await Cached.data.matchesByDateSet(date.asKey) ?? Set<MatchUniqueID>()
-        
-        var leagueMatchDictionary = [LeagueID:Set<MatchUniqueID>]()
-        var leagueDataContainers = [MatchesSectionDataContainer]()
-
-        // For each league
-        for leagueId in await Cached.data.favoriteLeagues.keys {
-            // Get all of the matches for the league
-            guard let leagueSet = await Cached.data.matchesByLeagueSet[leagueId], let league = await Cached.data.leagueDictionary[leagueId] else {
-                continue
-            }
             
-            // Find which matches are also being played today. If there are any, add them to leagueMatchDictionary
-            let intersectingSet = matchesByDay.intersection(leagueSet)
-            leagueMatchDictionary[leagueId] = intersectingSet
+            // Create new datasource snapshot
+            var dataSourceSnapshot = NSDiffableDataSourceSnapshot<MatchesSectionDataContainer, MatchesCellType>()
             
-            // If there are matches being played today, create a new League object and add it to leagueDataContainers
-            if !intersectingSet.isEmpty {
-                let leagueDataContainer = MatchesSectionDataContainer(.league(league))
-                leagueDataContainers.append(leagueDataContainer)
+            // Get only the matches for the current date
+            let matchesByDay = await Cached.data.matchesByDateSet(date.asKey) ?? Set<MatchUniqueID>()
+            
+            var leagueMatchDictionary = [LeagueID:Set<MatchUniqueID>]()
+            var leagueDataContainers = [MatchesSectionDataContainer]()
+            
+            // For each league
+            for leagueId in await Cached.data.favoriteLeagues.keys {
+                // Get all of the matches for the league
+                guard let leagueSet = await Cached.data.matchesByLeagueSet[leagueId], let league = await Cached.data.leagueDictionary[leagueId] else {
+                    continue
+                }
+                
+                // Find which matches are also being played today. If there are any, add them to leagueMatchDictionary
+                let intersectingSet = matchesByDay.intersection(leagueSet)
+                leagueMatchDictionary[leagueId] = intersectingSet
+                
+                // If there are matches being played today, create a new League object and add it to leagueDataContainers
+                if !intersectingSet.isEmpty {
+                    let leagueDataContainer = MatchesSectionDataContainer(.league(league))
+                    leagueDataContainers.append(leagueDataContainer)
+                }
             }
-        }
             
             // Create a special league object (for myteams) and add it to leagueDataContainers
             let myTeams = LeagueObject(id: DefaultIdentifier.favoriteTeam.rawValue, name: "My Teams", country: "NA")
@@ -207,80 +207,80 @@ class OLDMatchesView: UIView {
             // Add only the favorite matches being played today to the leagueMatchDictionary
             leagueMatchDictionary[DefaultIdentifier.favoriteTeam.rawValue] =  matchesByDay.intersection(allFavoriteMatches)
             
-        // Insert advertising sections
-        
-        if leagueDataContainers.isEmpty {
-            leagueDataContainers.append(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd1))))
-        } else {
-            leagueDataContainers.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd1))), at: 1)
+            // Insert advertising sections
             
-            if leagueDataContainers.count > 4 {
-                leagueDataContainers.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd2))), at: 4)
-            }
-            
-            if leagueDataContainers.count > 6 {
-                leagueDataContainers.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd3))), at: 5)
-            }
-            
-            if leagueDataContainers.count > 8 {
-                leagueDataContainers.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd4))), at: 7)
-            }
-             
-            if leagueDataContainers.count > 10 {
-                leagueDataContainers.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd5))), at: 9)
-            }
-        }
-        
-        
-        // Add the sections (the league objects) to the snapshot
-        dataSourceSnapshot.appendSections(leaguesList)
-        await dataSource.apply(dataSourceSnapshot)
-        
-        // Go through each item in the list, which will either be an ad or a league
-        for sectionItem in leaguesList {
-            
-            // Create new section
-            var sectionSnapshot = NSDiffableDataSourceSectionSnapshot<MatchesCellType>()
-            
-            switch sectionItem.sectionType {
-            case .league(let league):
+            if leagueDataContainers.isEmpty {
+                leagueDataContainers.append(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd1))))
+            } else {
+                leagueDataContainers.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd1))), at: 1)
                 
-                // If the item is a league, append a "MatchesCellType" enum to it (this contains info about the league)
-                let leagueListItem = MatchesCellType.league(league)
-                sectionSnapshot.append([leagueListItem])
+                if leagueDataContainers.count > 4 {
+                    leagueDataContainers.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd2))), at: 4)
+                }
                 
-                // Get the matchIDs that correspond to this league
-                guard let matchSet = leagueMatchDictionary[league.id] else {
-                    print("MatchesView - No matches found for league \(league.name)")
-                continue }
+                if leagueDataContainers.count > 6 {
+                    leagueDataContainers.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd3))), at: 5)
+                }
                 
-                // Go through each matchID and get the match object associated with it from the matchesDictionary
-                let matchesDictionary = await Cached.data.matchesDictionary
-                var matchObjects = [MatchObject]()
-                matchObjects = matchSet.compactMap { matchesDictionary[$0] }
-      
-                // Sort the match objects by timestamp and then alphabetically. Once sorted create a new "MatcheCellType" enum for type match (which includes info about the match)
-                let matchCells = matchObjects.sorted(by: {
-                    if $0.timeStamp < $1.timeStamp {
-                        return true
-                    } else if $0.timeStamp == $1.timeStamp {
-                        return $0.homeTeamId < $1.homeTeamId
-                    } else {
-                        return false
-                    } }).map { MatchesCellType.match($0) }
+                if leagueDataContainers.count > 8 {
+                    leagueDataContainers.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd4))), at: 7)
+                }
                 
-                // Add the cells just created to the league, and then expand it
-                sectionSnapshot.append(matchCells, to: leagueListItem)
-                sectionSnapshot.expand([leagueListItem])
-                await dataSource.apply(sectionSnapshot, to: sectionItem, animatingDifferences: true)
-            case .ad(let adData):
-                let adItem = MatchesCellType.ad(adData)
-                sectionSnapshot.append([adItem])
-                await dataSource.apply(sectionSnapshot, to: sectionItem, animatingDifferences: true)
-            case .match(_):
-                return
+                if leagueDataContainers.count > 10 {
+                    leagueDataContainers.insert(MatchesSectionDataContainer(.ad(AdObject(adViewName: .matchAd5))), at: 9)
+                }
             }
-        }
+            
+            
+            // Add the sections (the league objects) to the snapshot
+            dataSourceSnapshot.appendSections(leaguesList)
+            await dataSource.apply(dataSourceSnapshot)
+            
+            // Go through each item in the list, which will either be an ad or a league
+            for sectionItem in leaguesList {
+                
+                // Create new section
+                var sectionSnapshot = NSDiffableDataSourceSectionSnapshot<MatchesCellType>()
+                
+                switch sectionItem.sectionType {
+                case .league(let league):
+                    
+                    // If the item is a league, append a "MatchesCellType" enum to it (this contains info about the league)
+                    let leagueListItem = MatchesCellType.league(league)
+                    sectionSnapshot.append([leagueListItem])
+                    
+                    // Get the matchIDs that correspond to this league
+                    guard let matchSet = leagueMatchDictionary[league.id] else {
+                        print("MatchesView - No matches found for league \(league.name)")
+                        continue }
+                    
+                    // Go through each matchID and get the match object associated with it from the matchesDictionary
+                    let matchesDictionary = await Cached.data.matchesDictionary
+                    var matchObjects = [MatchObject]()
+                    matchObjects = matchSet.compactMap { matchesDictionary[$0] }
+                    
+                    // Sort the match objects by timestamp and then alphabetically. Once sorted create a new "MatcheCellType" enum for type match (which includes info about the match)
+                    let matchCells = matchObjects.sorted(by: {
+                        if $0.timeStamp < $1.timeStamp {
+                            return true
+                        } else if $0.timeStamp == $1.timeStamp {
+                            return $0.homeTeamId < $1.homeTeamId
+                        } else {
+                            return false
+                        } }).map { MatchesCellType.match($0) }
+                    
+                    // Add the cells just created to the league, and then expand it
+                    sectionSnapshot.append(matchCells, to: leagueListItem)
+                    sectionSnapshot.expand([leagueListItem])
+                    await dataSource.apply(sectionSnapshot, to: sectionItem, animatingDifferences: true)
+                case .ad(let adData):
+                    let adItem = MatchesCellType.ad(adData)
+                    sectionSnapshot.append([adItem])
+                    await dataSource.apply(sectionSnapshot, to: sectionItem, animatingDifferences: true)
+                case .match(_):
+                    return
+                }
+            }
         }
     }
     
@@ -324,12 +324,12 @@ class OLDMatchesView: UIView {
     //NOTE: Configuration of cell body: https://swiftsenpai.com/development/uicollectionview-list-custom-cell/
 }
 
-extension OLDMatchesView: UICollectionViewDelegate {
+extension MatchesView: UICollectionViewDelegate {
     
 }
 
 //MARK: Button Actions
-extension OLDMatchesView {
+extension MatchesView {
     
     @objc func nextDay() {
         
@@ -379,7 +379,7 @@ extension OLDMatchesView {
 
 // MARK: Changes
 
-extension OLDMatchesView {
+extension MatchesView {
     func changeDate(to date: Date) {
         dateLabel.text = DateFormatter.localizedString(from: date, dateStyle: .short, timeStyle: .none)
     }
@@ -387,13 +387,13 @@ extension OLDMatchesView {
 
 // MARK: Protocols
 
-extension OLDMatchesView: MatchesViewDelegate {
+extension MatchesView: MatchesViewDelegate {
     func refresh() {
         setUpDataSourceSnapshots(from: currentDate)
     }
 }
 
 // MARK: Extensions
-extension OLDMatchesView: UIGestureRecognizerDelegate {
+extension MatchesView: UIGestureRecognizerDelegate {
     
 }

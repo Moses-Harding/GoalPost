@@ -110,21 +110,11 @@ class MatchCollectionCell: TeamDataStackCellModel {
     
     override func updateContent() {
         
-        //print("Update Content for \(teamDataObject?.id)")
-        
-        
-        
         Task.init {
             
             guard let teamDataObject = teamDataObject else { return }
             
-            guard let match = await teamDataObject.match() else { print("Attempting to update content for match cell but matchInformation not found")
-                return
-            }
-            guard let homeTeam = await Cached.data.teamDictionary(match.homeTeamId) else { print("Attempting to update content for match cell but home team with id \(match.homeTeamId) not found")
-                return
-            }
-            guard let awayTeam = await match.awayTeam() else { print("Attempting to update content for match cell but away Team with id \(match.awayTeamId) not found")
+            guard let match = teamDataObject.match, let homeTeam = match.homeTeam, let awayTeam = match.awayTeam else { print("Attempting to update content for match cell but matchInformation not found")
                 return
             }
             
@@ -135,10 +125,63 @@ class MatchCollectionCell: TeamDataStackCellModel {
             homeTeamScore.text = String(match.homeTeamScore)
             awayTeamScore.text = String(match.awayTeamScore)
             
-            await loadImage(for: homeTeam, teamType: .home)
-            await loadImage(for: awayTeam, teamType: .away)
+            Task.init {
+                await loadImage(homeTeam: homeTeam, awayTeam: awayTeam)
+            }
             
             self.alpha = 1
+        }
+    }
+    
+    
+    private func loadImage(homeTeam: TeamObject, awayTeam: TeamObject) async {
+        
+        let homeTeamName = "\(homeTeam.name) - \(homeTeam.id).png"
+        let awayTeamName = "\(awayTeam.name) - \(awayTeam.id).png"
+        
+        if let homeTeamImage = Saved.data.retrieveImage(from: homeTeamName) {
+            self.homeImageView.image = homeTeamImage
+        } else {
+            
+                guard let logo = homeTeam.logo, let url = URL(string: logo)  else { return }
+                
+                DispatchQueue.global().async {
+                    if let data = try? Data(contentsOf: url) {
+                        DispatchQueue.main.async {
+                            
+                            guard let image = UIImage(data: data) else { return }
+                            self.homeImageView.image = image
+
+                            Task.init {
+                                Saved.data.save(image: image, uniqueName: homeTeamName)
+                            }
+                        }
+                    }
+            }
+        }
+        
+        if let awayTeamImage = Saved.data.retrieveImage(from: awayTeamName) {
+            self.awayImageView.image = awayTeamImage
+        } else {
+            
+            guard let logo = awayTeam.logo, let url = URL(string: logo)  else { return }
+            
+            DispatchQueue.global().async {
+                if let data = try? Data(contentsOf: url) {
+                    DispatchQueue.main.async {
+                        
+                        guard let image = UIImage(data: data) else { return }
+                        print("Loading new away team image")
+                        self.awayImageView.image = image
+                        
+                        
+                        Task.init {
+                            print("Saving away team image")
+                            Saved.data.save(image: image, uniqueName: awayTeamName)
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -146,30 +189,36 @@ class MatchCollectionCell: TeamDataStackCellModel {
         
         let imageName = "\(team.name) - \(team.id).png"
         
-
-            if let image = await Cached.data.retrieveImage(from: imageName) {
-                
-                if teamType == .home {
-                    self.homeImageView.image = image
-                } else {
-                    self.awayImageView.image = image
-                }
-                return
+        if let image = await Cached.data.retrieveImage(from: imageName) {
+            
+            if teamType == .home {
+                print("Assigning existing homeview image - \(imageName)")
+                self.homeImageView.image = image
+            } else {
+                print("Assigning existing awayview image - \(imageName)")
+                self.awayImageView.image = image
             }
+            return
+        }
         
         guard let logo = team.logo, let url = URL(string: logo)  else { return }
-
+        
         DispatchQueue.global().async {
             if let data = try? Data(contentsOf: url) {
                 DispatchQueue.main.async {
+                    
                     guard let image = UIImage(data: data) else { return }
+                    
                     if teamType == .home {
+                        print("Assigning new homeview image - \(imageName)")
                         self.homeImageView.image = image
                     } else {
+                        print("Assigning new awayview image - \(imageName)")
                         self.awayImageView.image = image
                     }
                     
                     Task.init {
+                        print("Saving image")
                         await Cached.data.save(image: image, uniqueName: imageName)
                     }
                 }

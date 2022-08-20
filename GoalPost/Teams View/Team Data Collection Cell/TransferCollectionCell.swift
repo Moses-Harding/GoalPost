@@ -81,8 +81,8 @@ class TransferCollectionCell: TeamDataStackCellModel {
         Task.init {
             guard let teamDataObject = teamDataObject, let transferInfo = await teamDataObject.transfer() else { return }
 
-            transferFromTeam.text = "From: \(await transferInfo.teamFrom()?.name ?? "-")"
-            transferToTeam.text = "To: \(await transferInfo.teamTo()?.name ?? "-")"
+            transferFromTeam.text = "From: \(await transferInfo.teamFrom?.name ?? "-")"
+            transferToTeam.text = "To: \(await transferInfo.teamTo?.name ?? "-")"
             transferDate.text = transferInfo.transferDate.formatted(date: .numeric, time: .omitted)
             playerNameLabel.text = await transferInfo.player()?.name ?? "-"
         }

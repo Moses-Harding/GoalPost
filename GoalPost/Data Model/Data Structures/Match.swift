@@ -15,16 +15,18 @@ class MatchObject: Codable {
     var timeStamp: Date
     var timezone: String?
     var timeElapsed: Int?
-    
-    func homeTeam() async -> TeamObject? {
-        return await Cached.data.teamDictionary(homeTeamId)
+
+    var homeTeam: TeamObject? {
+        return CachedTeams.helper.teamDictionary[homeTeamId]
     }
+    
     var homeTeamId: TeamID
     var homeTeamScore: Int?
     
-    func awayTeam() async -> TeamObject? {
-        return await Cached.data.teamDictionary(awayTeamId)
+    var awayTeam: TeamObject? {
+        return CachedTeams.helper.teamDictionary[awayTeamId]
     }
+
     var awayTeamId: TeamID
     var awayTeamScore: Int?
     
@@ -32,6 +34,12 @@ class MatchObject: Codable {
     
     var favoriteTeam: Bool
     
+    var league: LeagueObject? {
+        guard let id = leagueId else { return nil }
+        return CachedLeagues.helper.leagueDictionary[id]
+    }
+    
+    /*
     func league() async -> LeagueObject? {
         if let id = leagueId {
             return await Cached.data.leagueDictionary(id)
@@ -39,6 +47,8 @@ class MatchObject: Codable {
             return nil
         }
     }
+     */
+    
     var leagueId: LeagueID?
     
     init(id: MatchID, favoriteTeam: Bool = false, timeStamp: Date, timeElapsed: Int? = nil, status: MatchStatusCode? = nil, leagueId: LeagueID? = nil, homeTeamId: TeamID, awayTeamId: TeamID, homeTeamScore: Int? = nil, awayTeamScore: Int? = nil) {

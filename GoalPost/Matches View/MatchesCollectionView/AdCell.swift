@@ -51,7 +51,7 @@ struct AdCellContentConfiguration: UIContentConfiguration, Hashable {
         }
         
         // Updater self based on the current state
-        var updatedConfiguration = self
+        let updatedConfiguration = self
         
         if state.isSelected {
             // Selected state

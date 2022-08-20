@@ -36,7 +36,7 @@ class GetInjuries {
             
             injuryDictionary[injurySearchData.id] = injurySearchData
             
-            guard let teamId = await injurySearchData.team()?.id else { continue }
+            guard let teamId = injurySearchData.team?.id else { continue }
             
             var set = injuriesByTeam[teamId] ?? Set<InjuryID>()
             set.insert(injurySearchData.id)
