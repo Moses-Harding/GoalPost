@@ -295,7 +295,7 @@ extension LeagueSearchView: UITextFieldDelegate {
         Task.init {
             var searchResults = [LeagueObject]()
             
-            for searchData in CachedLeagues.helper.leagueDictionary.values {
+            for searchData in QuickCache.helper.leagueDictionary.values {
                 if let country = currentCountrySearch, let league = currentLeagueNameSearch, league != "", country != "" {
                     if searchData.name.lowercased().contains(league.lowercased()), searchData.country.lowercased().contains(country.lowercased()) {
                         searchResults.append(searchData)

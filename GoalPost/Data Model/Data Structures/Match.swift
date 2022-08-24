@@ -17,14 +17,14 @@ class MatchObject: Codable {
     var timeElapsed: Int?
 
     var homeTeam: TeamObject? {
-        return CachedTeams.helper.teamDictionary[homeTeamId]
+        return QuickCache.helper.teamDictionary[homeTeamId]
     }
     
     var homeTeamId: TeamID
     var homeTeamScore: Int?
     
     var awayTeam: TeamObject? {
-        return CachedTeams.helper.teamDictionary[awayTeamId]
+        return QuickCache.helper.teamDictionary[awayTeamId]
     }
 
     var awayTeamId: TeamID
@@ -36,7 +36,7 @@ class MatchObject: Codable {
     
     var league: LeagueObject? {
         guard let id = leagueId else { return nil }
-        return CachedLeagues.helper.leagueDictionary[id]
+        return QuickCache.helper.leagueDictionary[id]
     }
     
     /*

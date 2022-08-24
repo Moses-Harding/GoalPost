@@ -100,9 +100,9 @@ struct DataFetcher {
 
             await Cached.data.matchesByLeagueSetIntegrate(matchesByLeagueSet)
             
-            await CachedTeams.helper.update()
-            await CachedLeagues.helper.update()
-            await CachedMatches.helper.update()
+            await QuickCache.helper.updateTeams()
+            await QuickCache.helper.updateLeagues()
+            await QuickCache.helper.updateMatches()
             
             completion()
         }
@@ -119,9 +119,9 @@ struct DataFetcher {
                 await Cached.data.matchesByTeamIntegrate(matchesByTeam)
                 await Cached.data.matchesByDateSetIntegrate(matchesByDateSet)
                 await Cached.data.matchesByLeagueSetIntegrate(matchesByLeagueSet)
-                await CachedTeams.helper.update()
-                await CachedLeagues.helper.update()
-                await CachedMatches.helper.update()
+                await QuickCache.helper.updateTeams()
+                await QuickCache.helper.updateLeagues()
+                await QuickCache.helper.updateMatches()
             }
         }
         
@@ -279,9 +279,9 @@ struct DataFetcher {
             await Cached.data.setFavoriteLeagues(with: key, to: Cached.data.leagueDictionary[key])
         }
         
-        await CachedTeams.helper.update()
-        await CachedLeagues.helper.update()
-        await CachedMatches.helper.update()
+        await QuickCache.helper.updateTeams()
+        await QuickCache.helper.updateLeagues()
+        await QuickCache.helper.updateMatches()
         
         await completion()
         
@@ -295,9 +295,9 @@ struct DataFetcher {
         await Cached.data.transfersByTeamIntegrate(transfersByTeam)
         await completion()
         
-        await CachedTeams.helper.update()
-        await CachedLeagues.helper.update()
-        await CachedMatches.helper.update()
+        await QuickCache.helper.updateTeams()
+        await QuickCache.helper.updateLeagues()
+        await QuickCache.helper.updateMatches()
     }
     
     func addInjuriesFor(team: TeamObject, completion: @escaping () async -> ()) async throws {
@@ -307,9 +307,9 @@ struct DataFetcher {
         await Cached.data.injuriesByTeamIntegrate(injuriesByTeam)
         await completion()
         
-        await CachedTeams.helper.update()
-        await CachedLeagues.helper.update()
-        await CachedMatches.helper.update()
+        await QuickCache.helper.updateTeams()
+        await QuickCache.helper.updateLeagues()
+        await QuickCache.helper.updateMatches()
     }
     
     func addSquadFor(team: TeamObject, completion: @escaping () async -> ()) async throws {
@@ -319,9 +319,9 @@ struct DataFetcher {
         await Cached.data.playersByTeamIntegrate(playersByTeam)
         await completion()
         
-        await CachedTeams.helper.update()
-        await CachedLeagues.helper.update()
-        await CachedMatches.helper.update()
+        await QuickCache.helper.updateTeams()
+        await QuickCache.helper.updateLeagues()
+        await QuickCache.helper.updateMatches()
     }
     
     func addMatchesFor(team: TeamObject, completion: @escaping () async -> ()) async throws  {
@@ -337,9 +337,9 @@ struct DataFetcher {
         await Cached.data.matchesByDateSetIntegrate(lastMatchesByDateSet)
         await Cached.data.matchesByLeagueSetIntegrate(lastMatchesByLeagueSet)
         
-        await CachedTeams.helper.update()
-        await CachedLeagues.helper.update()
-        await CachedMatches.helper.update()
+        await QuickCache.helper.updateTeams()
+        await QuickCache.helper.updateLeagues()
+        await QuickCache.helper.updateMatches()
         
         await completion()
     }
@@ -354,9 +354,9 @@ struct DataFetcher {
                 await Cached.data.matchesByDateSetIntegrate(matchesByDateSet)
                 await Cached.data.matchesByLeagueSetIntegrate(matchesByLeagueSet)
                 
-                await CachedTeams.helper.update()
-                await CachedLeagues.helper.update()
-                await CachedMatches.helper.update()
+                await QuickCache.helper.updateTeams()
+                await QuickCache.helper.updateLeagues()
+                await QuickCache.helper.updateMatches()
             }
         }
     }

@@ -22,12 +22,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization before application launch.
+        
+        QuickCache.helper.getInitialData()
+        
         Task.init {
             //await Cached.data.clearData()
-            await CachedMatches.helper.update()
-            await CachedTeams.helper.update()
-            await CachedLeagues.helper.update()
-            await CachedFavorites.helper.update()
+            await QuickCache.helper.updateMatches()
+            await QuickCache.helper.updateFavorites()
             print("AppDelegate - WillFinishLaunching Async Complete")
         }
         print("AppDelegate - WillFinishLaunching Complete")

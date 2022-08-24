@@ -315,7 +315,7 @@ extension TeamSearchView: UITextFieldDelegate {
             
             var searchResults = [TeamObject]()
             
-            for searchData in CachedTeams.helper.teamDictionary.values {
+            for searchData in QuickCache.helper.teamDictionary.values {
                 if let country = currentCountrySearch, let team = currentTeamNameSearch, let searchCountry = searchData.country, team != "", country != "" {
                     if searchData.name.lowercased().contains(team.lowercased()), searchCountry.lowercased().contains(country.lowercased()) {
                         searchResults.append(searchData)

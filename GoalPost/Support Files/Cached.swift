@@ -434,98 +434,75 @@ actor CachedMatchesActor {
 }
  */
 
-class CachedFavorites {
+
+/*
+ QuickCache allows READ ONLY access to the cache. Upon initializing, data is retrieved directly from the cache. Later throughout usage, the "Cached" actor updates QuickCache. The only time QuickCache accesses the Cache directly is at initialization (to prevent data races).
+ */
+class QuickCache {
     
-    static var helper = CachedFavorites()
+    static var helper = QuickCache()
+    
+    var matchesDictionary: MatchesDictionary = [:]
+    var matchesByDateSet: MatchesByDateDictionary = [:]
+    var matchesByLeagueSet: MatchesByLeagueDictionary = [:]
+    var matchesByTeam: MatchesByTeamDictionary = [:]
+    
+    var teamDictionary: TeamDictionary = [:]
+    
+    var leagueDictionary: LeagueDictionary = [:]
     
     var favoriteLeagues: LeagueDictionary = [:]
     var favoriteTeams: TeamDictionary = [:]
     
-    init() {
-        Task.init {
-            favoriteLeagues = await Cached.data.favoriteLeagues
-            favoriteTeams = await Cached.data.favoriteTeams
+    func getInitialData() {
+        retrieveDataManually(key: StoredKeys.matchesDictionary.rawValue, dictionary: &self.matchesDictionary)
+        retrieveDataManually(key: StoredKeys.matchesByDateSet.rawValue, dictionary: &self.matchesByDateSet)
+        retrieveDataManually(key: StoredKeys.matchesByLeagueSet.rawValue, dictionary: &self.matchesByLeagueSet)
+        retrieveDataManually(key: StoredKeys.matchesByTeam.rawValue, dictionary: &self.matchesByTeam)
+        
+        retrieveDataManually(key: StoredKeys.teamDictionary.rawValue, dictionary: &self.teamDictionary)
+        
+        retrieveDataManually(key: StoredKeys.leagueDictionary.rawValue, dictionary: &self.leagueDictionary)
+        
+        retrieveDataManually(key: StoredKeys.favoriteLeagues.rawValue, dictionary: &self.favoriteLeagues)
+        retrieveDataManually(key: StoredKeys.favoriteTeams.rawValue, dictionary: &self.favoriteTeams)
+    }
+    
+    func retrieveDataManually<T: Decodable, U: Decodable>(key: String, dictionary: inout Dictionary<T, U>) {
+        
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = documents.appendingPathComponent(key)
+        
+        guard let data =  try? Data(contentsOf: url) else {
+            print("Cached - GetInitialData - Could not locate key '\(key)'")
+            return
         }
-    }
-    
-    func update() async {
-        favoriteLeagues = await Cached.data.favoriteLeagues
-        favoriteTeams = await Cached.data.favoriteTeams
-    }
-}
-
-class CachedMatches {
-    
-    static var helper = CachedMatches()
-    
-    var matchesDictionary: MatchesDictionary = [:]
-    
-    var matchesByDateSet: MatchesByDateDictionary = [:]
-    var matchesByLeagueSet: MatchesByLeagueDictionary = [:]
-   
-    var matchesByTeam: MatchesByTeamDictionary = [:]
-    var injuriesByTeam: InjuriesByTeamDictionary = [:]
-    var transfersByTeam: TransfersByTeamDictionary = [:]
-    var playersByTeam: PlayersByTeamDictionary = [:]
-    
-    init() {
-        print("Cached Matches - Init")
-        Task.init {
-            print("Cached Matches - Initializing")
-            matchesDictionary = await Cached.data.matchesDictionary
-            matchesByDateSet = await Cached.data.matchesByDateSet
-            matchesByLeagueSet = await Cached.data.matchesByLeagueSet
-           
-            matchesByTeam = await Cached.data.matchesByTeam
-            injuriesByTeam = await Cached.data.injuriesByTeam
-            transfersByTeam = await Cached.data.transfersByTeam
-            playersByTeam = await Cached.data.playersByTeam
-            print("Cached Matches - Initializing complete")
+        let type = type(of: dictionary)
+        guard let value = try? JSONDecoder().decode(type.self, from: data) else {
+            print("Cached - GetInitialData - Could not convert value to type '\(type)' for key '\(key)'")
+            return
         }
+        dictionary = value
     }
     
-    func update() async {
-        print("Cached Matches - updating")
+    func updateMatches() async {
         matchesDictionary = await Cached.data.matchesDictionary
         matchesByDateSet = await Cached.data.matchesByDateSet
         matchesByLeagueSet = await Cached.data.matchesByLeagueSet
-       
         matchesByTeam = await Cached.data.matchesByTeam
-        injuriesByTeam = await Cached.data.injuriesByTeam
-        transfersByTeam = await Cached.data.transfersByTeam
-        playersByTeam = await Cached.data.playersByTeam
-        print(matchesByDateSet[Date.now.asKey])
-    }
-}
-
-class CachedTeams {
-    static var helper = CachedTeams()
-    
-    var teamDictionary: TeamDictionary = [:]
-    
-    init() {
-        Task.init {
-            teamDictionary = await Cached.data.teamDictionary
-        }
     }
     
-    func update() async {
-            teamDictionary = await Cached.data.teamDictionary
-    }
-}
-
-class CachedLeagues {
-    static var helper = CachedLeagues()
-    
-    var leagueDictionary: LeagueDictionary = [:]
-    
-    init() {
-        Task.init {
-            leagueDictionary = await Cached.data.leagueDictionary
-        }
+    func updateTeams() async {
+        teamDictionary = await Cached.data.teamDictionary
     }
     
-    func update() async {
-            leagueDictionary = await Cached.data.leagueDictionary
+    func updateLeagues() async {
+        leagueDictionary = await Cached.data.leagueDictionary
+    }
+    
+    
+    func updateFavorites() async {
+        favoriteLeagues = await Cached.data.favoriteLeagues
+        favoriteTeams = await Cached.data.favoriteTeams
     }
 }

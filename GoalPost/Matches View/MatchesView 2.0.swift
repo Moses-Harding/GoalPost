@@ -207,7 +207,7 @@ class MatchesView2: UIView, UIGestureRecognizerDelegate {
         // Get favorite leagues and sort
         var leagues = [ObjectContainer]()
         leagues.append(ObjectContainer(favoriteLeague: true))
-        let favoriteLeagues = CachedFavorites.helper.favoriteLeagues
+        let favoriteLeagues = QuickCache.helper.favoriteLeagues
         for (leagueID, leagueObject) in favoriteLeagues.sorted(by: {$0.value.name < $1.value.name}) {
             leagues.append(ObjectContainer(leagueId: leagueID, name: leagueObject.name))
         }
@@ -236,8 +236,8 @@ class MatchesView2: UIView, UIGestureRecognizerDelegate {
             
             // Get matches for current day + current league
             var matches = [ObjectContainer]()
-            let currentDayMatches = CachedMatches.helper.matchesByDateSet[currentDate.asKey]
-            let leagueMatches = CachedMatches.helper.matchesByLeagueSet[leagueID]
+            let currentDayMatches = QuickCache.helper.matchesByDateSet[currentDate.asKey]
+            let leagueMatches = QuickCache.helper.matchesByLeagueSet[leagueID]
             let intersectingMatchIDs = leagueMatches?.intersection(currentDayMatches ?? [])
             for id in intersectingMatchIDs ?? [] {
                 let object = ObjectContainer(matchId: id)

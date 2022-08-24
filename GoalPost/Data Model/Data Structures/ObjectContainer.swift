@@ -28,7 +28,7 @@ class ObjectContainer {
     
     var match: MatchObject? {
         guard let id = matchId else { return nil }
-        return CachedMatches.helper.matchesDictionary[id]
+        return QuickCache.helper.matchesDictionary[id]
     }
     
     func transfer() async -> TransferObject? {

@@ -28,10 +28,10 @@ class InjuryObject: Codable {
     }
      
     var team: TeamObject? {
-        return CachedTeams.helper.teamDictionary[teamId]
+        return QuickCache.helper.teamDictionary[teamId]
     }
     var league: LeagueObject? {
-        return CachedLeagues.helper.leagueDictionary[leagueId]
+        return QuickCache.helper.leagueDictionary[leagueId]
     }
     
     var teamId: TeamID

@@ -78,3 +78,22 @@ enum WebServiceCallErrors: Error {
     case resultsNotDecoded
     case elementNotFoundInLookupDictionary
 }
+
+enum StoredKeys: String {
+    case favoriteLeagues = "*Favorite Leagues"
+    case favoriteTeams = "*Favorite Teams"
+    case favoriteMatchesByDateSet = "*Favorite Matches By Date"
+    case favoriteMatchesDictionary = "*Favorite Match Dictionary"
+    case matchesByDateSet = "*Matches By Date"
+    case matchesByLeagueSet = "*Matches By League"
+    case matchesByTeam = "*Matches By Team"
+    case injuriesByTeam = "*Injuries By Team"
+    case transfersByTeam = "*Transfers By Team"
+    case playersByTeam = "*Players By Team"
+    case injuryDictionary = "*Injury Dictionary"
+    case leagueDictionary = "*League Dictionary"
+    case matchesDictionary = "*Match Dictionary"
+    case playerDictionary = "*Player Dictionary"
+    case teamDictionary = "*Team Dictionary"
+    case transferDictionary = "*Transfer Dictionary"
+}
