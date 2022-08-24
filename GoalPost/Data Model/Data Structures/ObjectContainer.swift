@@ -19,13 +19,6 @@ class ObjectContainer {
         return await Cached.data.injuryDictionary(id)
     }
     
-    /*
-    func match() async -> MatchObject? {
-        guard let id = matchId else { return nil }
-        return await Cached.data.matchesDictionary(id)
-    }
-    */
-    
     var match: MatchObject? {
         guard let id = matchId else { return nil }
         return QuickCache.helper.matchesDictionary[id]
@@ -41,9 +34,9 @@ class ObjectContainer {
         return await Cached.data.playerDictionary(id)
     }
     
-    func league() async -> LeagueObject? {
+    var league: LeagueObject? {
         guard let id = leagueId else { return nil }
-        return await Cached.data.leagueDictionary(id)
+        return QuickCache.helper.leagueDictionary[id]
     }
 
     var injuryId: InjuryID?

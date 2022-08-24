@@ -99,7 +99,7 @@ class TeamDataStackCellModel: UICollectionViewCell {
             self.backgroundColor = UIColor.clear
             self.indicator.startAnimating()
         } else {
-            self.backgroundColor = Colors.teamDataStackCellBackgroundColor
+            self.backgroundColor = UIColor.clear
             self.indicator.stopAnimating()
         }
 

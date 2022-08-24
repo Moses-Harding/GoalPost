@@ -261,7 +261,7 @@ extension TeamDataView {
         }
          */
 
-        guard let dataSource = self.dataSource, let teamId = self.team?.id, let matchIDs = await Cached.data.matchesByTeam[teamId] else { return }
+        guard let dataSource = self.dataSource, let teamId = self.team?.id, let matchIDs = await Cached.data.matchesByTeamDictionary[teamId] else { return }
 
         var snapshot = dataSource.snapshot(for: .match)
 
@@ -337,7 +337,7 @@ extension TeamDataView {
         
         Task.init {
             
-            guard let dataSource = self.dataSource, let teamId = self.team?.id, let transferIDs = await Cached.data.transfersByTeam[teamId] else { return }
+            guard let dataSource = self.dataSource, let teamId = self.team?.id, let transferIDs = await Cached.data.transfersByTeamDictionary[teamId] else { return }
 
             var snapshot = dataSource.snapshot(for: .transfer)
 
@@ -367,7 +367,7 @@ extension TeamDataView {
         
         Task.init {
 
-            guard let dataSource = self.dataSource, let teamId = self.team?.id, let injuryIDs = await Cached.data.injuriesByTeam[teamId] else { return }
+            guard let dataSource = self.dataSource, let teamId = self.team?.id, let injuryIDs = await Cached.data.injuriesByTeamDictionary[teamId] else { return }
 
             var snapshot = dataSource.snapshot(for: .injury)
 
@@ -396,7 +396,7 @@ extension TeamDataView {
         
         Task.init {
 
-            guard let dataSource = self.dataSource, let teamId = self.team?.id, let playerIDs = await Cached.data.playersByTeam[teamId] else { return }
+            guard let dataSource = self.dataSource, let teamId = self.team?.id, let playerIDs = await Cached.data.playersByTeamDictionary[teamId] else { return }
 
             var snapshot = dataSource.snapshot(for: .player)
 

@@ -25,7 +25,7 @@ class TeamObject: Codable {
         // Iterate through the league dictionary and return the most recent league
         for leagueId in leagueSet {
 
-            let league = await Cached.data.leagueDictionary(leagueId)
+            let league = QuickCache.helper.leagueDictionary[leagueId]
             if let leagueSeason = league?.currentSeason {
                 if let currentSeason = season {
                     if leagueSeason > currentSeason {

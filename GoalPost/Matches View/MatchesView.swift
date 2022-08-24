@@ -20,7 +20,7 @@ import UIKit
  6 - Apply the data (find all favorite leagues and insert new ones as necessary)
  */
 
-class MatchesView2: UIView, UIGestureRecognizerDelegate {
+class MatchesView: UIView, UIGestureRecognizerDelegate {
     
     // MARK: Views
     
@@ -207,7 +207,7 @@ class MatchesView2: UIView, UIGestureRecognizerDelegate {
         // Get favorite leagues and sort
         var leagues = [ObjectContainer]()
         leagues.append(ObjectContainer(favoriteLeague: true))
-        let favoriteLeagues = QuickCache.helper.favoriteLeagues
+        let favoriteLeagues = QuickCache.helper.favoriteLeaguesDictionary
         for (leagueID, leagueObject) in favoriteLeagues.sorted(by: {$0.value.name < $1.value.name}) {
             leagues.append(ObjectContainer(leagueId: leagueID, name: leagueObject.name))
         }
@@ -236,8 +236,8 @@ class MatchesView2: UIView, UIGestureRecognizerDelegate {
             
             // Get matches for current day + current league
             var matches = [ObjectContainer]()
-            let currentDayMatches = QuickCache.helper.matchesByDateSet[currentDate.asKey]
-            let leagueMatches = QuickCache.helper.matchesByLeagueSet[leagueID]
+            let currentDayMatches = QuickCache.helper.matchesByDateDictionary[currentDate.asKey]
+            let leagueMatches = QuickCache.helper.matchesByLeagueDictionary[leagueID]
             let intersectingMatchIDs = leagueMatches?.intersection(currentDayMatches ?? [])
             for id in intersectingMatchIDs ?? [] {
                 let object = ObjectContainer(matchId: id)
@@ -247,12 +247,11 @@ class MatchesView2: UIView, UIGestureRecognizerDelegate {
             // Sort Matches
             matches.sort { $0.matchId ?? "" < $1.matchId ?? "" }
             
-            // guard !matches.isEmpty else { continue }
+            guard !matches.isEmpty else { continue }
             
             
             // Apply the matches to the section snapshot
-            //sectionSnapShot.append(matches, to: league
-            
+
             sectionSnapShot.applyDifferences(newItems: [league] + matches)
             sectionSnapShot.expand([league])
             dataSource.apply(sectionSnapShot, to: league, animatingDifferences: true)
@@ -282,7 +281,7 @@ class MatchesView2: UIView, UIGestureRecognizerDelegate {
     }
 }
 
-extension MatchesView2 {
+extension MatchesView {
     
     func clearCells() {
         let dataSourceSnapshot = NSDiffableDataSourceSnapshot<ObjectContainer, ObjectContainer>()
@@ -316,7 +315,7 @@ extension MatchesView2 {
     }
 }
 
-extension MatchesView2: UICollectionViewDelegate {
+extension MatchesView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         print("Did select")

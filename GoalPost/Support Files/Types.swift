@@ -21,8 +21,6 @@ typealias DateString = String
 
 typealias MatchesByDateDictionary = [DateString: Set<MatchUniqueID>]
 typealias MatchesByLeagueDictionary = [LeagueID: Set<MatchUniqueID>]
-
-
 typealias MatchesByTeamDictionary = [TeamID:Set<MatchUniqueID>]
 typealias InjuriesByTeamDictionary = [TeamID:Set<InjuryID>]
 typealias TransfersByTeamDictionary = [TeamID:Set<TransferID>]

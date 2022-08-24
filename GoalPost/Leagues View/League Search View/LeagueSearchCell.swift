@@ -93,9 +93,6 @@ class LeagueSearchContentView: UIView, UIContentView {
             guard let newConfiguration = newValue as? LeagueSearchContentConfiguration else {
                 return
             }
-            
-            // Apply the new configuration to SFSymbolVerticalContentView
-            // also update currentConfiguration to newConfiguration
             apply(configuration: newConfiguration)
         }
     }

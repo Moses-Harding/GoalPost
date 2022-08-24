@@ -9,7 +9,7 @@ import UIKit
 
 class MatchesViewController: UIViewController {
     
-    var matchesView = MatchesView2()
+    var matchesView = MatchesView()
 
 
     override func viewDidLoad() {

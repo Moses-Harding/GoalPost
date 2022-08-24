@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		15175B6C28AAC05D0039994A /* MatchCell 2.0.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15175B6928AAC05D0039994A /* MatchCell 2.0.swift */; };
+		15175B6C28AAC05D0039994A /* MatchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15175B6928AAC05D0039994A /* MatchCell.swift */; };
 		15175B6D28AAC05D0039994A /* MatchesContainerBodyStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15175B6A28AAC05D0039994A /* MatchesContainerBodyStack.swift */; };
 		15175B6E28AAC05D0039994A /* LeagueHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15175B6B28AAC05D0039994A /* LeagueHeaderCell.swift */; };
 		15175B7028AAC21E0039994A /* NSDiffableDataSourceSectionSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15175B6F28AAC21E0039994A /* NSDiffableDataSourceSectionSnapshot.swift */; };
@@ -38,7 +38,7 @@
 		154DE3872857BBC7002C0BC4 /* PlayerCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 154DE3862857BBC7002C0BC4 /* PlayerCollectionCell.swift */; };
 		154DE3892857BDD7002C0BC4 /* Get Squad Structure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 154DE3882857BDD7002C0BC4 /* Get Squad Structure.swift */; };
 		154DE38B2857C180002C0BC4 /* Get Squads.swift in Sources */ = {isa = PBXBuildFile; fileRef = 154DE38A2857C180002C0BC4 /* Get Squads.swift */; };
-		15519C4928A6F5B7005875E9 /* MatchesView 2.0.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15519C4828A6F5B7005875E9 /* MatchesView 2.0.swift */; };
+		15519C4928A6F5B7005875E9 /* MatchesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15519C4828A6F5B7005875E9 /* MatchesView.swift */; };
 		155CD95928445AC700F5C4CE /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155CD95828445AC700F5C4CE /* Player.swift */; };
 		155CD95B284460A200F5C4CE /* Get Injuries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155CD95A284460A200F5C4CE /* Get Injuries.swift */; };
 		155CD95D2844641E00F5C4CE /* Get Injuries Structure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155CD95C2844641E00F5C4CE /* Get Injuries Structure.swift */; };
@@ -72,8 +72,7 @@
 		15C621432814592F005A13E7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 15C621412814592F005A13E7 /* LaunchScreen.storyboard */; };
 		15C6215028145A01005A13E7 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6214F28145A01005A13E7 /* Enums.swift */; };
 		15C6215428145A2C005A13E7 /* Get Matches.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215328145A2C005A13E7 /* Get Matches.swift */; };
-		15C6215628145A48005A13E7 /* MatchesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215528145A48005A13E7 /* MatchesView.swift */; };
-		15C6215828145A62005A13E7 /* MatchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215728145A62005A13E7 /* MatchCell.swift */; };
+		15C6215828145A62005A13E7 /* DEPRECATEDMatchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215728145A62005A13E7 /* DEPRECATEDMatchCell.swift */; };
 		15C6215A28145A7A005A13E7 /* UIStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215928145A7A005A13E7 /* UIStackView.swift */; };
 		15C6215C28145A97005A13E7 /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215B28145A97005A13E7 /* UIView.swift */; };
 		15C6215E281460C9005A13E7 /* LeagueCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C6215D281460C9005A13E7 /* LeagueCell.swift */; };
@@ -88,7 +87,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		15175B6928AAC05D0039994A /* MatchCell 2.0.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MatchCell 2.0.swift"; sourceTree = "<group>"; };
+		15175B6928AAC05D0039994A /* MatchCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MatchCell.swift; sourceTree = "<group>"; };
 		15175B6A28AAC05D0039994A /* MatchesContainerBodyStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MatchesContainerBodyStack.swift; sourceTree = "<group>"; };
 		15175B6B28AAC05D0039994A /* LeagueHeaderCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeagueHeaderCell.swift; sourceTree = "<group>"; };
 		15175B6F28AAC21E0039994A /* NSDiffableDataSourceSectionSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSDiffableDataSourceSectionSnapshot.swift; sourceTree = "<group>"; };
@@ -119,7 +118,7 @@
 		154DE3862857BBC7002C0BC4 /* PlayerCollectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerCollectionCell.swift; sourceTree = "<group>"; };
 		154DE3882857BDD7002C0BC4 /* Get Squad Structure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Get Squad Structure.swift"; sourceTree = "<group>"; };
 		154DE38A2857C180002C0BC4 /* Get Squads.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Get Squads.swift"; sourceTree = "<group>"; };
-		15519C4828A6F5B7005875E9 /* MatchesView 2.0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MatchesView 2.0.swift"; sourceTree = "<group>"; };
+		15519C4828A6F5B7005875E9 /* MatchesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesView.swift; sourceTree = "<group>"; };
 		155CD95828445AC700F5C4CE /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		155CD95A284460A200F5C4CE /* Get Injuries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Get Injuries.swift"; sourceTree = "<group>"; };
 		155CD95C2844641E00F5C4CE /* Get Injuries Structure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Get Injuries Structure.swift"; sourceTree = "<group>"; };
@@ -154,8 +153,8 @@
 		15C621442814592F005A13E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		15C6214F28145A01005A13E7 /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
 		15C6215328145A2C005A13E7 /* Get Matches.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Get Matches.swift"; sourceTree = "<group>"; };
-		15C6215528145A48005A13E7 /* MatchesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesView.swift; sourceTree = "<group>"; };
-		15C6215728145A62005A13E7 /* MatchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchCell.swift; sourceTree = "<group>"; };
+		15C6215528145A48005A13E7 /* DeprecatedMatchesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeprecatedMatchesView.swift; sourceTree = "<group>"; };
+		15C6215728145A62005A13E7 /* DEPRECATEDMatchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DEPRECATEDMatchCell.swift; sourceTree = "<group>"; };
 		15C6215928145A7A005A13E7 /* UIStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIStackView.swift; sourceTree = "<group>"; };
 		15C6215B28145A97005A13E7 /* UIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
 		15C6215D281460C9005A13E7 /* LeagueCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeagueCell.swift; sourceTree = "<group>"; };
@@ -194,7 +193,7 @@
 		15175B7A28AAE6520039994A /* Deprecated */ = {
 			isa = PBXGroup;
 			children = (
-				15C6215528145A48005A13E7 /* MatchesView.swift */,
+				15C6215528145A48005A13E7 /* DeprecatedMatchesView.swift */,
 				15175B7528AAE0380039994A /* TeamDataView */,
 			);
 			path = Deprecated;
@@ -235,7 +234,7 @@
 			isa = PBXGroup;
 			children = (
 				15175B6B28AAC05D0039994A /* LeagueHeaderCell.swift */,
-				15175B6928AAC05D0039994A /* MatchCell 2.0.swift */,
+				15175B6928AAC05D0039994A /* MatchCell.swift */,
 				15175B6A28AAC05D0039994A /* MatchesContainerBodyStack.swift */,
 			);
 			path = MatchesContainerCell;
@@ -258,7 +257,7 @@
 			isa = PBXGroup;
 			children = (
 				15C6213A2814592D005A13E7 /* MatchesViewController.swift */,
-				15519C4828A6F5B7005875E9 /* MatchesView 2.0.swift */,
+				15519C4828A6F5B7005875E9 /* MatchesView.swift */,
 				15519C4A28A6F834005875E9 /* MatchesContainerCell */,
 				15C6214B2814598E005A13E7 /* MatchesCollectionView */,
 			);
@@ -374,7 +373,7 @@
 			isa = PBXGroup;
 			children = (
 				15C6215D281460C9005A13E7 /* LeagueCell.swift */,
-				15C6215728145A62005A13E7 /* MatchCell.swift */,
+				15C6215728145A62005A13E7 /* DEPRECATEDMatchCell.swift */,
 				15E6B11D2833F5B70038345A /* AdCell.swift */,
 			);
 			path = MatchesCollectionView;
@@ -507,7 +506,7 @@
 				15A74164283DF5F30054BAD4 /* Team.swift in Sources */,
 				15175B7728AAE0810039994A /* TeamDataViewController.swift in Sources */,
 				1578B85128222B7200B71838 /* Protocols.swift in Sources */,
-				15175B6C28AAC05D0039994A /* MatchCell 2.0.swift in Sources */,
+				15175B6C28AAC05D0039994A /* MatchCell.swift in Sources */,
 				153342A3284706E3006EC083 /* Get Transfers.swift in Sources */,
 				15C6215E281460C9005A13E7 /* LeagueCell.swift in Sources */,
 				15A7416A283DF6540054BAD4 /* Ad.swift in Sources */,
@@ -525,7 +524,7 @@
 				1578B8532822D98000B71838 /* Cached.swift in Sources */,
 				154DE38B2857C180002C0BC4 /* Get Squads.swift in Sources */,
 				155CD9612844761D00F5C4CE /* Dictionary.swift in Sources */,
-				15519C4928A6F5B7005875E9 /* MatchesView 2.0.swift in Sources */,
+				15519C4928A6F5B7005875E9 /* MatchesView.swift in Sources */,
 				15FE14672833213000DAB2A0 /* TeamCollectionCell.swift in Sources */,
 				1521B37528566C8C007C0BF3 /* TeamDataStackCellModel.swift in Sources */,
 				1548A15328236F3A00741179 /* Colors.swift in Sources */,
@@ -539,10 +538,9 @@
 				15C621372814592D005A13E7 /* AppDelegate.swift in Sources */,
 				1548A155282377D000741179 /* TestingManager.swift in Sources */,
 				153342A12846ACB7006EC083 /* Get Transfers Structure.swift in Sources */,
-				15C6215828145A62005A13E7 /* MatchCell.swift in Sources */,
+				15C6215828145A62005A13E7 /* DEPRECATEDMatchCell.swift in Sources */,
 				153689842839928D00BBDAE7 /* LeaguesView.swift in Sources */,
 				15D01B12282C3C7C003BDB30 /* RootController.swift in Sources */,
-				15C6215628145A48005A13E7 /* MatchesView.swift in Sources */,
 				155CD95D2844641E00F5C4CE /* Get Injuries Structure.swift in Sources */,
 				15275C81282DA7460005565E /* TeamSearchCell.swift in Sources */,
 				153689832839928D00BBDAE7 /* LeagueCollectionCell.swift in Sources */,

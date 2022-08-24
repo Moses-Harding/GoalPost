@@ -94,7 +94,7 @@ class TeamSearchCell: UICollectionViewCell {
             teamLabel.text = teamInformation.name + (teamInformation.national ? " (National Team)" : "")
             countryLabel.text = teamInformation.country
             
-            let favorites = await Cached.data.favoriteTeams
+            let favorites = QuickCache.helper.favoriteTeamsDictionary
             
             if favorites.contains { $0.key == teamInformation.id } {
                 checkmarkLabel.isHidden = false

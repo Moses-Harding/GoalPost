@@ -76,7 +76,7 @@ class LeaguesView: UIView {
         setUpDataSource()
         setUpColors()
         
-       refresh()
+        refresh()
     }
     
     required init?(coder: NSCoder) {
@@ -177,26 +177,24 @@ extension LeaguesView: LeagueSearchDelegate  {
         
         print("LeaguesView - Refreshing")
         
-        Task.init {
-            
-            // 1. Retrieve all teams from cache. It must be async to deal with concurrency issues.
-            var foundLeagues = [LeagueObject]()
-            
-            for league in await Cached.data.getFavoriteLeagues().sorted(by: { $0.value.name < $1.value.name }) {
-                foundLeagues.append(league.value)
-            }
-            
-            guard let dataSource = dataSource else { return }
-            
-            // 2. Create a new snapshot using .main and append the teams that were found
-            
-            var snapShot = dataSource.snapshot(for: .main)
-
-            snapShot.applyDifferences(newItems: foundLeagues)
-
-            // 3. Apply to datasource
-            await dataSource.apply(snapShot, to: .main, animatingDifferences: true)
+        
+        // 1. Retrieve all teams from cache. It must be async to deal with concurrency issues.
+        var foundLeagues = [LeagueObject]()
+        
+        for league in QuickCache.helper.favoriteLeaguesDictionary.sorted(by: { $0.value.name < $1.value.name }) {
+            foundLeagues.append(league.value)
         }
+        
+        guard let dataSource = dataSource else { return }
+        
+        // 2. Create a new snapshot using .main and append the teams that were found
+        
+        var snapShot = dataSource.snapshot(for: .main)
+        
+        snapShot.applyDifferences(newItems: foundLeagues)
+        
+        // 3. Apply to datasource
+        dataSource.apply(snapShot, to: .main, animatingDifferences: true)
     }
     
     
@@ -207,13 +205,13 @@ extension LeaguesView: LeagueSearchDelegate  {
         var snapshot = dataSource.snapshot(for: .main)
         
         let newItems = (snapshot.items + [league]).sorted(by: {$0.name < $1.name})
-
+        
         snapshot.applyDifferences(newItems: newItems)
-
+        
         dataSource.apply(snapshot, to: .main, animatingDifferences: true)
         
         Task.init {
-            await Cached.data.setFavoriteLeagues(with: league.id, to: league)
+            await Cached.data.set(.favoriteLeaguesDictionary, with: league.id, to: league)
         }
     }
 }

@@ -38,8 +38,8 @@ class RootController: UITabBarController {
         //clearData()
         
         Task.init {
-            print("Favorite leagues - \(await Cached.data.favoriteLeagues.values)")
-            print("Favorite teams - \(await Cached.data.favoriteTeams.values)")
+            print("Favorite leagues - \(await Cached.data.favoriteLeaguesDictionary.values)")
+            print("Favorite teams - \(await Cached.data.favoriteTeamsDictionary.values)")
         }
     }
     

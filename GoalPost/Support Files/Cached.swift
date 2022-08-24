@@ -140,30 +140,41 @@ struct Cache<T: Codable> {
 
 //Cached.teamDictionary
 
-// Keeps all saved preferences
+enum CachedDictionaryType: String {
+    case favoriteLeaguesDictionary = "*Favorite Leagues"
+    case favoriteTeamsDictionary = "*Favorite Teams"
+    case matchesByDateDictionary = "*Matches By Date"
+    case matchesByLeagueDictionary = "*Matches By League"
+    case matchesByTeamDictionary = "*Matches By Team"
+    case injuriesByTeamDictionary = "*Injuries By Team"
+    case transfersByTeamDictionary = "*Transfers By Team"
+    case playersByTeamDictionary = "*Players By Team"
+    case injuryDictionary = "*Injury Dictionary"
+    case leagueDictionary = "*League Dictionary"
+    case matchesDictionary = "*Match Dictionary"
+    case playerDictionary = "*Player Dictionary"
+    case teamDictionary = "*Team Dictionary"
+    case transferDictionary = "*Transfer Dictionary"
+}
 
-enum DictionaryType {
-    case favoriteLeagues
-    //case favoriteMatchesByDate
-    //case favoriteMatchDictionary
-    case favoriteTeams
-    
-    case injuriesByTeam
-    
+enum CacheDictionary: String {
+    case favoriteTeamsDictionary
+    case favoriteLeaguesDictionary
+    case injuryDictionary
     case leagueDictionary
-
-    case matchesByDate
-    case matchesByLeague
-    case matchesByTeam
-    case matchDictionary
-    
-    case playersByTeam
+    case matchesDictionary
     case playerDictionary
-    
     case teamDictionary
-
-    case tranfersByTeam
     case transferDictionary
+}
+
+enum CacheSetDictionary: String {
+    case matchesByDateDictionary
+    case matchesByLeagueDictionary
+    case matchesByTeamDictionary
+    case injuriesByTeamDictionary
+    case transfersByTeamDictionary
+    case playersByTeamDictionary
 }
 
 actor Cached {
@@ -171,50 +182,47 @@ actor Cached {
     static var data = Cached()
     
     // Save an array of "FavoriteLeague" items with the key "Leagues" by initializing an empty array as a default value
-    //@Cache(key: "Leagues", defaultValue: []) static var favoriteLeagueIds: [Int]
-    @Cache(key: "*Favorite Leagues", defaultValue: [:]) var favoriteLeagues: LeagueDictionary
+    //@Cache(key: CachedDictionaryType.favoriteLeagueIds.rawValue, defaultValue: [:]) var favoriteLeagueIds: [Int]
+    @Cache(key: CachedDictionaryType.favoriteLeaguesDictionary.rawValue, defaultValue: [:]) var favoriteLeaguesDictionary: LeagueDictionary
     // Save an array of "FavoriteTeam" items with the key "Teams" by initializing an empty array as a default value
-    //@Cache(key: "Teams", defaultValue: []) static var favoriteTeamIds: [Int]
-    @Cache(key: "*Favorite Teams", defaultValue: [:]) var favoriteTeams: TeamDictionary
+    //@Cache(key: CachedDictionaryType.favoriteTeamIds.rawValue, defaultValue: [:]) var favoriteTeamIds: [Int]
+    @Cache(key: CachedDictionaryType.favoriteTeamsDictionary.rawValue, defaultValue: [:]) var favoriteTeamsDictionary: TeamDictionary
     
     // Save an array of "FavoriteLeague" items with the key "Leagues" by initializing an empty array as a default value
-    //@Cache(key: "Matches By Day", defaultValue: [:]) static var matchesByDay: [DateString: Dictionary<Int,LeagueObject>]
-    //@Cache(key: "Favorite Team Matches By Day", defaultValue: [:]) static var favoriteTeamMatchesByDay: [DateString:LeagueObject]
+    //@Cache(key: CachedDictionaryType.matchesByDay: [DateString.rawValue, defaultValue: [:]) var matchesByDay: [DateString: Dictionary<Int,LeagueObject>]
+    //@Cache(key: CachedDictionaryType.favoriteTeamMatchesByDay.rawValue, defaultValue: [:]) var favoriteTeamMatchesByDay: [DateString:LeagueObject]
     
     // References
-    //@Cache(key: "*Favorite Matches By Date", defaultValue: [:]) var favoriteMatchesByDateSet: MatchesByDateDictionary
-    //@Cache(key: "*Favorite Match Dictionary", defaultValue: [:]) var favoriteMatchesDictionary: [MatchUniqueID:MatchObject]
+    //@Cache(key: CachedDictionaryType.favoriteMatchesByDateSet.rawValue, defaultValue: [:]) var favoriteMatchesByDateSet: MatchesByDateDictionary
+    //@Cache(key: CachedDictionaryType.favoriteMatchesDictionary.rawValue, defaultValue: [:]) var favoriteMatchesDictionary: [MatchUniqueID:MatchObject]
     
-    @Cache(key: "*Matches By Date", defaultValue: [:]) var matchesByDateSet: MatchesByDateDictionary
-    @Cache(key: "*Matches By League", defaultValue: [:]) var matchesByLeagueSet: MatchesByLeagueDictionary
+    @Cache(key: CachedDictionaryType.matchesByDateDictionary.rawValue, defaultValue: [:]) var matchesByDateDictionary: MatchesByDateDictionary
+    @Cache(key: CachedDictionaryType.matchesByLeagueDictionary.rawValue, defaultValue: [:]) var matchesByLeagueDictionary: MatchesByLeagueDictionary
    
-    @Cache(key: "*Matches By Team", defaultValue: [:]) var matchesByTeam: MatchesByTeamDictionary
-    @Cache(key: "*Injuries By Team", defaultValue: [:]) var injuriesByTeam: InjuriesByTeamDictionary
-    @Cache(key: "*Transfers By Team", defaultValue: [:]) var transfersByTeam: TransfersByTeamDictionary
-    @Cache(key: "*Players By Team", defaultValue: [:]) var playersByTeam: PlayersByTeamDictionary
+    @Cache(key: CachedDictionaryType.matchesByTeamDictionary.rawValue, defaultValue: [:]) var matchesByTeamDictionary: MatchesByTeamDictionary
+    @Cache(key: CachedDictionaryType.injuriesByTeamDictionary.rawValue, defaultValue: [:]) var injuriesByTeamDictionary: InjuriesByTeamDictionary
+    @Cache(key: CachedDictionaryType.transfersByTeamDictionary.rawValue, defaultValue: [:]) var transfersByTeamDictionary: TransfersByTeamDictionary
+    @Cache(key: CachedDictionaryType.playersByTeamDictionary.rawValue, defaultValue: [:]) var playersByTeamDictionary: PlayersByTeamDictionary
     
     // Dictionaries
 
-    @Cache(key: "*Injury Dictionary", defaultValue: [:]) var injuryDictionary: InjuryDictionary
-    @Cache(key: "*League Dictionary", defaultValue: [:]) var leagueDictionary: LeagueDictionary
-    @Cache(key: "*Match Dictionary", defaultValue: [:]) var matchesDictionary: MatchesDictionary
-    @Cache(key: "*Player Dictionary", defaultValue: [:]) var playerDictionary: PlayerDictionary
-    @Cache(key: "*Team Dictionary", defaultValue: [:]) var teamDictionary: TeamDictionary
-    @Cache(key: "*Transfer Dictionary", defaultValue: [:]) var transferDictionary: TransferDictionary
+    @Cache(key: CachedDictionaryType.injuryDictionary.rawValue, defaultValue: [:]) var injuryDictionary: InjuryDictionary
+    @Cache(key: CachedDictionaryType.leagueDictionary.rawValue, defaultValue: [:]) var leagueDictionary: LeagueDictionary
+    @Cache(key: CachedDictionaryType.matchesDictionary.rawValue, defaultValue: [:]) var matchesDictionary: MatchesDictionary
+    @Cache(key: CachedDictionaryType.playerDictionary.rawValue, defaultValue: [:]) var playerDictionary: PlayerDictionary
+    @Cache(key: CachedDictionaryType.teamDictionary.rawValue, defaultValue: [:]) var teamDictionary: TeamDictionary
+    @Cache(key: CachedDictionaryType.transferDictionary.rawValue, defaultValue: [:]) var transferDictionary: TransferDictionary
     
     func clearData() {
-        self.favoriteLeagues = [:]
-        self.favoriteTeams = [:]
+        self.favoriteLeaguesDictionary = [:]
+        self.favoriteTeamsDictionary = [:]
+    
+        self.matchesByDateDictionary = [:]
+        self.matchesByLeagueDictionary = [:]
+        self.matchesByTeamDictionary = [:]
         
-        //self.favoriteMatchesByDateSet = [:]
-        //self.favoriteMatchesDictionary = [:]
-        
-        self.matchesByDateSet = [:]
-        self.matchesByLeagueSet = [:]
-        self.matchesByTeam = [:]
-        
-        self.injuriesByTeam = [:]
-        self.transfersByTeam = [:]
+        self.injuriesByTeamDictionary = [:]
+        self.transfersByTeamDictionary = [:]
 
         self.teamDictionary = [:]
         self.leagueDictionary = [:]
@@ -224,153 +232,169 @@ actor Cached {
         self.transferDictionary = [:]
     }
     
-    func setFavoriteLeagues(with id: LeagueID, to value: LeagueObject?) {
-        self.favoriteLeagues[id] = value
+    func set(_ type: CacheDictionary, with key: Any, to object: Any) {
+        switch type {
+            
+        case .injuryDictionary:
+            guard let object = object as? InjuryObject, let key = key as? InjuryID else { fatalError() }
+            self.injuryDictionary[key] = object
+            print("WARNING: Cached - addIfNoneExists - QuickCache not implemented for \(type.rawValue)")
+        case .leagueDictionary:
+            guard let object = object as? LeagueObject, let key = key as? LeagueID else { fatalError() }
+            self.leagueDictionary[key] = object
+            QuickCache.helper.set(.leagueDictionary, dictionary: leagueDictionary)
+        case .matchesDictionary:
+            guard let object = object as? MatchObject, let key = key as? MatchUniqueID else { fatalError() }
+            self.matchesDictionary[key] = object
+            QuickCache.helper.set(.matchesDictionary, dictionary: matchesDictionary)
+        case .playerDictionary:
+            guard let object = object as? PlayerObject, let key = key as? PlayerID else { fatalError() }
+            self.playerDictionary[key] = object
+            print("WARNING: Cached - addIfNoneExists - QuickCache not implemented for \(type.rawValue)")
+        case .teamDictionary:
+            guard let object = object as? TeamObject, let key = key as? TeamID else { fatalError() }
+            self.teamDictionary[key] = object
+            QuickCache.helper.set(.teamDictionary, dictionary: teamDictionary)
+        case .transferDictionary:
+            guard let object = object as? TransferObject, let key = key as? TransferID else { fatalError() }
+            self.transferDictionary[key] = object
+            print("WARNING: Cached - addIfNoneExists - QuickCache not implemented for \(type.rawValue)")
+        case .favoriteTeamsDictionary:
+            guard let object = object as? TeamObject, let key = key as? TeamID else { fatalError() }
+            self.favoriteTeamsDictionary[key] = object
+            QuickCache.helper.set(.favoriteTeamsDictionary, dictionary: teamDictionary)
+        case .favoriteLeaguesDictionary:
+            guard let object = object as? LeagueObject, let key = key as? LeagueID else { fatalError() }
+            self.favoriteLeaguesDictionary[key] = object
+            QuickCache.helper.set(.favoriteLeaguesDictionary, dictionary: leagueDictionary)
+        }
     }
-    
-    func setFavoriteTeams(with id: TeamID, to value: TeamObject?) {
-        self.favoriteTeams[id] = value
-    }
-    
-    func setTeamDictionary(with id: TeamID, to value: TeamObject) {
-        self.teamDictionary[id] = value
-    }
-    
-    //
-    
-    /*
-    func getFavoriteMatchesDictionary() -> [MatchUniqueID:MatchObject] {
-        return self.favoriteMatchesDictionary
-    }
-     */
-    
-    func getMatchesDictionary() -> [MatchUniqueID:MatchObject] {
-        return self.matchesDictionary
-    }
-    
-    func getMatchesByTeamDictionary() -> MatchesByTeamDictionary {
-        return self.matchesByTeam
-    }
-    
-    func getFavoriteLeagues() -> [LeagueID:LeagueObject] {
-        return self.favoriteLeagues
-    }
-    
-    func getFavoriteTeams() -> [TeamID:TeamObject] {
-        return self.favoriteTeams
-    }
+
     
     //
     
     func favoriteTeamsRemoveValue(forKey key: TeamID) {
-        favoriteTeams.removeValue(forKey: key)
-        
+        favoriteTeamsDictionary.removeValue(forKey: key)
     }
     
     //
-    
-    func injuryDictionary(_ id: InjuryID) -> InjuryObject? {
-        return self.injuryDictionary[id]
-    }
-    
-    func leagueDictionary(_ id: LeagueID) -> LeagueObject? {
-        return self.leagueDictionary[id]
-    }
-    
-    func matchesDictionary(_ id: MatchUniqueID) -> MatchObject? {
-        return self.matchesDictionary[id]
-    }
     
     func playerDictionary(_ id: PlayerID) -> PlayerObject? {
         return self.playerDictionary[id]
     }
     
-    func teamDictionary(_ id: TeamID) -> TeamObject? {
-        return self.teamDictionary[id]
+    func injuryDictionary(_ id: InjuryID) -> InjuryObject? {
+        return self.injuryDictionary[id]
     }
     
     func transferDictionary(_ id: TransferID) -> TransferObject? {
         return self.transferDictionary[id]
     }
     
-    func matchesByDateSet(_ id: DateString) -> Set<MatchUniqueID>? {
-        return self.matchesByDateSet[id]
+    
+    func addIfNoneExists(_ type: CacheDictionary, _ object: Any, key: Any) {
+        switch type {
+            
+        case .injuryDictionary:
+            guard let object = object as? InjuryObject, let key = key as? InjuryID else { fatalError() }
+            self.injuryDictionary.addIfNoneExists(object, key: key)
+            print("WARNING: Cached - addIfNoneExists - QuickCache not implemented for \(type.rawValue)")
+        case .leagueDictionary:
+            guard let object = object as? LeagueObject, let key = key as? LeagueID else { fatalError() }
+            self.leagueDictionary.addIfNoneExists(object, key: key)
+            QuickCache.helper.set(.leagueDictionary, dictionary: leagueDictionary)
+        case .matchesDictionary:
+            guard let object = object as? MatchObject, let key = key as? MatchUniqueID else { fatalError() }
+            self.matchesDictionary.addIfNoneExists(object, key: key)
+            QuickCache.helper.set(.matchesDictionary, dictionary: matchesDictionary)
+        case .playerDictionary:
+            guard let object = object as? PlayerObject, let key = key as? PlayerID else { fatalError() }
+            self.playerDictionary.addIfNoneExists(object, key: key)
+            print("WARNING: Cached - addIfNoneExists - QuickCache not implemented for \(type.rawValue)")
+        case .teamDictionary:
+            guard let object = object as? TeamObject, let key = key as? TeamID else { fatalError() }
+            self.teamDictionary.addIfNoneExists(object, key: key)
+            QuickCache.helper.set(.teamDictionary, dictionary: teamDictionary)
+        case .transferDictionary:
+            guard let object = object as? TransferObject, let key = key as? TransferID else { fatalError() }
+            self.transferDictionary.addIfNoneExists(object, key: key)
+            print("WARNING: Cached - addIfNoneExists - QuickCache not implemented for \(type.rawValue)")
+        case .favoriteTeamsDictionary:
+            guard let object = object as? TeamObject, let key = key as? TeamID else { fatalError() }
+            self.favoriteTeamsDictionary.addIfNoneExists(object, key: key)
+            QuickCache.helper.set(.favoriteTeamsDictionary, dictionary: teamDictionary)
+        case .favoriteLeaguesDictionary:
+            guard let object = object as? LeagueObject, let key = key as? LeagueID else { fatalError() }
+            self.favoriteLeaguesDictionary.addIfNoneExists(object, key: key)
+            QuickCache.helper.set(.favoriteLeaguesDictionary, dictionary: leagueDictionary)
+        }
+    }
+
+    
+    func integrateSet<T, U>(type: CacheSetDictionary, dictionary: Dictionary<T, Set<U>>) {
+        switch type {
+        case .matchesByDateDictionary:
+            guard let dictionary = dictionary as? MatchesByDateDictionary else { fatalError() }
+            self.matchesByDateDictionary.integrateSet(dictionary)
+            QuickCache.helper.set(.matchesByDateDictionary, dictionary: matchesByDateDictionary)
+        case .matchesByLeagueDictionary:
+            guard let dictionary = dictionary as? MatchesByLeagueDictionary else { fatalError() }
+            self.matchesByLeagueDictionary.integrateSet(dictionary)
+            QuickCache.helper.set(.matchesByLeagueDictionary, dictionary: matchesByLeagueDictionary)
+        case .matchesByTeamDictionary:
+            guard let dictionary = dictionary as? MatchesByTeamDictionary else { fatalError() }
+            self.matchesByTeamDictionary.integrateSet(dictionary)
+            QuickCache.helper.set(.matchesByTeamDictionary, dictionary: matchesByTeamDictionary)
+        case .injuriesByTeamDictionary:
+            guard let dictionary = dictionary as? InjuriesByTeamDictionary else { fatalError() }
+            self.injuriesByTeamDictionary.integrateSet(dictionary)
+            print("WARNING: Cached - integrateSet - QuickCache not implemented for \(type.rawValue)")
+        case .transfersByTeamDictionary:
+            guard let dictionary = dictionary as? TransfersByTeamDictionary else { fatalError() }
+            self.transfersByTeamDictionary.integrateSet(dictionary)
+            print("WARNING: Cached - integrateSet - QuickCache not implemented for \(type.rawValue)")
+        case .playersByTeamDictionary:
+            guard let dictionary = dictionary as? PlayersByTeamDictionary else { fatalError() }
+            self.playersByTeamDictionary.integrateSet(dictionary)
+            print("WARNING: Cached - integrateSet - QuickCache not implemented for \(type.rawValue)")
+        }
     }
     
-    //
-    
-    func leagueDictionaryAddIfNoneExists(_ league: LeagueObject, key: LeagueID) {
-        self.leagueDictionary.addIfNoneExists(league, key: key)
-    }
-    
-    func playerDictionaryAddIfNoneExists(_ player: PlayerObject, key: PlayerID) {
-        self.playerDictionary.addIfNoneExists(player, key: key)
-    }
-    
-    func teamDictionaryAddIfNoneExists(_ team: TeamObject, key: TeamID) {
-        self.teamDictionary.addIfNoneExists(team, key: key)
-    }
-    
-    //
-    
-    /*
-    func favoriteMatchesByDateSetIntegrate(_ favoriteMatchesByDateSet: [DateString: Set<MatchUniqueID>]) {
-        self.favoriteMatchesByDateSet.integrateSet(favoriteMatchesByDateSet)
-    }
-    
-    func favoriteMatchesDictionaryIntegrate(_ favoriteMatchesDictionary: [MatchUniqueID:MatchObject], replaceExistingValue: Bool) {
-        self.favoriteMatchesDictionary.integrate(favoriteMatchesDictionary, replaceExistingValue: replaceExistingValue)
-    }
-     */
-    
-    func injuriesByTeamIntegrate(_ injuriesByTeam: [TeamID:Set<InjuryID>]) {
-        self.injuriesByTeam.integrateSet(injuriesByTeam)
-    }
-    
-    func injuryDictionaryIntegrate(_ injuryDictionary: [InjuryID:InjuryObject], replaceExistingValue: Bool) {
-        self.injuryDictionary.integrate(injuryDictionary, replaceExistingValue: replaceExistingValue)
-    }
-    
-    func leagueDictionaryIntegrate(_ leagueDictionary: [LeagueID:LeagueObject], replaceExistingValue: Bool) {
-        self.leagueDictionary.integrate(leagueDictionary, replaceExistingValue: replaceExistingValue)
-    }
-    
-    func matchesByLeagueSetIntegrate(_ matchesByLeagueSet: [LeagueID: Set<MatchUniqueID>]) {
-        self.matchesByLeagueSet.integrateSet(matchesByLeagueSet)
-    }
-    
-    
-    func matchesByDateSetIntegrate(_ matchesByDateSet: [DateString: Set<MatchUniqueID>]) {
-        self.matchesByDateSet.integrateSet(matchesByDateSet)
-    }
-    
-    
-    func matchesByTeamIntegrate(_ matchesByTeam: [TeamID:Set<MatchUniqueID>]) {
-        self.matchesByTeam.integrateSet(matchesByTeam)
-    }
-    
-    func matchesDictionaryIntegrate(_ matchesDictionary: [MatchUniqueID:MatchObject], replaceExistingValue: Bool) {
-        self.matchesDictionary.integrate(matchesDictionary, replaceExistingValue: replaceExistingValue)
-    }
-    
-    func playersByTeamIntegrate(_ playersByTeam: [TeamID:Set<PlayerID>]) {
-        self.playersByTeam.integrateSet(playersByTeam)
-    }
-    
-    func playerDictionaryIntegrate(_ playerDictionary: [PlayerID:PlayerObject], replaceExistingValue: Bool) {
-        self.playerDictionary.integrate(playerDictionary, replaceExistingValue: replaceExistingValue)
-    }
-    
-    func teamDictionaryIntegrate(_ teamDictionary: [TeamID:TeamObject], replaceExistingValue: Bool) {
-        self.teamDictionary.integrate(teamDictionary, replaceExistingValue: replaceExistingValue)
-    }
-    
-    func transfersByTeamIntegrate(_ transfersByTeam: [TeamID:Set<TransferID>]) {
-        self.transfersByTeam.integrateSet(transfersByTeam)
-    }
-    
-    func transferDictionaryIntegrate(_ transferDictionary: [TransferID:TransferObject], replaceExistingValue: Bool) {
-        self.transferDictionary.integrate(transferDictionary, replaceExistingValue: replaceExistingValue)
+    func integrate<T, U>(type: CacheDictionary, dictionary: Dictionary<T, U>, replaceExistingValue replace: Bool) {
+        switch type {
+        case .injuryDictionary:
+            guard let dictionary = dictionary as? InjuryDictionary else { fatalError() }
+            self.injuryDictionary.integrate(dictionary, replaceExistingValue: replace)
+            print("WARNING: Cached - integrate - QuickCache not implemented for \(type.rawValue)")
+        case .leagueDictionary:
+            guard let dictionary = dictionary as? LeagueDictionary else { fatalError() }
+            leagueDictionary.integrate(dictionary, replaceExistingValue: replace)
+            QuickCache.helper.set(.leagueDictionary, dictionary: leagueDictionary)
+        case .matchesDictionary:
+            guard let dictionary = dictionary as? MatchesDictionary else { fatalError() }
+            matchesDictionary.integrate(dictionary, replaceExistingValue: replace)
+            QuickCache.helper.set(.matchesDictionary, dictionary: matchesDictionary)
+        case .playerDictionary:
+            guard let dictionary = dictionary as? PlayerDictionary else { fatalError() }
+            playerDictionary.integrate(dictionary, replaceExistingValue: replace)
+            print("WARNING: Cached - integrate - QuickCache not implemented for \(type.rawValue)")
+        case .teamDictionary:
+            guard let dictionary = dictionary as? TeamDictionary else { fatalError() }
+            teamDictionary.integrate(dictionary, replaceExistingValue: replace)
+            QuickCache.helper.set(.teamDictionary, dictionary: teamDictionary)
+        case .transferDictionary:
+            guard let dictionary = dictionary as? TransferDictionary else { fatalError() }
+            transferDictionary.integrate(dictionary, replaceExistingValue: replace)
+            print("WARNING: Cached - integrate - QuickCache not implemented for \(type.rawValue)")
+        case .favoriteTeamsDictionary:
+            guard let dictionary = dictionary as? TeamDictionary else { fatalError() }
+            favoriteTeamsDictionary.integrate(dictionary, replaceExistingValue: replace)
+            QuickCache.helper.set(.favoriteTeamsDictionary, dictionary: teamDictionary)
+        case .favoriteLeaguesDictionary:
+            guard let dictionary = dictionary as? LeagueDictionary else { fatalError() }
+            favoriteLeaguesDictionary.integrate(dictionary, replaceExistingValue: replace)
+            QuickCache.helper.set(.favoriteLeaguesDictionary, dictionary: leagueDictionary)
+        }
     }
     
     func retrieveImage(from string: String) -> UIImage? {
@@ -404,36 +428,6 @@ actor Cached {
     }
 }
 
-/*
-func callTeamDictionary(_ key: TeamID, _ value: TeamObject, source: String) {
-    print("---")
-    print("\(source) - add \(value) to teamDictionary with key \(key)")
-    print("\(source) - \(value) -  Value found in dictionary before adding - \(Cached.teamDictionary[key])")
-    print("\(source) - \(value) -  Count of items in dictionary before adding \(Cached.teamDictionary.count)")
-    Cached.teamDictionary.addIfNoneExists(value, key: key)
-    print("\(source) - \(value) -  Value found in dictionary after adding - \(Cached.teamDictionary[key])")
-    print("\(source) - \(value) -  Count of items in dictionary after adding \(Cached.teamDictionary.count)")
-    print()
-}
-*/
-
-/*
-actor CachedMatchesActor {
-    
-    static var helper = CachedMatchesActor()
-    
-    @Cache(key: "*Match Dictionary", defaultValue: [:]) var matchesDictionary: MatchesDictionary
-    
-    func getMatchesDictionary() -> [MatchUniqueID:MatchObject] {
-        return self.matchesDictionary
-    }
-    
-    func matchesDictionaryIntegrate(_ matchesDictionary: [MatchUniqueID:MatchObject], replaceExistingValue: Bool) {
-        self.matchesDictionary.integrate(matchesDictionary, replaceExistingValue: replaceExistingValue)
-    }
-}
- */
-
 
 /*
  QuickCache allows READ ONLY access to the cache. Upon initializing, data is retrieved directly from the cache. Later throughout usage, the "Cached" actor updates QuickCache. The only time QuickCache accesses the Cache directly is at initialization (to prevent data races).
@@ -442,30 +436,72 @@ class QuickCache {
     
     static var helper = QuickCache()
     
-    var matchesDictionary: MatchesDictionary = [:]
-    var matchesByDateSet: MatchesByDateDictionary = [:]
-    var matchesByLeagueSet: MatchesByLeagueDictionary = [:]
-    var matchesByTeam: MatchesByTeamDictionary = [:]
+    private(set) var matchesDictionary: MatchesDictionary = [:]
+    private(set) var matchesByDateDictionary: MatchesByDateDictionary = [:]
+    private(set) var matchesByLeagueDictionary: MatchesByLeagueDictionary = [:]
+    private(set) var matchesByTeamDictionary: MatchesByTeamDictionary = [:]
     
-    var teamDictionary: TeamDictionary = [:]
+    private(set) var teamDictionary: TeamDictionary = [:]
     
-    var leagueDictionary: LeagueDictionary = [:]
+    private(set) var leagueDictionary: LeagueDictionary = [:]
     
-    var favoriteLeagues: LeagueDictionary = [:]
-    var favoriteTeams: TeamDictionary = [:]
+    private(set) var favoriteLeaguesDictionary: LeagueDictionary = [:]
+    private(set) var favoriteTeamsDictionary: TeamDictionary = [:]
     
     func getInitialData() {
-        retrieveDataManually(key: StoredKeys.matchesDictionary.rawValue, dictionary: &self.matchesDictionary)
-        retrieveDataManually(key: StoredKeys.matchesByDateSet.rawValue, dictionary: &self.matchesByDateSet)
-        retrieveDataManually(key: StoredKeys.matchesByLeagueSet.rawValue, dictionary: &self.matchesByLeagueSet)
-        retrieveDataManually(key: StoredKeys.matchesByTeam.rawValue, dictionary: &self.matchesByTeam)
+        retrieveDataManually(key: CachedDictionaryType.matchesDictionary.rawValue, dictionary: &self.matchesDictionary)
+        retrieveDataManually(key: CachedDictionaryType.matchesByDateDictionary.rawValue, dictionary: &self.matchesByDateDictionary)
+        retrieveDataManually(key: CachedDictionaryType.matchesByLeagueDictionary.rawValue, dictionary: &self.matchesByLeagueDictionary)
+        retrieveDataManually(key: CachedDictionaryType.matchesByTeamDictionary.rawValue, dictionary: &self.matchesByTeamDictionary)
         
-        retrieveDataManually(key: StoredKeys.teamDictionary.rawValue, dictionary: &self.teamDictionary)
+        retrieveDataManually(key: CachedDictionaryType.teamDictionary.rawValue, dictionary: &self.teamDictionary)
         
-        retrieveDataManually(key: StoredKeys.leagueDictionary.rawValue, dictionary: &self.leagueDictionary)
+        retrieveDataManually(key: CachedDictionaryType.leagueDictionary.rawValue, dictionary: &self.leagueDictionary)
         
-        retrieveDataManually(key: StoredKeys.favoriteLeagues.rawValue, dictionary: &self.favoriteLeagues)
-        retrieveDataManually(key: StoredKeys.favoriteTeams.rawValue, dictionary: &self.favoriteTeams)
+        retrieveDataManually(key: CachedDictionaryType.favoriteLeaguesDictionary.rawValue, dictionary: &self.favoriteLeaguesDictionary)
+        retrieveDataManually(key: CachedDictionaryType.favoriteTeamsDictionary.rawValue, dictionary: &self.favoriteTeamsDictionary)
+    }
+    
+    func set<T,U>(_ type: CachedDictionaryType, dictionary: Dictionary<T, U>) {
+        
+        switch type {
+        case .favoriteLeaguesDictionary:
+            guard let dictionary = dictionary as? LeagueDictionary else { fatalError() }
+            self.favoriteLeaguesDictionary = dictionary
+        case .favoriteTeamsDictionary:
+            guard let dictionary = dictionary as? TeamDictionary else { fatalError() }
+            self.favoriteTeamsDictionary = dictionary
+        case .injuriesByTeamDictionary:
+            print("QuickCache - Set - Dictionary Not configured for \(type)")
+        case .leagueDictionary:
+            guard let dictionary = dictionary as? LeagueDictionary else { fatalError() }
+            self.leagueDictionary = dictionary
+        case .matchesByDateDictionary:
+            guard let dictionary = dictionary as? MatchesByDateDictionary else { fatalError() }
+            self.matchesByDateDictionary = dictionary
+        case .matchesByLeagueDictionary:
+            guard let dictionary = dictionary as? MatchesByLeagueDictionary else { fatalError() }
+            self.matchesByLeagueDictionary = dictionary
+        case .matchesByTeamDictionary:
+            guard let dictionary = dictionary as? MatchesByTeamDictionary else { fatalError() }
+            self.matchesByTeamDictionary = dictionary
+        case .matchesDictionary:
+            guard let dictionary = dictionary as? MatchesDictionary else { fatalError() }
+            self.matchesDictionary = dictionary
+        case .playersByTeamDictionary:
+            print("QuickCache - Set - Dictionary Not configured for \(type)")
+        case .playerDictionary:
+            print("QuickCache - Set - Dictionary Not configured for \(type)")
+        case .teamDictionary:
+            guard let dictionary = dictionary as? TeamDictionary else { fatalError() }
+            self.teamDictionary = dictionary
+        case .transfersByTeamDictionary:
+            print("QuickCache - Set - Dictionary Not configured for \(type)")
+        case .transferDictionary:
+            print("QuickCache - Set - Dictionary Not configured for \(type)")
+        case .injuryDictionary:
+            print("QuickCache - Set - Dictionary Not configured for \(type)")
+        }
     }
     
     func retrieveDataManually<T: Decodable, U: Decodable>(key: String, dictionary: inout Dictionary<T, U>) {
@@ -487,9 +523,9 @@ class QuickCache {
     
     func updateMatches() async {
         matchesDictionary = await Cached.data.matchesDictionary
-        matchesByDateSet = await Cached.data.matchesByDateSet
-        matchesByLeagueSet = await Cached.data.matchesByLeagueSet
-        matchesByTeam = await Cached.data.matchesByTeam
+        matchesByDateDictionary = await Cached.data.matchesByDateDictionary
+        matchesByLeagueDictionary = await Cached.data.matchesByLeagueDictionary
+        matchesByTeamDictionary = await Cached.data.matchesByTeamDictionary
     }
     
     func updateTeams() async {
@@ -502,7 +538,7 @@ class QuickCache {
     
     
     func updateFavorites() async {
-        favoriteLeagues = await Cached.data.favoriteLeagues
-        favoriteTeams = await Cached.data.favoriteTeams
+        favoriteLeaguesDictionary = await Cached.data.favoriteLeaguesDictionary
+        favoriteTeamsDictionary = await Cached.data.favoriteTeamsDictionary
     }
 }

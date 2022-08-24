@@ -80,10 +80,10 @@ class MatchObject: Codable {
         let awayTeam = TeamObject(getMatchInfoTeam: getMatchesStructure.teams.away)
         
         Task.init {
-            await Cached.data.teamDictionaryAddIfNoneExists(homeTeam, key: getMatchesStructure.teams.home.id)
-            await Cached.data.teamDictionaryAddIfNoneExists(awayTeam, key: getMatchesStructure.teams.away.id)
+           await Cached.data.addIfNoneExists(.teamDictionary, homeTeam, key: getMatchesStructure.teams.home.id)
+           await Cached.data.addIfNoneExists(.teamDictionary, awayTeam, key: getMatchesStructure.teams.away.id)
             
-            await Cached.data.leagueDictionaryAddIfNoneExists(LeagueObject(getMatchInformationLeague: getMatchesStructure.league), key: getMatchesStructure.league.id)
+           await Cached.data.addIfNoneExists(.leagueDictionary, LeagueObject(getMatchInformationLeague: getMatchesStructure.league), key: getMatchesStructure.league.id)
         }
     }
 }

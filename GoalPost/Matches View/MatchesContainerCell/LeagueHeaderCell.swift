@@ -98,7 +98,7 @@ class LeagueHeaderCell: UICollectionViewCell {
     
     // 4
     func setUpColors() {
-        self.backgroundColor = UIColor.clear//Colors.teamDataStackCellBackgroundColor
+        self.backgroundColor = UIColor.clear
         self.layer.borderColor = Colors.teamDataStackCellTextColor.cgColor
         self.layer.borderWidth = 1
         nameLabel.textColor = Colors.teamDataStackCellTextColor
@@ -131,7 +131,7 @@ class LeagueHeaderCell: UICollectionViewCell {
         Task.init {
             guard let objectContainer = objectContainer else { return }
             
-            if let league = await objectContainer.league() {
+            if let league = objectContainer.league {
                 nameLabel.text = league.name
                 await loadImage(for: league)
             }

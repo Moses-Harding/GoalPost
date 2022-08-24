@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class MatchesCell: UICollectionViewListCell {
+class DeprecatedMatcheCell: UICollectionViewListCell {
     
     var match: MatchObject?
     

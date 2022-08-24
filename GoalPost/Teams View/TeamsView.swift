@@ -200,13 +200,11 @@ extension TeamsView: TeamsViewDelegate {
     func refresh(calledBy function: String, expandingCell id: Int? = nil) {
         
         print("TeamsView - Refreshing - called by \(function)")
-        
-        Task.init {
             
             // 1. Retrieve all teams from cache. It must be async to deal with concurrency issues.
             var foundTeams = [TeamObject]()
             
-            for team in await Cached.data.getFavoriteTeams().sorted(by: { $0.value.name < $1.value.name }) {
+            for team in QuickCache.helper.favoriteTeamsDictionary.sorted(by: { $0.value.name < $1.value.name }) {
                 foundTeams.append(team.value)
             }
             
@@ -219,8 +217,7 @@ extension TeamsView: TeamsViewDelegate {
             snapShot.applyDifferences(newItems: foundTeams)
 
             // 3. Apply to datasource
-            await dataSource.apply(snapShot, to: .main, animatingDifferences: true)
-        }
+            dataSource.apply(snapShot, to: .main, animatingDifferences: true)
     }
 
     func refresh(cell id: Int?) {

@@ -146,11 +146,14 @@ class TeamCollectionCell: UICollectionViewCell {
     
     // 4
     func setUpColors() {
-        self.backgroundColor = Colors.teamCellViewBackgroundColor
+        self.backgroundColor = UIColor.clear
+        self.layer.borderColor = Colors.teamDataStackCellTextColor.cgColor
+        self.layer.borderWidth = 1
+        nameLabel.textColor = Colors.teamDataStackCellTextColor
+        
         removalButton.backgroundColor = Colors.teamCellRemovalButtonBackgroundColor
         removalButton.layer.borderColor = Colors.teamCellRemovalButtonBorderColor.cgColor
         removalButton.setTitleColor(UIColor.white, for: .normal)
-        nameLabel.textColor = .white
     }
     
     // MARK: Externally Triggered
@@ -171,6 +174,7 @@ class TeamCollectionCell: UICollectionViewCell {
                     await self.teamDataStack.manualRefresh()
                 }
             }
+            nameLabel.textColor = .white
         } else if !isSelected {
             self.openConstraint?.isActive = false
             self.closedConstraint?.isActive = true
@@ -182,6 +186,7 @@ class TeamCollectionCell: UICollectionViewCell {
                 self.layoutIfNeeded()
                 
             })
+            nameLabel.textColor = Colors.teamDataStackCellTextColor
         }
     }
     

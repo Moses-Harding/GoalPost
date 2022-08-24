@@ -11,7 +11,7 @@ import Foundation
 import UIKit
 import GoogleMobileAds
 
-class MatchesView: UIView {
+class DeprecatedMatchesView: UIView {
     
     // MARK: Views
     
@@ -165,15 +165,15 @@ class MatchesView: UIView {
             var dataSourceSnapshot = NSDiffableDataSourceSnapshot<MatchesSectionDataContainer, MatchesCellType>()
             
             // Get only the matches for the current date
-            let matchesByDay = await Cached.data.matchesByDateSet(date.asKey) ?? Set<MatchUniqueID>()
+            let matchesByDay = QuickCache.helper.matchesByDateDictionary[date.asKey] ?? Set<MatchUniqueID>()
             
             var leagueMatchDictionary = [LeagueID:Set<MatchUniqueID>]()
             var leagueDataContainers = [MatchesSectionDataContainer]()
             
             // For each league
-            for leagueId in await Cached.data.favoriteLeagues.keys {
+            for leagueId in QuickCache.helper.favoriteLeaguesDictionary.keys {
                 // Get all of the matches for the league
-                guard let leagueSet = await Cached.data.matchesByLeagueSet[leagueId], let league = await Cached.data.leagueDictionary[leagueId] else {
+                guard let leagueSet = await Cached.data.matchesByLeagueDictionary[leagueId], let league = await Cached.data.leagueDictionary[leagueId] else {
                     continue
                 }
                 
@@ -194,9 +194,9 @@ class MatchesView: UIView {
             
             
             // Get all favorite matches by iterating over each favorite team
-            let matchesByTeamDictionary = await Cached.data.getMatchesByTeamDictionary()
+            let matchesByTeamDictionary = QuickCache.helper.matchesByTeamDictionary
             var allFavoriteMatches: Set<MatchUniqueID> = []
-            for team in await Cached.data.getFavoriteTeams() {
+            for team in QuickCache.helper.favoriteTeamsDictionary {
                 if let newSet = matchesByTeamDictionary[team.key] {
                     allFavoriteMatches = allFavoriteMatches.union(newSet)
                 } else {
@@ -324,12 +324,12 @@ class MatchesView: UIView {
     //NOTE: Configuration of cell body: https://swiftsenpai.com/development/uicollectionview-list-custom-cell/
 }
 
-extension MatchesView: UICollectionViewDelegate {
+extension DeprecatedMatchesView: UICollectionViewDelegate {
     
 }
 
 //MARK: Button Actions
-extension MatchesView {
+extension DeprecatedMatchesView {
     
     @objc func nextDay() {
         
@@ -379,7 +379,7 @@ extension MatchesView {
 
 // MARK: Changes
 
-extension MatchesView {
+extension DeprecatedMatchesView {
     func changeDate(to date: Date) {
         dateLabel.text = DateFormatter.localizedString(from: date, dateStyle: .short, timeStyle: .none)
     }
@@ -387,13 +387,13 @@ extension MatchesView {
 
 // MARK: Protocols
 
-extension MatchesView: MatchesViewDelegate {
+extension DeprecatedMatchesView: MatchesViewDelegate {
     func refresh() {
         setUpDataSourceSnapshots(from: currentDate)
     }
 }
 
 // MARK: Extensions
-extension MatchesView: UIGestureRecognizerDelegate {
+extension DeprecatedMatchesView: UIGestureRecognizerDelegate {
     
 }

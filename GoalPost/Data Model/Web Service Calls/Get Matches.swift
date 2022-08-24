@@ -92,7 +92,7 @@ class GetMatches {
         
         note(fileName: "Get Matches", "Number of results - \(results.response.count)")
         
-        let favoriteLeagues = await Cached.data.favoriteLeagues
+        let favoriteLeagues = await Cached.data.favoriteLeaguesDictionary
         
         for result in results.response {
             
