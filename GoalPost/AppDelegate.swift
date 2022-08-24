@@ -10,14 +10,13 @@ import UIKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
         // Initialize Ads
         GAD.helper.initialize()
         
+        print("AppDelegate - DidFinishLoading")
         return true
     }
     
@@ -29,7 +28,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             await CachedTeams.helper.update()
             await CachedLeagues.helper.update()
             await CachedFavorites.helper.update()
+            print("AppDelegate - WillFinishLaunching Async Complete")
         }
+        print("AppDelegate - WillFinishLaunching Complete")
         return true
     }
 

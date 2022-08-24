@@ -69,12 +69,16 @@ class MatchesView2: UIView, UIGestureRecognizerDelegate {
     init() {
         super.init(frame: CGRect.zero)
         
+        print("MatchesView - init")
+        
         setUpUI()
         setUpCollectionView()
         setUpDataSource()
         setUpColors()
         setUpGestures()
         applyData()
+        
+        print("MatchesView - init complete")
     }
     
     required init?(coder: NSCoder) {

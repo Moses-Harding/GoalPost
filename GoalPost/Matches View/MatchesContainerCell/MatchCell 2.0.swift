@@ -130,14 +130,12 @@ class MatchCell: UICollectionViewCell {
         
         allFixedConstraints.forEach { $0?.isActive = false }
 
-        /*
         cellHeightConstraint = mainStack.heightAnchor.constraint(greaterThanOrEqualToConstant: 75)
 
         homeImageHeightConstraint = homeImageView.heightAnchor.constraint(equalToConstant: 20)
         homeImageWidthConstraint = homeImageView.widthAnchor.constraint(equalToConstant: 20)
         awayImageHeightConstraint = awayImageView.heightAnchor.constraint(equalToConstant: 20)
         awayImageWidthConstraint = awayImageView.widthAnchor.constraint(equalToConstant: 20)
-         */
         
         allFixedConstraints.forEach { $0?.isActive = true }
     }
@@ -218,10 +216,8 @@ class MatchCell: UICollectionViewCell {
             vsLabel.text = "-"
             vsLabel.sizeToFit()
             
-            /*
             loadImage(for: homeTeam, teamType: .home)
             loadImage(for: awayTeam, teamType: .away)
-             */
         }
     }
     

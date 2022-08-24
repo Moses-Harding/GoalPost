@@ -469,7 +469,9 @@ class CachedMatches {
     var playersByTeam: PlayersByTeamDictionary = [:]
     
     init() {
+        print("Cached Matches - Init")
         Task.init {
+            print("Cached Matches - Initializing")
             matchesDictionary = await Cached.data.matchesDictionary
             matchesByDateSet = await Cached.data.matchesByDateSet
             matchesByLeagueSet = await Cached.data.matchesByLeagueSet
@@ -478,10 +480,12 @@ class CachedMatches {
             injuriesByTeam = await Cached.data.injuriesByTeam
             transfersByTeam = await Cached.data.transfersByTeam
             playersByTeam = await Cached.data.playersByTeam
+            print("Cached Matches - Initializing complete")
         }
     }
     
     func update() async {
+        print("Cached Matches - updating")
         matchesDictionary = await Cached.data.matchesDictionary
         matchesByDateSet = await Cached.data.matchesByDateSet
         matchesByLeagueSet = await Cached.data.matchesByLeagueSet
@@ -490,6 +494,7 @@ class CachedMatches {
         injuriesByTeam = await Cached.data.injuriesByTeam
         transfersByTeam = await Cached.data.transfersByTeam
         playersByTeam = await Cached.data.playersByTeam
+        print(matchesByDateSet[Date.now.asKey])
     }
 }
 
