@@ -157,7 +157,6 @@ class TeamsView: UIView {
         
         var snapshot = NSDiffableDataSourceSnapshot<Section, TeamObject>()
         snapshot.appendSections([.main])
-        //snapshot.appendItems(foundTeams)
         dataSource?.apply(snapshot)
     }
     
@@ -224,7 +223,7 @@ extension TeamsView: TeamsViewDelegate {
         if let teamId = id {
             for item in 0 ... collectionView.numberOfItems(inSection: 0) - 1 {
                 let path = IndexPath(item: item, section: 0)
-                guard let teamCell = collectionView.cellForItem(at: path) as? TeamCollectionCell else {
+                guard let teamCell = collectionView.cellForItem(at: path) as? DEPRECATEDTeamCollectionCell else {
                     print("Could not cast \(path) as a teamcollectioncell")
                     continue }
                 if teamCell.teamInformation?.id == teamId {

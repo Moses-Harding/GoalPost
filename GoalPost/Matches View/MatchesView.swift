@@ -30,6 +30,8 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
     var collectionArea = UIView()
     var buttonArea = UIView()
     
+    var noMatchesView = UIView()
+    
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCollectionViewLayout())
     
     // MARK: Buttons
@@ -53,12 +55,31 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
     // MARK: Labels
     
     var dateLabel = UILabel()
+    var noMatchesLabel: UILabel = {
+        let label = UILabel()
+        label.text = "There are no matches for your preferred leagues."
+        label.textColor = Colors.gray.hex4A5759
+        let font = UIFont.systemFont(ofSize: 24, weight: .thin)
+        label.font = font
+        label.textAlignment = .center
+        label.numberOfLines = -1
+        return label
+    } ()
     
     // MARK: Data
     
     var currentDate = Date()
     
     var dataSource: UICollectionViewDiffableDataSource<ObjectContainer, ObjectContainer>!
+    
+    var noMatchesForCurrentDay: Bool = false {
+        willSet {
+            noMatchesView.isHidden = !newValue
+            collectionArea.isHidden = newValue
+            
+            
+        }
+    }
     
     // MARK: Gestures
     
@@ -92,7 +113,12 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
         
         self.constrain(mainStack, safeAreaLayout: true)
         mainStack.add(children: [(dateArea, 0.075), (collectionArea, 0.9)])
+        self.constrain(noMatchesView, using: .edges, padding: 10, safeAreaLayout: true, debugName: "NoMatchesView to MatchesView")
+        noMatchesView.layer.zPosition = mainStack.layer.zPosition + 10
+        
         collectionArea.constrain(collectionView)
+        noMatchesView.constrain(noMatchesLabel, using: .edges, padding: 20, safeAreaLayout: true, debugName: "No matches label to no matches view")
+        //noMatchesLabel.topAnchor.constraint(equalTo: noMatchesView.topAnchor, constant: 100).isActive = true
         
         // Date
         dateLabel.text = DateFormatter.localizedString(from: currentDate, dateStyle: .medium, timeStyle: .none)
@@ -204,35 +230,16 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
         
         guard let dataSource = dataSource else { return }
         
+        var matchCount = 0
+        
+        var leagueMatchDict = [ObjectContainer:[ObjectContainer]]()
+        
         // Get favorite leagues and sort
         var leagues = [ObjectContainer]()
         leagues.append(ObjectContainer(favoriteLeague: true))
-        let favoriteLeagues = QuickCache.helper.favoriteLeaguesDictionary
+        var favoriteLeagues = QuickCache.helper.favoriteLeaguesDictionary
         for (leagueID, leagueObject) in favoriteLeagues.sorted(by: {$0.value.name < $1.value.name}) {
-            leagues.append(ObjectContainer(leagueId: leagueID, name: leagueObject.name))
-        }
-        
-        // Add favorite leagues as section headers to snapshot
-        var snapShot = dataSource.snapshot()
-        snapShot.applyDifferences(newSections: leagues)
-        dataSource.apply(snapShot)
-        
-        // For each league, get the relevant matches
-        for league in leagues {
-            
-            var leagueID: LeagueID
-            
-            if league.favoriteLeague {
-                leagueID = DefaultIdentifier.favoriteTeam.rawValue
-            } else if let id = league.leagueId {
-                leagueID = id
-            } else {
-                print("MatchesView - could not get id for \(league)")
-                continue
-            }
-            
-            var sectionSnapShot = dataSource.snapshot(for: league)
-            //sectionSnapShot.append([league])
+            let leagueObjectContainer = ObjectContainer(leagueId: leagueID, name: leagueObject.name)
             
             // Get matches for current day + current league
             var matches = [ObjectContainer]()
@@ -244,18 +251,46 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
                 matches.append(object)
             }
             
-            // Sort Matches
-            matches.sort { $0.matchId ?? "" < $1.matchId ?? "" }
+            matchCount += matches.count
             
             guard !matches.isEmpty else { continue }
             
+            leagues.append(leagueObjectContainer)
             
-            // Apply the matches to the section snapshot
+            // Sort Matches
+            matches.sort { $0.matchId ?? "" < $1.matchId ?? "" }
+            leagueMatchDict[leagueObjectContainer] = matches
+        }
+        
+        // Add favorite leagues as section headers to snapshot
+        var snapShot = dataSource.snapshot()
+        snapShot.applyDifferences(newSections: leagues)
+        dataSource.apply(snapShot)
+        
+        // For each league, get the relevant matches
+        for league in leagues {
+            
+            let leagueID: LeagueID
+            
+            if league.favoriteLeague {
+                leagueID = DefaultIdentifier.favoriteTeam.rawValue
+            } else if let id = league.leagueId {
+                leagueID = id
+            } else {
+                print("MatchesView - could not get id for \(league)")
+                continue
+            }
+            
+            var sectionSnapShot = dataSource.snapshot(for: league)
+            
+            guard let matches = leagueMatchDict[league] else { continue }
 
             sectionSnapShot.applyDifferences(newItems: [league] + matches)
             sectionSnapShot.expand([league])
             dataSource.apply(sectionSnapShot, to: league, animatingDifferences: true)
         }
+        
+        noMatchesForCurrentDay = matchCount == 0
     }
     
     @objc func updateMatches() {
@@ -318,10 +353,9 @@ extension MatchesView {
 extension MatchesView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        print("Did select")
-        
         guard let cell = collectionView.cellForItem(at: indexPath) as? MatchCell, let match = cell.objectContainer else { return }
         
+        print("MatchesView - Cell selected - score below:")
         print(match.match?.homeTeamScore, match.match?.awayTeamScore)
     }
 }

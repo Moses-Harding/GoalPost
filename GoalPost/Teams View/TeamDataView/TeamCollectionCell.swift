@@ -1,8 +1,8 @@
 //
-//  TeamsCollectionCell.swift
+//  TeamCollectionCell 2.0.swift
 //  GoalPost
 //
-//  Created by Moses Harding on 5/16/22.
+//  Created by Moses Harding on 8/15/22.
 //
 
 import Foundation
@@ -56,23 +56,6 @@ class TeamCollectionCell: UICollectionViewCell {
     
     var titleStack = UIStackView(.horizontal)
     
-    var bodyStack = UIStackView(.vertical)
-    var removalButtonStack = UIStackView(.horizontal)
-    var teamDataStack: TeamDataStack!
-    
-    var closedConstraint: NSLayoutConstraint?
-    var openConstraint: NSLayoutConstraint?
-    
-    // Buttons
-    let removalButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("Remove Team", for: .normal)
-        button.layer.borderWidth = 2
-        button.layer.cornerRadius = 5
-        button.addTarget(self, action: #selector(removeTeam), for: .touchUpInside)
-        return button
-    } ()
-    
     // MARK: - Init
     
     override init(frame: CGRect) {
@@ -93,25 +76,14 @@ class TeamCollectionCell: UICollectionViewCell {
         
         setUpMainStack()
         setUpTitleStack()
-        setUpBodyStack()
         setUpColors()
     }
     
     // 1
     func setUpMainStack() {
         let padding: CGFloat = 5
-        contentView.constrain(mainStack, using: .edges, padding: padding, except: [.bottom], debugName: "Main Stack to Content View - Team Collection Cell")
-        mainStack.add([titleStack, bodyStack])
-        
-        closedConstraint =
-        titleStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -padding)
-        closedConstraint?.priority = .defaultLow // use low priority so stack stays pinned to top of cell
-        
-        openConstraint =
-        bodyStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: padding)
-        openConstraint?.priority = .defaultLow
-        
-        closedConstraint?.isActive = true
+        contentView.constrain(mainStack, using: .edges, padding: padding, debugName: "Main Stack to Content View - Team Collection Cell")
+        mainStack.add([titleStack])
     }
     
     // 2
@@ -130,19 +102,7 @@ class TeamCollectionCell: UICollectionViewCell {
         teamLogo.heightAnchor.constraint(equalToConstant: 25).isActive = true
         teamLogo.widthAnchor.constraint(equalToConstant: 25).isActive = true
     }
-    
-    // 3
-    func setUpBodyStack() {
-        
-        teamDataStack = TeamDataStack(team: self.teamInformation)
-        bodyStack.add(children: [(UIView(), 0.05), (removalButtonStack, nil), (UIView(), 0.05), (teamDataStack, nil), (UIView(), 0.05)])
-        
-        removalButtonStack.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        
-        removalButtonStack.add(children: [(UIView(), 0.2), (removalButton, nil), (UIView(), 0.2)])
-        
-        bodyStack.isHidden = true
-    }
+
     
     // 4
     func setUpColors() {
@@ -150,10 +110,6 @@ class TeamCollectionCell: UICollectionViewCell {
         self.layer.borderColor = Colors.teamDataStackCellTextColor.cgColor
         self.layer.borderWidth = 1
         nameLabel.textColor = Colors.teamDataStackCellTextColor
-        
-        removalButton.backgroundColor = Colors.teamCellRemovalButtonBackgroundColor
-        removalButton.layer.borderColor = Colors.teamCellRemovalButtonBorderColor.cgColor
-        removalButton.setTitleColor(UIColor.white, for: .normal)
     }
     
     // MARK: Externally Triggered
@@ -161,32 +117,13 @@ class TeamCollectionCell: UICollectionViewCell {
     func updateAppearance() {
         
         if isSelected {
-            self.openConstraint?.isActive = true
-            self.closedConstraint?.isActive = false
-            self.bodyStack.alpha = 1
-            
-            UIView.animate(withDuration: 0.3, animations: {
-                self.layoutIfNeeded()
-                
-            }) { _ in
-                Task.init {
-                    self.bodyStack.isHidden = false
-                    await self.teamDataStack.manualRefresh()
-                }
+            let viewController = TeamDataViewController()
+            teamsViewDelegate?.present(viewController) {
+                viewController.teamDataView.team = self.teamInformation
+                viewController.teamsViewDelegate = self.teamsViewDelegate
             }
-            nameLabel.textColor = .white
-        } else if !isSelected {
-            self.openConstraint?.isActive = false
-            self.closedConstraint?.isActive = true
-            
-            self.bodyStack.alpha = 0
-            
-            UIView.animate(withDuration: 0.3, animations: {
-                self.bodyStack.isHidden = true
-                self.layoutIfNeeded()
-                
-            })
-            nameLabel.textColor = Colors.teamDataStackCellTextColor
+        } else {
+            print("Not selected")
         }
     }
     
@@ -195,14 +132,7 @@ class TeamCollectionCell: UICollectionViewCell {
         guard let teamInfo = teamInformation else { return }
         Task.init {
             nameLabel.text = teamInfo.name
-            foundedLabel.text = "Founded: \(teamInfo.founded ?? 0)"
-            countryLabel.text = "Country: \(teamInfo.country ?? "")"
-            codeLabel.text = "Code: \(teamInfo.code ?? "")"
-            nationalLabel.text = "National: \(teamInfo.national)"
-            
             await loadImage(for: teamInfo)
-            
-            teamDataStack.team = teamInformation
         }
     }
     
@@ -237,15 +167,6 @@ class TeamCollectionCell: UICollectionViewCell {
     }
     
     override func prepareForReuse() {
-        teamDataStack.clearCollectionView()
-    }
-}
 
-extension TeamCollectionCell {
-    @objc func removeTeam() {
-        print("TeamCollectionCell - Removing team")
-        guard let delegate = teamsViewDelegate, let team = self.teamInformation else { fatalError("No delegate passed to team collection cell") }
-
-        delegate.remove(team: team)
     }
 }

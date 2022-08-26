@@ -26,7 +26,7 @@ NOTE: As of 8/4/22, only the matches section is included.
  
  */
 
-class TeamDataStack: UIStackView {
+class DEPRECATEDTeamDataStack: UIStackView {
     
     
     var dataSource: UICollectionViewDiffableDataSource<TeamDataObjectType, ObjectContainer>?
@@ -202,7 +202,7 @@ class TeamDataStack: UIStackView {
     }
 }
 
-extension TeamDataStack {
+extension DEPRECATEDTeamDataStack {
 
     func clearCollectionView() {
         guard let dataSource = self.dataSource else { return }
@@ -251,7 +251,7 @@ extension TeamDataStack {
         var position: Int = 0
         var index: Int = 0
         
-        for matchId in matchIDs.sorted(by: { $0 < $1 } ) {
+        for matchId in matchIDs.sorted(by: < ) {
             matches.append(ObjectContainer(matchId: matchId))
             if let matchDate = Double(String(matchId.split(separator: "|")[0])) {
                 if matchDate < Date.now.timeIntervalSince1970 {
@@ -296,7 +296,7 @@ extension TeamDataStack {
      */
 }
 
-extension TeamDataStack {
+extension DEPRECATEDTeamDataStack {
     
     // VERSION 2
     

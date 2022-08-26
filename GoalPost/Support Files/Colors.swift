@@ -60,6 +60,11 @@ struct Colors {
     
     static var statusRed = red.hexFE5F55
     static var statusGreen = green.hex5C996C
+    
+    static var primaryGreen = green.hex18EE88
+    static var secondaryGreen = green.hex5C996C
+    
+    static var primaryGray = gray.hex1C1F1C
 }
 
 struct GreenColors {
@@ -87,7 +92,7 @@ struct GrayColors {
     var hex1C1F1C = UIColor(red: 0.11, green: 0.12, blue: 0.11, alpha: 1.00)
     var hex313531 = UIColor(red: 0.19, green: 0.21, blue: 0.19, alpha: 1.00)
     //var hexCACECA = UIColor(red: 0.79, green: 0.81, blue: 0.79, alpha: 1.00)
-    //var hex4A5759 = UIColor(red: 0.29, green: 0.34, blue: 0.35, alpha: 1.00)
+    var hex4A5759 = UIColor(red: 0.29, green: 0.34, blue: 0.35, alpha: 1.00)
     //var hexF7F5F5 = UIColor(red: 0.97, green: 0.96, blue: 0.96, alpha: 1.00)
 }
 
