@@ -51,7 +51,7 @@ class LeaguesViewController: UIViewController {
         super.viewDidAppear(animated)
         addAdView()
         
-        leaguesView.refresh()
+        leaguesView.refresh(calledBy: "LeaguesViewController - ViewDidAppear")
     }
     
     override func viewWillTransition(

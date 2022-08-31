@@ -8,182 +8,125 @@
 import Foundation
 import UIKit
 
-class LeagueCollectionCell: UICollectionViewListCell {
+class LeagueCollectionCell: UICollectionViewCell {
     
-    var leagueInformation: LeagueObject?
+    // MARK: - Public Properties
     
-    override func updateConfiguration(using state: UICellConfigurationState) {
-        
-        // Create background configuration for cell
-        var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
-        backgroundConfiguration.backgroundColor = .clear
-        self.backgroundConfiguration = backgroundConfiguration
-        
-        // Create new configuration object and update it base on state
-        var newConfiguration = LeagueContentConfiguration().updated(for: state)
-        
-        // Update any configuration parameters related to data item
-        newConfiguration.leagueInformation = leagueInformation
-        
-        // Set content configuration in order to update custom content view
-        contentConfiguration = newConfiguration
-    }
-}
-
-
-struct LeagueContentConfiguration: UIContentConfiguration, Hashable {
+    var leagueInformation: LeagueObject? { didSet { updateContent() } }
+    var leaguesViewDelegate: LeaguesViewDelegate?
+    override var isSelected: Bool { didSet { updateAppearance() } }
     
-    var leagueInformation: LeagueObject?
+    // MARK: - Private Properties
     
-    func makeContentView() -> UIView & UIContentView {
-        return LeagueContentView(configuration: self)
-    }
+    // Views
+    let logoArea = UIView()
+    let nameArea = UIView()
     
-    func updated(for state: UIConfigurationState) -> Self {
-        
-        // Perform update on parameters that are not related to cell's data itesm
-        
-        // Make sure we are dealing with instance of UICellConfigurationState
-        guard let state = state as? UICellConfigurationState else {
-            return self
-        }
-        
-        // Updater self based on the current state
-        var updatedConfiguration = self
-        if state.isSelected {
-            // Selected state
-        } else {
-            // Other states
-        }
-        
-        return updatedConfiguration
-    }
+    // Labels
+    let nameLabel = UILabel()
+    let foundedLabel = UILabel()
+    let countryLabel = UILabel()
+    let codeLabel = UILabel()
+    let nationalLabel = UILabel()
     
-}
-
-
-class LeagueContentView: UIView, UIContentView {
+    // Image
+    let leagueLogo = UIImageView()
     
-    // MARK: Labels
-    
-    var leagueLabel = UILabel()
-    var countryLabel = UILabel()
-    
-    // MARK: Images
-    
-    var leagueLogoView = UIView()
-    var leagueLogo = UIImageView()
-    
-    // MARK: Views
-    
+    // Stacks
     var mainStack = UIStackView(.vertical)
     
-    var topStack = UIStackView(.horizontal)
-    var bottomStack = UIStackView(.horizontal)
+    var titleStack = UIStackView(.horizontal)
     
-    private var currentConfiguration: LeagueContentConfiguration!
+    // MARK: - Init
     
-    //Allows easy application of a new configuration or retrieval of existing configuration
-    var configuration: UIContentConfiguration {
-        get {
-            currentConfiguration
-        }
-        set {
-            // Make sure the given configuration is correct type
-            guard let newConfiguration = newValue as? LeagueContentConfiguration else {
-                return
-            }
-            
-            // Apply the new configuration to SFSymbolVerticalContentView
-            // also update currentConfiguration to newConfiguration
-            apply(configuration: newConfiguration)
-        }
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setUp()
     }
     
-    
-    init(configuration: LeagueContentConfiguration) {
-        super.init(frame: .zero)
-        
-        // Create the content view UI
-        setupAllViews()
-        
-        
-        // Apply the configuration (set data to UI elements / define custom content view appearance)
-        apply(configuration: configuration)
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        setUp()
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    // MARK: - Set Up
+    
+    func setUp() {
+        
+        layer.cornerRadius = 8
+        
+        setUpMainStack()
+        setUpTitleStack()
+        setUpColors()
     }
     
-}
+    // 1
+    func setUpMainStack() {
+        let padding: CGFloat = 5
+        contentView.constrain(mainStack, using: .edges, padding: padding, debugName: "Main Stack to Content View - League Collection Cell")
+        mainStack.add([titleStack])
+    }
+    
+    // 2
+    func setUpTitleStack() {
+        titleStack.add(children: [(UIView(), 0.05), (nameArea, 0.8), (UIView(), nil), (logoArea, nil), (UIView(), 0.05)])
+        titleStack.alignment = .center
+        
+        nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - League Collection Cell")
+        
+        nameLabel.font = UIFont.boldSystemFont(ofSize: 24)
+        
+        logoArea.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        logoArea.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        logoArea.constrain(leagueLogo, except: [.height, .width], debugName: "LeagueLogo to Logo Area - League Collection Cell")
+        leagueLogo.heightAnchor.constraint(equalToConstant: 25).isActive = true
+        leagueLogo.widthAnchor.constraint(equalToConstant: 25).isActive = true
+    }
 
-private extension LeagueContentView {
     
-    private func setupAllViews() {
-        
-        addSubview(mainStack)
-        mainStack.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            mainStack.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor, constant: 1),
-            mainStack.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor, constant: 1),
-            mainStack.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor, constant: 1),
-            mainStack.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor, constant: 1),
-        ])
-        
-        mainStack.layer.borderWidth = 1
-        mainStack.layer.borderColor = Colors.searchResultViewBorderColor.cgColor
-        mainStack.layer.cornerRadius = 5
-        mainStack.backgroundColor = Colors.searchResultViewBackgroundColor
-        
-        let bottomSpacer = UIView()
-        
-        // MARK: Set up stacks
-        mainStack.add(children: [(UIView(), 0.15), (topStack, nil), (UIView(), nil), (bottomStack, 0.3), (UIView(), 0.15)])
-        
-        topStack.add(children: [(UIView(), 0.05), (leagueLogoView, nil), (UIView(), 0.05), (leagueLabel, nil), (UIView(), 0.05)])
-        bottomStack.add(children: [(UIView(), 0.05), (bottomSpacer, nil), (UIView(), 0.05), (countryLabel, nil), (UIView(), 0.05)])
-        
-        leagueLabel.textColor = Colors.searchResultViewTextColor
-        leagueLabel.adjustsFontSizeToFitWidth = true
-        countryLabel.textColor = Colors.searchResultViewSecondaryTextColor
-        countryLabel.adjustsFontSizeToFitWidth = true
-        
-        leagueLogoView.constrain(leagueLogo, using: .scale, except: [.height], debugName: "League Logo -> Constraint To League Logo View")
-        leagueLogo.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        leagueLogo.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        
-        bottomSpacer.widthAnchor.constraint(equalTo: leagueLogo.widthAnchor).isActive = true
+    // 4
+    func setUpColors() {
+        self.backgroundColor = UIColor.clear
+        self.layer.borderColor = Colors.teamDataStackCellTextColor.cgColor
+        self.layer.borderWidth = 1
+        nameLabel.textColor = Colors.teamDataStackCellTextColor
     }
     
-    private func apply(configuration: LeagueContentConfiguration) {
+    // MARK: Externally Triggered
+    
+    func updateAppearance() {
         
-        // Only apply configuration if new configuration and current configuration are not the same
-        guard currentConfiguration != configuration, let leagueInformation = configuration.leagueInformation else {
-            return
+        if isSelected {
+            let viewController = LeagueDataViewController()
+            leaguesViewDelegate?.present(viewController) {
+                viewController.leagueDataView.league = self.leagueInformation
+                viewController.leaguesViewDelegate = self.leaguesViewDelegate
+            }
+        } else {
+            print("Not selected")
         }
-        
-        // Replace current configuration with new configuration
-        currentConfiguration = configuration
-        
-        // Set data to UI elements
-        leagueLabel.text = leagueInformation.name
-        countryLabel.text = leagueInformation.country
-        
-        loadImage(for: leagueInformation)
     }
     
-    private func loadImage(for league: LeagueObject) {
+    func updateContent() {
+        
+        guard let leagueInfo = leagueInformation else { return }
+        Task.init {
+            nameLabel.text = leagueInfo.name
+            await loadImage(for: leagueInfo)
+        }
+    }
+    
+    func loadImage(for league: LeagueObject) async {
         
         let imageName = "\(league.name) - \(league.id).png"
         
-        Task.init {
-            if let image = await Cached.data.retrieveImage(from: imageName) {
-                
-                self.leagueLogo.image = image
-                
-                return
-            }
+        
+        if let image = await Cached.data.retrieveImage(from: imageName) {
+            
+            self.leagueLogo.image = image
+            
+            return
         }
         
         guard let url = URL(string: league.logo!) else { return }
@@ -203,4 +146,9 @@ private extension LeagueContentView {
             }
         }
     }
+    
+    override func prepareForReuse() {
+
+    }
 }
+

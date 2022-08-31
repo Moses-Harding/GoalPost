@@ -417,8 +417,9 @@ extension TeamDataView {
 extension TeamDataView {
     @objc func removeTeam() {
         print("TeamCollectionCell - Removing team")
-        guard let delegate = viewController.teamsViewDelegate, let team = self.team else { fatalError("No delegate passed to team collection cell") }
+        guard let delegate = viewController.teamsViewDelegate, let team = self.team, let viewController = self.viewController else { fatalError("No delegate passed to team collection cell") }
 
+        viewController.dismiss(animated: true)
         delegate.remove(team: team)
     }
 }

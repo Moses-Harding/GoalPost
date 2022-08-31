@@ -28,18 +28,18 @@ import UIKit
  
  --------
  TitleStack
-    Add Button
+ Add Button
  --------
  CollectionView
-    TeamCollectionCell
-        TeamDataStack
-            CollectionView
-                TitleSupplementaryView
-                    MatchCollectionCell
+ TeamCollectionCell
+ TeamDataStack
+ CollectionView
+ TitleSupplementaryView
+ MatchCollectionCell
  */
 
 class TeamsView: UIView {
-
+    
     
     // MARK: Views
     
@@ -195,30 +195,30 @@ extension TeamsView {
 }
 
 extension TeamsView: TeamsViewDelegate {
-
-    func refresh(calledBy function: String, expandingCell id: Int? = nil) {
+    
+    func refresh(calledBy function: String) {
         
         print("TeamsView - Refreshing - called by \(function)")
-            
-            // 1. Retrieve all teams from cache. It must be async to deal with concurrency issues.
-            var foundTeams = [TeamObject]()
-            
-            for team in QuickCache.helper.favoriteTeamsDictionary.sorted(by: { $0.value.name < $1.value.name }) {
-                foundTeams.append(team.value)
-            }
-            
-            guard let dataSource = dataSource else { return }
-            
-            // 2. Create a new snapshot using .main and append the teams that were found
-            
-            var snapShot = dataSource.snapshot(for: .main)
-
-            snapShot.applyDifferences(newItems: foundTeams)
-
-            // 3. Apply to datasource
-            dataSource.apply(snapShot, to: .main, animatingDifferences: true)
+        
+        // 1. Retrieve all teams from cache. It must be async to deal with concurrency issues.
+        var foundTeams = [TeamObject]()
+        
+        for team in QuickCache.helper.favoriteTeamsDictionary.sorted(by: { $0.value.name < $1.value.name }) {
+            foundTeams.append(team.value)
+        }
+        
+        guard let dataSource = dataSource else { return }
+        
+        // 2. Create a new snapshot using .main and append the teams that were found
+        
+        var snapShot = dataSource.snapshot(for: .main)
+        
+        snapShot.applyDifferences(newItems: foundTeams)
+        
+        // 3. Apply to datasource
+        dataSource.apply(snapShot, to: .main, animatingDifferences: true)
     }
-
+    
     func refresh(cell id: Int?) {
         if let teamId = id {
             for item in 0 ... collectionView.numberOfItems(inSection: 0) - 1 {
@@ -227,7 +227,6 @@ extension TeamsView: TeamsViewDelegate {
                     print("Could not cast \(path) as a teamcollectioncell")
                     continue }
                 if teamCell.teamInformation?.id == teamId {
-                    //teamCell.teamDataStack.matchLoading = false
                     Task.init {
                         await teamCell.teamDataStack.manualRefresh()
                         print("ATTEMPTING TO REFRESH CELL")
@@ -245,26 +244,8 @@ extension TeamsView: TeamsViewDelegate {
         
         let newItems = (snapshot.items + [team]).sorted(by: {$0.name < $1.name})
         
-        /*
-        var current: TeamObject = team
-        for item in snapshot.items {
-            if team.name > item.name {
-                current = item
-            } else {
-                break
-            }
-        }
-        
-        if !snapshot.items.isEmpty && snapshot.items[0].name > team.name {
-            snapshot.insert([team], before: snapshot.items[0])
-        } else if current == team {
-            snapshot.append([team])
-        } else {
-            snapshot.insert([team], after: current)
-        }
-         */
         snapshot.applyDifferences(newItems: newItems)
-
+        
         dataSource.apply(snapshot, to: .main, animatingDifferences: true)
         
         
@@ -330,23 +311,16 @@ extension TeamsView: TeamsViewDelegate {
         /// Called By removal button in Team Collection Cell
         Task.init {
             await Cached.data.favoriteTeamsRemoveValue(forKey: team.id)
-            //self.removeAnimation {
-                //self.refresh(calledBy: "TeamsView - Remove Team")
-                guard let dataSource = self.dataSource else { return }
-                
-                // 2. Create a new snapshot using .main and append the teams that were found
-                
-                var snapShot = dataSource.snapshot(for: .main)
-                snapShot.delete([team])
-                
-                // 3. Apply to datasource
-                await dataSource.apply(snapShot, to: .main, animatingDifferences: true)
-            }
-        //}
+            guard let dataSource = self.dataSource else { return }
+            
+            var snapShot = dataSource.snapshot(for: .main)
+            snapShot.delete([team])
+            await dataSource.apply(snapShot, to: .main, animatingDifferences: true)
+        }
     }
     
     func present(_ viewController: UIViewController, completion:
-    (() -> Void)?) {
+                 (() -> Void)?) {
         self.viewController?.present(viewController, animated: true, completion: completion)
     }
 }

@@ -29,7 +29,8 @@ class RootController: UITabBarController {
         leaguesViewController.tabBarItem = UITabBarItem(title: "Leagues", image: UIImage(systemName: "rosette"), tag: 2)
 
         self.selectedIndex = 0
-
+        
+        UpdateTimer.helper.rootController = self
         
         gatherData()
     }
@@ -46,7 +47,7 @@ class RootController: UITabBarController {
     func gatherData() {
         
         // Populate default data if first run
-        DataFetcher.helper.fetchDataIfValid(false)
+        DataFetcher.helper.fetchDataIfValid()
 
     }
     

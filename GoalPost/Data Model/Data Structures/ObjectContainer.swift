@@ -52,6 +52,8 @@ class ObjectContainer {
     
     var name: String!
     
+    var showSeperator = true
+    
     private init(type: TeamDataObjectType) {
         self.type = type
     }

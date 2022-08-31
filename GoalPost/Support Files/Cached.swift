@@ -275,6 +275,12 @@ actor Cached {
     
     func favoriteTeamsRemoveValue(forKey key: TeamID) {
         favoriteTeamsDictionary.removeValue(forKey: key)
+        QuickCache.helper.set(.favoriteTeamsDictionary, dictionary: self.favoriteTeamsDictionary)
+    }
+    
+    func favoriteLeaguesRemoveValue(forKey key: LeagueID) {
+        favoriteLeaguesDictionary.removeValue(forKey: key)
+        QuickCache.helper.set(.favoriteLeaguesDictionary, dictionary: self.favoriteLeaguesDictionary)
     }
     
     //

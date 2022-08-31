@@ -12,7 +12,7 @@ class LeagueSearchViewController: UIViewController {
     
     var leagueSearchView = LeagueSearchView()
     
-    var delegate: LeagueSearchDelegate?
+    var delegate: LeaguesViewDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()

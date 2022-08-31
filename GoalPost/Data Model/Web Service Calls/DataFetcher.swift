@@ -10,21 +10,11 @@ import Foundation
 struct DataFetcher {
     static var helper = DataFetcher()
     
-    var testing = false
+    var suppressDataRetrieval = false
     
-    func fetchDataIfValid(_ forceDataRetrieval: Bool) {
+    func fetchDataIfValid() {
         
         let queue = DispatchQueue(label: "Get favorite data queue")
-        
-        if testing {
-            Task.init {
-                let leagueDictionary = try await GetLeagues.helper.getAllLeagues()
-                await Cached.data.integrate(type: .leagueDictionary, dictionary: leagueDictionary, replaceExistingValue: true)
-            }
-            getDataforFavoriteLeagues(queue: queue)
-            getDataForFavoriteTeams()
-            return
-        }
         
         if Saved.firstRun {
             
@@ -58,18 +48,20 @@ struct DataFetcher {
         }
         
         // Daily Update
-        if Date.now.timeIntervalSince(Saved.dailyUpdate) >= 86400 || forceDataRetrieval {
+        if Date.now.timeIntervalSince(Saved.dailyUpdate) >= 86400 && !suppressDataRetrieval {
             print("\n\n*** Running daily search since time interval was - \(Date.now.timeIntervalSince(Saved.dailyUpdate))\n")
             Saved.dailyUpdate = Date.now
+            getDataforFavoriteLeagues(queue: queue)
+            getDataForFavoriteTeams(queue: queue)
         }
         
         // Weekly Update
-        if Date.now.timeIntervalSince(Saved.weeklyUpdate) >= 604800 || forceDataRetrieval {
+        if Date.now.timeIntervalSince(Saved.weeklyUpdate) >= 604800 && !suppressDataRetrieval {
             
         }
         
         // Monthly Update
-        if Date.now.timeIntervalSince(Saved.monthlyUpdate) >= 2592000 || forceDataRetrieval {
+        if Date.now.timeIntervalSince(Saved.monthlyUpdate) >= 2592000 && !suppressDataRetrieval {
             print("\n\n*** Running monthly search since time interval was - \(Date.now.timeIntervalSince(Saved.monthlyUpdate))\n")
             Task.init {
                 let leagueDictionary = try await GetLeagues.helper.getAllLeagues()
@@ -79,61 +71,28 @@ struct DataFetcher {
         }
     }
     
-    func add(league: LeagueObject) {
-        getDataFor(league: league)
-    }
+}
+
+// MARK: Get Data For Favorites
+extension DataFetcher {
     
-    func getMatchesForCurrentDay(completion: @escaping () -> ()) {
-        Task.init {
-            let (matchesDictionary, matchesByTeamDictionary, matchesByDateDictionary, matchesByLeagueDictionary) = try await GetMatches.helper.getMatchesFor(date: Date())
-            
-            await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true)
-
-            await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: matchesByTeamDictionary)
-            await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary)
-
-            await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: matchesByLeagueDictionary)
-            
-            completion()
-        }
-    }
-    
-    //func updateMatches(completion: (([MatchUniqueID:MatchObject]) -> ())) async throws {
-    func updateMatches() async throws -> [MatchUniqueID:MatchObject] {
-        let (matchesDictionary, matchesByTeamDictionary, matchesByDateDictionary, matchesByLeagueDictionary) = try await GetMatches.helper.getMatchesFor(date: Date())
-        print("Dictionaries retrieved")
-        
-        defer {
-            Task.init {
-                await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true)
-
-                await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: matchesByTeamDictionary)
-                await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary)
-                await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: matchesByLeagueDictionary)
-            }
-        }
-        
-        return matchesDictionary
-    }
     
     private func getDataforFavoriteLeagues(queue: DispatchQueue) {
         
         print("DataFetcher - Getting data for favorite leagues")
-
+        
         Task.init {
             for league in QuickCache.helper.favoriteLeaguesDictionary {
-            queue.async {
-                getDataFor(league: league.value)
+                queue.async {
+                    getDataFor(league: league.value)
+                }
             }
-        }
         }
     }
     
-    private func getDataForFavoriteTeams() {
+    private func getDataForFavoriteTeams(queue: DispatchQueue) {
         
         print("DataFetcher - Getting data for favorite teams")
-        
-        let queue = DispatchQueue(label: "favoriteTeamQueue", qos: .background)
         
         let group = DispatchGroup()
         group.setTarget(queue: queue)
@@ -148,14 +107,70 @@ struct DataFetcher {
                         continue
                     }
                     
-                    try await addMatchesFor(team: team) {
-                        print("DataFetcher - Added matches for \(team.name)")
+                    index += 1
+                    
+                    let favoriteLeagueSet = Set<LeagueID>(QuickCache.helper.favoriteLeaguesDictionary.keys)
+                    if team.leagueSet.isSubset(of: favoriteLeagueSet) {
+                        print("DataFetcher - \(team.name) is not being updated because its league set is a subset of favorite leagues")
+                        continue
+                    } else {
+                        
+                        try await addMatchesFor(team: team) {
+                            print("DataFetcher - Added matches for \(team.name)")
+                        }
                     }
                     
-                    index += 1
                 }
             }
         }
+    }
+    
+    
+    func add(league: LeagueObject) {
+        getDataFor(league: league)
+    }
+    
+    func getMatchesForCurrentDay(completion: @escaping () -> ()) {
+        Task.init {
+            let (matchesDictionary, matchesByDateDictionary) = try await GetMatches.helper.getMatchesFor(date: Date())
+            
+            await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true)
+            
+            await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary)
+            
+            completion()
+        }
+    }
+    
+/*
+    func updateMatches() async throws -> [MatchUniqueID:MatchObject] {
+        let (matchesDictionary, matchesByTeamDictionary, matchesByDateDictionary, matchesByLeagueDictionary) = try await GetMatches.helper.getMatchesFor(date: Date())
+        print("Dictionaries retrieved")
+        
+        defer {
+            Task.init {
+                await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true)
+                
+                await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: matchesByTeamDictionary)
+                await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary)
+                await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: matchesByLeagueDictionary)
+            }
+        }
+        
+        return matchesDictionary
+    }
+ */
+    
+    func updateMatches() async throws {
+    //func updateMatches() async throws -> [MatchUniqueID:MatchObject] {
+        print("DataFetcher - UpdateMatches - Initiate")
+        let (matchesDictionary, matchesByDateDictionary) = try await GetMatches.helper.getMatchesFor(date: Date())
+        
+        await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true)
+        //await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: matchesByTeamDictionary)
+        //await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary)
+        //await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: matchesByLeagueDictionary)
+        print("DataFetcher - UpdateMatches - Integration Complete")
     }
     
     private func getDataFor(team teamObject: TeamObject) async throws -> ([MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>], [MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>], [InjuryID:InjuryObject], [TeamID:Set<InjuryID>], [PlayerID:PlayerObject], [TeamID:Set<PlayerID>], [TransferID:TransferObject], [TeamID:Set<TransferID>]) {
@@ -164,7 +179,7 @@ struct DataFetcher {
         
         let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
         let (lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
-
+        
         let (injuryDictionary, injuriesByTeam) = try await GetInjuries.helper.getInjuriesFor(team: team)
         
         let (playerDictionary, playersByTeam) = try await GetSquad.helper.getSquadFor(team: team)
@@ -176,7 +191,7 @@ struct DataFetcher {
     
     /* Functions for adding Team */
     
-   
+    
     func addFavorite(team teamObject: TeamObject, completion: @escaping () async -> ()) async throws -> TeamObject {
         /// Gets leagues for specified team, then adds the team to favorite dictionary, then updates league information
         
@@ -186,14 +201,14 @@ struct DataFetcher {
         // 2. Add the team as a favorite, and update its entry in the team dictionary
         await Cached.data.set(.favoriteTeamsDictionary, with: team.id, to: team)
         await Cached.data.set(.teamDictionary, with: team.id, to: team)
-
+        
         // 3. Update the league dictionary with any new information retrieved from the earlier call
         await Cached.data.integrate(type: .leagueDictionary, dictionary: leagueDictionary, replaceExistingValue: true)
         for (key, _) in await Cached.data.favoriteLeaguesDictionary {
             guard let league = await Cached.data.leagueDictionary[key] else { fatalError() }
             await Cached.data.set(.favoriteLeaguesDictionary, with: key, to: league)
         }
-
+        
         await completion()
         
         return team
@@ -224,17 +239,17 @@ struct DataFetcher {
     }
     
     func addMatchesFor(team: TeamObject, completion: @escaping () async -> ()) async throws  {
-        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
-        let (lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
+        let (matchesDictionary, matchesByTeamDictionary, matchesByDateDictionary, matchesByLeagueDictionary) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
+        let (lastMatchesDictionary, lastMatchesByTeamDictionary, lastMatchesByDateDictionary, lastMatchesByLeagueDictionary) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
         await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true)
-        await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByTeam)
-        await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateSet)
-        await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: matchesByLeagueSet)
+        await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: matchesByTeamDictionary)
+        await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary)
+        await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: matchesByLeagueDictionary)
         
         await Cached.data.integrate(type: .matchesDictionary, dictionary: lastMatchesDictionary, replaceExistingValue: true)
-        await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: lastMatchesByTeam)
-        await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: lastMatchesByDateSet)
-        await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: lastMatchesByLeagueSet)
+        await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: lastMatchesByTeamDictionary)
+        await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: lastMatchesByDateDictionary)
+        await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: lastMatchesByLeagueDictionary)
         
         await completion()
     }

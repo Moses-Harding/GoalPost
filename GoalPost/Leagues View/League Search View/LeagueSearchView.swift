@@ -57,7 +57,7 @@ class LeagueSearchView: UIView {
     var currentLeagueNameSearch: String? = nil
     var currentCountrySearch: String? = nil
     
-    var delegate: LeagueSearchDelegate?
+    var delegate: LeaguesViewDelegate?
     
     
     init() {

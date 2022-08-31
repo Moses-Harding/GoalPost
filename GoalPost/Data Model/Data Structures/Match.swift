@@ -49,6 +49,10 @@ class MatchObject: Codable {
     }
      */
     
+    var details: String {
+        return "\(homeTeam?.name ?? "NAME UNKNOWN"): \(String(homeTeamScore) ?? "") vs \(awayTeam?.name ?? "NAME UNKNOWN"): \(String(awayTeamScore) ?? "")\n\(timeElapsed) - \(status)\n"
+    }
+    
     var leagueId: LeagueID?
     
     init(id: MatchID, favoriteTeam: Bool = false, timeStamp: Date, timeElapsed: Int? = nil, status: MatchStatusCode? = nil, leagueId: LeagueID? = nil, homeTeamId: TeamID, awayTeamId: TeamID, homeTeamScore: Int? = nil, awayTeamScore: Int? = nil) {
@@ -57,6 +61,7 @@ class MatchObject: Codable {
         self.uniqueID = MatchObject.getUniqueID(id: id, timestamp: timeStamp)
         self.favoriteTeam = favoriteTeam
         self.timeStamp = timeStamp
+        self.timeElapsed = timeElapsed
         self.homeTeamId = homeTeamId
         self.awayTeamId = awayTeamId
         self.homeTeamScore = homeTeamScore

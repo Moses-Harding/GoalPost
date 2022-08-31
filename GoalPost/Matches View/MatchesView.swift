@@ -148,8 +148,7 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
         
         let padding: CGFloat = 0
         
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                              heightDimension: .estimated(50))
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(90))
         
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
@@ -157,8 +156,7 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
                                                        subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = 20
-        section.contentInsets = .init(top: 20, leading: padding, bottom: padding, trailing: padding)
+        section.contentInsets = .init(top: 5, leading: padding, bottom: 0, trailing: padding)
         
         return UICollectionViewCompositionalLayout(section: section)
     }
@@ -284,6 +282,8 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
             var sectionSnapShot = dataSource.snapshot(for: league)
             
             guard let matches = leagueMatchDict[league] else { continue }
+            
+            matches[0].showSeperator = false
 
             sectionSnapShot.applyDifferences(newItems: [league] + matches)
             sectionSnapShot.expand([league])
@@ -295,22 +295,28 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
     
     @objc func updateMatches() {
         Task.init {
+            
             print("MatchesView - Update matches")
-            let updatedDictionary = try await DataFetcher.helper.updateMatches()
-            print("MatchesView - Dictionary Retreived")
+            
+            let startTime = Date.now.formatted(date: .omitted, time: .complete)
+            //let updatedDictionary = try await DataFetcher.helper.updateMatches()
+            //print("MatchesView - Dictionary Retreived")
+            
+            try await DataFetcher.helper.updateMatches()
             
             let numberOfSections = collectionView.numberOfSections
             for sectionIndex in 0 ..< numberOfSections {
                 let numberOfItems = collectionView.numberOfItems(inSection: sectionIndex)
                 for itemIndex in 0 ..< numberOfItems {
                     let item = collectionView.cellForItem(at: IndexPath(item: itemIndex, section: sectionIndex))
-                    if let cell = item as? MatchCell, let matchId = cell.objectContainer?.matchId, let updatedMatch = updatedDictionary[matchId] {
-                        cell.updateScore(with: updatedMatch)
+                    if let cell = item as? MatchCell {
+                        cell.updateData()
                     }
                 }
             }
             
             print("MatchesView - End refresh matches")
+            print("Start: \(startTime) - End: \(Date.now.formatted(date: .omitted, time: .complete))")
             self.refreshControl.endRefreshing()
         }
     }
@@ -356,6 +362,7 @@ extension MatchesView: UICollectionViewDelegate {
         guard let cell = collectionView.cellForItem(at: indexPath) as? MatchCell, let match = cell.objectContainer else { return }
         
         print("MatchesView - Cell selected - score below:")
-        print(match.match?.homeTeamScore, match.match?.awayTeamScore)
+        guard let updatedMatch = QuickCache.helper.matchesDictionary[match.id] else { return }
+        print(updatedMatch.details)
     }
 }

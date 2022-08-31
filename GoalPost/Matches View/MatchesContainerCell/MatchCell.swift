@@ -22,9 +22,9 @@ class MatchCell: UICollectionViewCell {
     var timeElapsedLabel = UILabel() {
         willSet {
             if newValue.text == "" || newValue.text == nil{
-                statusOutline.isHidden = true
+                statusArea.isHidden = true
             } else {
-                statusOutline.isHidden = false
+                statusArea.isHidden = false
             }
         }
     }
@@ -46,8 +46,8 @@ class MatchCell: UICollectionViewCell {
     var imageStack = UIStackView(.horizontal)
     var labelStack = UIStackView(.vertical)
     var statusStack = UIStackView(.horizontal)
-    var statusOutline = UIView()
-    
+    var statusArea = UIView()
+    var separator = UIView()
     
     var homeImage = UIView()
     var awayImage = UIView()
@@ -55,19 +55,15 @@ class MatchCell: UICollectionViewCell {
     var homeImageView = UIImageView()
     var awayImageView = UIImageView()
     
-    var cellHeightConstraint: NSLayoutConstraint?
     var homeImageWidthConstraint: NSLayoutConstraint?
     var homeImageHeightConstraint: NSLayoutConstraint?
     var awayImageWidthConstraint: NSLayoutConstraint?
     var awayImageHeightConstraint: NSLayoutConstraint?
     
     var allFixedConstraints: [NSLayoutConstraint?] {
-        return [ cellHeightConstraint, homeImageWidthConstraint, homeImageHeightConstraint, awayImageWidthConstraint, awayImageHeightConstraint]
+        return  [homeImageWidthConstraint, homeImageHeightConstraint, awayImageWidthConstraint, awayImageHeightConstraint]
     }
     
-    //MARK: Lines
-    
-    var line = UIView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -87,14 +83,16 @@ class MatchCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             mainStack.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             mainStack.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            mainStack.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
-            mainStack.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
+            mainStack.topAnchor.constraint(equalTo: contentView.topAnchor),
+            mainStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
         ])
+
+        mainStack.add([separator, topStack, bottomStack])
         
-        mainStack.add([topStack, bottomStack])
-        
-        mainStack.setCustomSpacing(10, after: topStack)
-        
+        topStack.heightAnchor.constraint(equalTo: bottomStack.heightAnchor).isActive = true
+        topStack.heightAnchor.constraint(greaterThanOrEqualToConstant: 35).isActive = true
+        separator.heightAnchor.constraint(equalToConstant: 1).isActive = true
+
         topStack.add(children: [(homeTeamStack, 0.75), (startTimeLabel, nil)])
         bottomStack.add(children: [(awayTeamStack, 0.75), (statusStack, nil)])
         
@@ -105,19 +103,21 @@ class MatchCell: UICollectionViewCell {
         awayTeamStack.setCustomSpacing(10, after: awayImage)
         
         // MARK: Format labels
+        
         allLabels.forEach { $0.textColor = Colors.cellBodyTextColor }
         timeElapsedLabel.font = UIFont.systemFont(ofSize: 12)
         startTimeLabel.textAlignment = .center
         
         // MARK: Format Individual Views
         
-        statusStack.add(children: [(UIView(), nil), (statusOutline, nil), (UIView(), nil)])
+        statusStack.add(children: [(UIView(), nil), (statusArea, nil), (UIView(), nil)])
         statusStack.distribution = .equalCentering
-        statusOutline.constrain(timeElapsedLabel, using: .scale, heightScale: 1.0, padding: 0, except: [.width], safeAreaLayout: false, debugName: "Time Elapsed Outline Constraining TIme Elapsed Label")
-        statusOutline.layer.borderColor = Colors.titleAreaTextColor.cgColor
-        statusOutline.layer.borderWidth = 1
-        statusOutline.layer.cornerRadius = 10
-        statusOutline.widthAnchor.constraint(equalTo: timeElapsedLabel.widthAnchor, multiplier: 2).isActive = true
+        statusArea.constrain(timeElapsedLabel, using: .scale, heightScale: 1.0, padding: 0, except: [.width], safeAreaLayout: false, debugName: "Time Elapsed Outline Constraining TIme Elapsed Label")
+        statusArea.heightAnchor.constraint(equalTo: statusStack.heightAnchor, multiplier: 0.8).isActive = true
+        statusArea.layer.borderColor = Colors.titleAreaTextColor.cgColor
+        statusArea.layer.borderWidth = 1
+        statusArea.layer.cornerRadius = 10
+        statusArea.widthAnchor.constraint(equalTo: timeElapsedLabel.widthAnchor, multiplier: 2).isActive = true
         
         // MARK: Set up image stack
         
@@ -128,9 +128,16 @@ class MatchCell: UICollectionViewCell {
         
         imageStack.alignment = .center
         
+        refreshCell()
+    }
+    
+    func refreshCell() {
+        
+        if let container = objectContainer {
+            separator.backgroundColor = container.showSeperator ? Colors.gray.hex282B28 : .clear
+        }
+        
         allFixedConstraints.forEach { $0?.isActive = false }
-
-        cellHeightConstraint = mainStack.heightAnchor.constraint(greaterThanOrEqualToConstant: 75)
 
         homeImageHeightConstraint = homeImageView.heightAnchor.constraint(equalToConstant: 20)
         homeImageWidthConstraint = homeImageView.widthAnchor.constraint(equalToConstant: 20)
@@ -140,84 +147,103 @@ class MatchCell: UICollectionViewCell {
         allFixedConstraints.forEach { $0?.isActive = true }
     }
     
-    private func setStatus(from status: MatchStatusCode, time: Int?) {
+    private func setStatus() {
         
-        if status == .notStarted {
-            statusOutline.isHidden = true
-            return
-        } else {
-            statusOutline.isHidden = false
+        guard let match = objectContainer?.match else {
+            fatalError("No match found")
         }
         
-        let matchInterruption = { [self] in
-            statusOutline.layer.borderWidth = 0
-            statusOutline.backgroundColor = Colors.statusRed
-            timeElapsedLabel.text = status.rawValue
-        }
-        
-        let finished = { [self] in
-            statusOutline.layer.borderWidth = 0
-            statusOutline.backgroundColor = Colors.titleAreaColor
-            timeElapsedLabel.text = "FT"
-        }
+        let status = match.status
+        let time = match.timeElapsed
+
+        var backgroundColor = UIColor.clear
+        var borderColor = UIColor.clear
+        var borderWidth: CGFloat = 0
+        var timeElapsed = ""
         
         switch status {
+        case .notStarted:
+            timeElapsed = ""
         case .suspended:
-            matchInterruption()
+            timeElapsed = status.rawValue
+            borderWidth = 1
+            borderColor = Colors.statusRed
         case .interrupted:
-            matchInterruption()
+            timeElapsed = status.rawValue
+            borderWidth = 1
+            borderColor = Colors.statusRed
         case .postponed:
-            matchInterruption()
+            timeElapsed = status.rawValue
+            borderWidth = 1
+            borderColor = Colors.statusRed
         case .cancelled:
-            matchInterruption()
+            timeElapsed = status.rawValue
+            borderWidth = 1
+            borderColor = Colors.statusRed
         case .abandoned:
-            matchInterruption()
+            timeElapsed = status.rawValue
+            borderWidth = 1
+            borderColor = Colors.statusRed
         case .technicalLoss:
-            matchInterruption()
+            timeElapsed = status.rawValue
+            borderWidth = 1
+            borderColor = Colors.statusRed
         case .finished:
-            finished()
+            backgroundColor = Colors.titleAreaColor
+            timeElapsed = "FT"
         case .finishedAfterPenalties:
-            finished()
+            backgroundColor = Colors.titleAreaColor
+            timeElapsed = "FT"
         case .finishedAfterExtraTime:
-            finished()
+            backgroundColor = Colors.titleAreaColor
+            timeElapsed = "FT"
         default:
-            timeElapsedLabel.text = " " + String(time) + " "
+            timeElapsed = " " + String(time) + " "
+            borderWidth = 1
+            borderColor = Colors.statusGreen
         }
-    }
-    
-    func updateScore(with match: MatchObject) {
         
-        homeTeamScore.text = String(match.homeTeamScore)
-        awayTeamScore.text = String(match.awayTeamScore)
+        statusArea.backgroundColor = backgroundColor
+        statusArea.layer.borderWidth = borderWidth
+        statusArea.layer.borderColor = borderColor.cgColor
+        timeElapsedLabel.text = timeElapsed
     }
     
-    private func updateData() {
+    func updateData() {
         
         guard let match = objectContainer?.match, let homeTeam = match.homeTeam, let awayTeam = match.awayTeam else { return }
         
+        var newMatch: Bool = false
+        
+        
         if let oldObjectContainer = oldObjectContainer, let newObjectContainer = objectContainer, oldObjectContainer == newObjectContainer {
-                print("MatchCell - No need to update - cell is the same")
-            self.oldObjectContainer = objectContainer
-                return
+                print("MatchCell - Cell is the same")
+            newMatch = false
         } else {
-            oldObjectContainer = objectContainer
+            newMatch = true
         }
         
-        setupAllViews()
+        oldObjectContainer = objectContainer
         
-        Task.init {
-
-            // Set data to UI elements
+        refreshCell()
+        
+        homeTeamScore.text = String(match.homeTeamScore)
+        awayTeamScore.text = String(match.awayTeamScore)
+        startTimeLabel.text = match.timeStamp.formatted(date: .omitted, time: .shortened)
+        setStatus()
+        
+        if newMatch {
+            
+            Task.init {
             homeTeamLabel.text = homeTeam.name
             awayTeamLabel.text = awayTeam.name
-            startTimeLabel.text = match.timeStamp.formatted(date: .omitted, time: .shortened)
-            setStatus(from: match.status, time: match.timeElapsed)
-            
+
             vsLabel.text = "-"
             vsLabel.sizeToFit()
             
-            loadImage(for: homeTeam, teamType: .home)
-            loadImage(for: awayTeam, teamType: .away)
+                loadImage(for: homeTeam, teamType: .home)
+                loadImage(for: awayTeam, teamType: .away)
+            }
         }
     }
     
@@ -244,8 +270,7 @@ class MatchCell: UICollectionViewCell {
         
         guard let logo = team.logo, let url = URL(string: logo)  else { return }
         
-        //let url = URL(string: team.logo)!
-        
+
         DispatchQueue.global().async {
             if let data = try? Data(contentsOf: url) {
                 DispatchQueue.main.async {
@@ -263,5 +288,12 @@ class MatchCell: UICollectionViewCell {
                 }
             }
         }
+    }
+    
+    override func prepareForReuse() {
+        statusArea.backgroundColor = .clear
+        statusArea.layer.borderWidth = 0
+        statusArea.layer.borderColor = UIColor.clear.cgColor
+        timeElapsedLabel.text = ""
     }
 }
