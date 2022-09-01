@@ -19,12 +19,12 @@ import UIKit
  4. If the remove button is tapped, teamsView (which is a delegate) triggers the remove(team) method.
  
  contentView
-    mainStack
-        titleStack
-            nameArea --- nameLogo
-        bodyStack
-            removalButton
-            teamDataStack
+ mainStack
+ titleStack
+ nameArea --- nameLogo
+ bodyStack
+ removalButton
+ teamDataStack
  */
 
 class TeamCollectionCell: UICollectionViewCell {
@@ -102,14 +102,14 @@ class TeamCollectionCell: UICollectionViewCell {
         teamLogo.heightAnchor.constraint(equalToConstant: 25).isActive = true
         teamLogo.widthAnchor.constraint(equalToConstant: 25).isActive = true
     }
-
+    
     
     // 4
     func setUpColors() {
         self.backgroundColor = UIColor.clear
-        self.layer.borderColor = Colors.teamDataStackCellTextColor.cgColor
+        self.layer.borderColor = Colors.cellTextGreen.cgColor
         self.layer.borderWidth = 1
-        nameLabel.textColor = Colors.teamDataStackCellTextColor
+        nameLabel.textColor = Colors.cellTextGreen
     }
     
     // MARK: Externally Triggered
@@ -130,18 +130,17 @@ class TeamCollectionCell: UICollectionViewCell {
     func updateContent() {
         
         guard let teamInfo = teamInformation else { return }
-        Task.init {
-            nameLabel.text = teamInfo.name
-            await loadImage(for: teamInfo)
-        }
+        
+        nameLabel.text = teamInfo.name
+        loadImage(for: teamInfo)
     }
     
-    func loadImage(for team: TeamObject) async {
+    func loadImage(for team: TeamObject) {
         
         let imageName = "\(team.name) - \(team.id).png"
         
         
-        if let image = await Cached.data.retrieveImage(from: imageName) {
+        if let image = QuickCache.helper.retrieveImage(from: imageName) {
             
             self.teamLogo.image = image
             
@@ -167,6 +166,6 @@ class TeamCollectionCell: UICollectionViewCell {
     }
     
     override func prepareForReuse() {
-
+        
     }
 }

@@ -64,7 +64,7 @@ class TeamDataStackCellModel: UICollectionViewCell {
         mainStack.add([contentStack, loadingView])
         
         layer.cornerRadius = 15
-        layer.borderColor = Colors.teamDataStackCellBorderColor.cgColor
+        layer.borderColor = Colors.cellBorderGreen.cgColor
         layer.borderWidth = 1
     }
     

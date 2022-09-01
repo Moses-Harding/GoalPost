@@ -58,7 +58,7 @@ class LeagueDataView: UIView {
 
         self.constrain(mainStack)
         
-        mainStack.add(children: [(UIView(), 0.05), (nameArea, 0.05), (UIView(), 0.05), (removalButtonStack, 0.1), (UIView(), 0.05), (collectionViewArea, nil), (UIView(), 0.05)])
+        mainStack.add(children: [(UIView(), 0.05), (nameArea, 0.05), (UIView(), 0.05), (removalButtonStack, nil), (UIView(), 0.05), (collectionViewArea, nil), (UIView(), 0.05)])
         
         //collectionViewArea.constrain(collectionView, using: .edges, padding: 5, debugName: "CollectionView to CollectionViewArea - InjuryLeagueDataStack")
         nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - League Collection Cell")
@@ -128,9 +128,9 @@ class LeagueDataView: UIView {
     
     // 3
     func setUpColors() {
-        self.backgroundColor = Colors.teamCellViewBackgroundColor
-        removalButton.backgroundColor = Colors.teamCellRemovalButtonBackgroundColor
-        removalButton.layer.borderColor = Colors.teamCellRemovalButtonBorderColor.cgColor
+        self.backgroundColor = Colors.cellBackgroundGray
+        removalButton.backgroundColor = Colors.removalButtonBackgroundColor
+        removalButton.layer.borderColor = Colors.removalButtonBorderColor.cgColor
         removalButton.setTitleColor(UIColor.white, for: .normal)
     }
     

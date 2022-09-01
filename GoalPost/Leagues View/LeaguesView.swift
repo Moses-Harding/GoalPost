@@ -10,10 +10,10 @@ import UIKit
 
 class LeaguesView: UIView {
     
-    // MARK: Views
     
     // Collection View
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCollectionViewLayout())
+    var dataSource: UICollectionViewDiffableDataSource<Section, LeagueObject>?
     
     // Stack View
     var mainStack = UIStackView(.vertical)
@@ -21,7 +21,7 @@ class LeaguesView: UIView {
     var addLeagueStack = UIStackView(.horizontal)
     var addLeagueLabelView = UIView()
     
-    // MARK: Buttons
+    // Buttons
     
     var addLeagueButton: UIButton = {
         let button = UIButton()
@@ -34,7 +34,7 @@ class LeaguesView: UIView {
         return button
     } ()
     
-    // MARK: Labels
+    // Labels
     
     var titleLabel: UILabel = {
         let label = UILabel()
@@ -44,14 +44,10 @@ class LeaguesView: UIView {
         return label
     } ()
     
-    // MARK: Logic
+    // Logic
     
     var viewController: LeaguesViewController?
-    
-    // MARK: Data
-    
-    var dataSource: UICollectionViewDiffableDataSource<Section, LeagueObject>?
-    
+
     
     init() {
         super.init(frame: CGRect.zero)
@@ -63,7 +59,12 @@ class LeaguesView: UIView {
     }
     
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(frame: CGRect.zero)
+        setUpStacks()
+        setUpCollectionView()
+        setUpDataSource()
+        setUpColors()
+        collectionView.delegate = self
     }
     
     // MARK: Set Up
@@ -72,8 +73,6 @@ class LeaguesView: UIView {
     private func setUpStacks() {
         self.constrain(mainStack, safeAreaLayout: true)
         mainStack.add(children: [(titleArea, 0.075), (UIView(), 0.025), (addLeagueStack, 0.1), (UIView(), 0.025), (collectionView, nil), (UIView(), 0.05)])
-        
-        // Might as well set up the title area as long as we're at it
         titleArea.constrain(titleLabel, using: .scale, widthScale: 0.5, heightScale: 1, padding: 5, except: [], safeAreaLayout: true, debugName: "My Leagues Title Label")
         
         addLeagueStack.add(children: [(UIView(), 0.25), (addLeagueButton, nil), (UIView(), 0.25)])
@@ -107,8 +106,6 @@ class LeaguesView: UIView {
     
     // 3
     private func setUpDataSource() {
-        
-        print("LeaguesView - setUpDataSource")
         
         dataSource = UICollectionViewDiffableDataSource<Section, LeagueObject>(collectionView: collectionView) {
             (collectionView, indexPath, leagueInformation) -> UICollectionViewCell? in
@@ -149,7 +146,72 @@ class LeaguesView: UIView {
     }
 }
 
-// Actions
+// MARK: Manipulate collectionview
+
+extension LeaguesView {
+    
+    func refreshSnapshotWith(_ objects: [LeagueObject]) {
+        
+        guard let dataSource = dataSource else { return }
+        var snapShot = dataSource.snapshot(for: .main)
+        snapShot.applyDifferences(newItems: objects)
+        dataSource.apply(snapShot, to: .main, animatingDifferences: true)
+    }
+}
+
+extension LeaguesView: LeaguesViewDelegate { // Called externally
+    func add(league: LeagueObject) {
+        
+        print("LeaguesView - Add \(league.name)")
+        
+        guard let dataSource = dataSource else { return }
+        
+        let newItems = (dataSource.snapshot(for: .main).items + [league]).sorted(by: {$0.name < $1.name})
+        
+        self.refreshSnapshotWith(newItems)
+        
+        Task.init {
+            await Cached.data.set(.favoriteLeaguesDictionary, with: league.id, to: league)
+        }
+    }
+    
+    func remove(league: LeagueObject) {
+        
+        print("LeaguesView - Remove \(league.name)")
+        
+        guard let dataSource = self.dataSource else { return }
+        
+        var snapShot = dataSource.snapshot(for: .main)
+        snapShot.delete([league])
+        let newItems = snapShot.items
+        
+        self.refreshSnapshotWith(newItems)
+        
+        Task.init {
+            await Cached.data.favoriteLeaguesRemoveValue(forKey: league.id)
+        }
+    }
+    
+    func refresh(calledBy function: String) {
+        
+        print("LeaguesView - Refreshing - called by \(function)")
+
+        var foundLeagues = [LeagueObject]()
+        
+        for league in QuickCache.helper.favoriteLeaguesDictionary.sorted(by: { $0.value.name < $1.value.name }) {
+            foundLeagues.append(league.value)
+        }
+        
+        self.refreshSnapshotWith(foundLeagues)
+    }
+    
+    func present(_ viewController: UIViewController, completion: (() -> Void)?) {
+        self.viewController?.present(viewController, animated: true, completion: completion)
+    }
+}
+
+
+// MARK: Perform actions triggered by user
 
 extension LeaguesView {
     @objc func presentLeagueSearchViewController() {
@@ -162,74 +224,11 @@ extension LeaguesView {
     }
 }
 
-
-extension LeaguesView: LeaguesViewDelegate  {
-    func refresh(calledBy function: String) {
-        
-        print("LeaguesView - Refreshing - called by \(function)")
-        
-        
-        // 1. Retrieve all leagues from cache. It must be async to deal with concurrency issues.
-        var foundLeagues = [LeagueObject]()
-        
-        for league in QuickCache.helper.favoriteLeaguesDictionary.sorted(by: { $0.value.name < $1.value.name }) {
-            foundLeagues.append(league.value)
-        }
-        
-        guard let dataSource = dataSource else { return }
-        
-        // 2. Create a new snapshot using .main and append the leagues that were found
-        
-        var snapShot = dataSource.snapshot(for: .main)
-        
-        snapShot.applyDifferences(newItems: foundLeagues)
-        
-        // 3. Apply to datasource
-        dataSource.apply(snapShot, to: .main, animatingDifferences: true)
-    }
-    
-    func remove(league: LeagueObject) {
-        Task.init {
-            await Cached.data.favoriteLeaguesRemoveValue(forKey: league.id)
-                guard let dataSource = self.dataSource else { return }
-                
-                var snapShot = dataSource.snapshot(for: .main)
-                snapShot.delete([league])
-                
-                // 3. Apply to datasource
-                await dataSource.apply(snapShot, to: .main, animatingDifferences: true)
-            }
-    }
-    
-    func present(_ viewController: UIViewController, completion: (() -> Void)?) {
-        self.viewController?.present(viewController, animated: true, completion: completion)
-    }
-    
-    
-    func add(league: LeagueObject) {
-        // MARK: Setup snap shots
-        guard let dataSource = dataSource else { return }
-        
-        var snapshot = dataSource.snapshot(for: .main)
-        
-        let newItems = (snapshot.items + [league]).sorted(by: {$0.name < $1.name})
-        
-        snapshot.applyDifferences(newItems: newItems)
-        
-        dataSource.apply(snapshot, to: .main, animatingDifferences: true)
-        
-        Task.init {
-            await Cached.data.set(.favoriteLeaguesDictionary, with: league.id, to: league)
-        }
-    }
-}
-
 extension LeaguesView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView,
                         shouldSelectItemAt indexPath: IndexPath) -> Bool {
         guard let dataSource = dataSource else { return false }
         
-        // Allows for closing an already open cell
         if collectionView.indexPathsForSelectedItems?.contains(indexPath) ?? false {
             collectionView.deselectItem(at: indexPath, animated: true)
         } else {
@@ -238,6 +237,6 @@ extension LeaguesView: UICollectionViewDelegate {
         
         dataSource.refresh()
         
-        return false // The selecting or deselecting is already performed above
+        return false
     }
 }

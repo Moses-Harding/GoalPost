@@ -90,16 +90,12 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
     init() {
         super.init(frame: CGRect.zero)
         
-        print("MatchesView - init")
-        
         setUpUI()
         setUpCollectionView()
         setUpDataSource()
         setUpColors()
         setUpGestures()
         applyData()
-        
-        print("MatchesView - init complete")
     }
     
     required init?(coder: NSCoder) {
@@ -299,8 +295,6 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
             print("MatchesView - Update matches")
             
             let startTime = Date.now.formatted(date: .omitted, time: .complete)
-            //let updatedDictionary = try await DataFetcher.helper.updateMatches()
-            //print("MatchesView - Dictionary Retreived")
             
             try await DataFetcher.helper.updateMatches()
             
@@ -314,9 +308,7 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
                     }
                 }
             }
-            
-            print("MatchesView - End refresh matches")
-            print("Start: \(startTime) - End: \(Date.now.formatted(date: .omitted, time: .complete))")
+            print("MatchesView - End refresh matches complete. Start: \(startTime) - End: \(Date.now.formatted(date: .omitted, time: .complete))")
             self.refreshControl.endRefreshing()
         }
     }
@@ -361,7 +353,7 @@ extension MatchesView: UICollectionViewDelegate {
         
         guard let cell = collectionView.cellForItem(at: indexPath) as? MatchCell, let match = cell.objectContainer else { return }
         
-        print("MatchesView - Cell selected - score below:")
+        print("MatchesView - Cell selected - details below below:")
         guard let updatedMatch = QuickCache.helper.matchesDictionary[match.id] else { return }
         print(updatedMatch.details)
     }

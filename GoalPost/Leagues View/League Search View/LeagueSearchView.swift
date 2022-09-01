@@ -169,16 +169,12 @@ class LeagueSearchView: UIView {
     }
     
     func setUpColors() {
-        // Views
+
         mainStack.backgroundColor = Colors.backgroundColor
         collectionView.backgroundColor = Colors.backgroundColor
-        
         leagueSearchInputFieldView.layer.borderColor = Colors.searchResultViewBorderColor.cgColor
-        
         leagueSearchInputField.textColor = Colors.searchResultViewTextColor
-        
         countrySearchInputFieldView.layer.borderColor = Colors.searchResultViewBorderColor.cgColor
-        
         countrySearchInputField.textColor = Colors.searchResultViewTextColor
     }
     
@@ -196,10 +192,10 @@ class LeagueSearchView: UIView {
     }
     
     
-    func returnSearchResults(teamResult: [LeagueObject]) {
+    func returnSearchResults(result: [LeagueObject]) {
         
         DispatchQueue.main.async {
-            self.setUpDataSourceSnapshots(searchResult: teamResult)
+            self.setUpDataSourceSnapshots(searchResult: result)
         }
     }
     
@@ -326,6 +322,7 @@ extension LeagueSearchView: UICollectionViewDelegate {
         guard let cell = collectionView.cellForItem(at: indexPath) as? LeagueSearchCell, let league = cell.leagueInformation else { return }
         
         self.addAnimation() {
+            print("Adding \(league)")
             self.viewController?.dismiss(animated: true)
             self.viewController?.delegate?.add(league: league)
         }

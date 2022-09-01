@@ -101,10 +101,10 @@ class MatchCollectionCell: TeamDataStackCellModel {
     
     // 2
     func setUpColors() {
-        self.backgroundColor = Colors.teamDataStackCellBackgroundColor
+        self.backgroundColor = Colors.cellBackgroundGray
         
-        allLabels.forEach { $0.textColor = Colors.teamDataStackCellTextColor }
-        greenLine.backgroundColor = Colors.teamDataStackCellTextColor
+        allLabels.forEach { $0.textColor = Colors.cellTextGreen }
+        greenLine.backgroundColor = Colors.cellTextGreen
     }
     
     
@@ -185,11 +185,11 @@ class MatchCollectionCell: TeamDataStackCellModel {
         }
     }
     
-    private func loadImage(for team: TeamObject, teamType: TeamType) async {
+    private func loadImage(for team: TeamObject, teamType: TeamType) {
         
         let imageName = "\(team.name) - \(team.id).png"
         
-        if let image = await Cached.data.retrieveImage(from: imageName) {
+        if let image = QuickCache.helper.retrieveImage(from: imageName) {
             
             if teamType == .home {
                 print("Assigning existing homeview image - \(imageName)")

@@ -200,7 +200,7 @@ class MatchCell: UICollectionViewCell {
         default:
             timeElapsed = " " + String(time) + " "
             borderWidth = 1
-            borderColor = Colors.statusGreen
+            borderColor = Colors.cellSecondaryTextColor
         }
         
         statusArea.backgroundColor = backgroundColor
@@ -256,7 +256,7 @@ class MatchCell: UICollectionViewCell {
         let imageName = "\(team.name) - \(team.id).png"
         
         Task.init {
-            if let image = await Cached.data.retrieveImage(from: imageName) {
+            if let image = QuickCache.helper.retrieveImage(from: imageName) {
                 
                 if teamType == .home {
                     self.homeImageView.image = image

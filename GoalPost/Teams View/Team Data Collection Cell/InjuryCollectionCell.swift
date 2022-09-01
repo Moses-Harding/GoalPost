@@ -88,9 +88,9 @@ class InjuryCollectionCell: TeamDataStackCellModel {
     }
 
     func setUpColors() {
-        self.backgroundColor = Colors.teamDataStackCellBackgroundColor
+        self.backgroundColor = Colors.cellBackgroundGray
         
-        allLabels.forEach { $0.textColor = Colors.teamDataStackCellTextColor }
-        greenLine.backgroundColor = Colors.teamDataStackCellTextColor
+        allLabels.forEach { $0.textColor = Colors.cellTextGreen }
+        greenLine.backgroundColor = Colors.cellTextGreen
     }
 }

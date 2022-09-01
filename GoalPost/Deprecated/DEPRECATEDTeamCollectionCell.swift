@@ -147,12 +147,12 @@ class DEPRECATEDTeamCollectionCell: UICollectionViewCell {
     // 4
     func setUpColors() {
         self.backgroundColor = UIColor.clear
-        self.layer.borderColor = Colors.teamDataStackCellTextColor.cgColor
+        self.layer.borderColor = Colors.cellTextGreen.cgColor
         self.layer.borderWidth = 1
-        nameLabel.textColor = Colors.teamDataStackCellTextColor
+        nameLabel.textColor = Colors.cellTextGreen
         
-        removalButton.backgroundColor = Colors.teamCellRemovalButtonBackgroundColor
-        removalButton.layer.borderColor = Colors.teamCellRemovalButtonBorderColor.cgColor
+        removalButton.backgroundColor = Colors.removalButtonBackgroundColor
+        removalButton.layer.borderColor = Colors.removalButtonBorderColor.cgColor
         removalButton.setTitleColor(UIColor.white, for: .normal)
     }
     
@@ -186,7 +186,7 @@ class DEPRECATEDTeamCollectionCell: UICollectionViewCell {
                 self.layoutIfNeeded()
                 
             })
-            nameLabel.textColor = Colors.teamDataStackCellTextColor
+            nameLabel.textColor = Colors.cellTextGreen
         }
     }
     
@@ -200,18 +200,18 @@ class DEPRECATEDTeamCollectionCell: UICollectionViewCell {
             codeLabel.text = "Code: \(teamInfo.code ?? "")"
             nationalLabel.text = "National: \(teamInfo.national)"
             
-            await loadImage(for: teamInfo)
+             loadImage(for: teamInfo)
             
             teamDataStack.team = teamInformation
         }
     }
     
-    func loadImage(for team: TeamObject) async {
+    func loadImage(for team: TeamObject) {
         
         let imageName = "\(team.name) - \(team.id).png"
         
         
-        if let image = await Cached.data.retrieveImage(from: imageName) {
+        if let image = QuickCache.helper.retrieveImage(from: imageName) {
             
             self.teamLogo.image = image
             

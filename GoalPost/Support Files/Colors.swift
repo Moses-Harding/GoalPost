@@ -23,48 +23,37 @@ struct Colors {
     static var backgroundColor = UIColor.black //gray.hex121310
     
     static var titleAreaColor = gray.hex1C1F1C
-    static var titleAreaTextColor = green.hex18EE88 // green.hex5C996C
+    static var titleAreaTextColor = green.hex18EE88
     
-    static var headerColor = gray.hex1C1F1C // green.hex395E43
-    static var headerTextColor = green.hex18EE88  // white.hexFFFCF9
+    static var headerColor = gray.hex1C1F1C
+    static var headerTextColor = green.hex18EE88
     
     static var cellBodyColor = gray.hex282B28
     static var cellBodyTextColor = white.hexFFFCF9
-    
-    static var logoTheme = green.hex18EE88
-    
-    //static var searchResultView = white.hexFFFCF9
+
     static var searchResultViewBackgroundColor = gray.hex1C1F1C
     static var searchResultViewBorderColor = green.hex18EE88
     static var searchResultViewTextColor = white.hexFFFCF9
     static var searchResultViewSecondaryTextColor = green.hex5C996C
     
-    static var teamCellViewBackgroundColor = gray.hex1C1F1C
-    static var teamCellViewBorderColor = green.hex18EE88
-    static var teamCellViewTextColor = white.hexFFFCF9
-    static var teamCellViewSecondaryTextColor = green.hex5C996C
-    static var teamCellViewTertiaryTextColor = UIColor.lightGray
-    static var teamCellRemovalButtonBackgroundColor = red.hexFC7168
-    static var teamCellRemovalButtonBorderColor = red.hexFE5F55
-    
-    static var teamDataStackBackgroundColor = gray.hex1C1F1C//gray.hex282B28
-    static var teamDataStackTextColor = white.hexFFFCF9
-    
-    static var teamDataStackCellBackgroundColor = gray.hex1C1F1C//green.hexA8F0D3
-    static var teamDataStackCellBorderColor = green.hexA0F8CD//gray.hex282B28
-    static var teamDataStackCellTextColor = green.hexA0F8CD//gray.hex282B28
+    static var cellBackgroundGray = gray.hex1C1F1C
+    static var cellSecondaryTextColor = green.hex5C996C
+
+    static var removalButtonBackgroundColor = red.hexFC7168
+    static var removalButtonBorderColor = red.hexFE5F55
+
+    static var cellBorderGreen = green.hexA0F8CD
+    static var cellTextGreen = green.hexA0F8CD
     
     static var addButtonBackgroundColor = gray.hex1C1F1C
     static var addButtonTextColor = white.hexFFFCF9
     static var addButtonBorderColor = green.hex18EE88
     
     static var statusRed = red.hexFE5F55
-    static var statusGreen = green.hex5C996C
     
     static var primaryGreen = green.hex18EE88
     static var secondaryGreen = green.hex5C996C
-    
-    static var primaryGray = gray.hex1C1F1C
+
 }
 
 struct GreenColors {

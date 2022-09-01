@@ -174,13 +174,12 @@ private extension LeagueSearchContentView {
         
         let imageName = "\(league.name) - \(league.id).png"
         
-        Task.init {
-            if let image = await Cached.data.retrieveImage(from: imageName) {
+            if let image = QuickCache.helper.retrieveImage(from: imageName) {
                 
                 self.leagueLogo.image = image
                 
                 return
-            }
+    
         }
         
         guard let url = URL(string: league.logo!) else { return }

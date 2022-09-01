@@ -25,12 +25,12 @@ extension TitleSupplementaryView {
 
         self.layer.cornerRadius = 10
         self.layer.borderWidth = 1
-        self.layer.borderColor = Colors.teamDataStackCellBorderColor.cgColor
+        self.layer.borderColor = Colors.cellBorderGreen.cgColor
         self.backgroundColor = UIColor.clear
 
         self.constrain(label, using: .edges, padding: 10)
         label.font = UIFont.preferredFont(forTextStyle: .title1)
         label.textAlignment = .center
-        label.textColor = Colors.teamDataStackCellTextColor
+        label.textColor = Colors.cellTextGreen
     }
 }

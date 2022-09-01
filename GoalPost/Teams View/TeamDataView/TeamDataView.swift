@@ -42,11 +42,6 @@ class TeamDataView: UIView {
         return button
     } ()
     
-    //var matchLoading = false
-    //var injuryLoading = false
-    //var transferLoading = false
-    //var playerLoading = false
-    
     init() {
         super.init(frame: .zero)
 
@@ -202,9 +197,9 @@ class TeamDataView: UIView {
     
     // 3
     func setUpColors() {
-        self.backgroundColor = Colors.teamCellViewBackgroundColor
-        removalButton.backgroundColor = Colors.teamCellRemovalButtonBackgroundColor
-        removalButton.layer.borderColor = Colors.teamCellRemovalButtonBorderColor.cgColor
+        self.backgroundColor = Colors.cellBackgroundGray
+        removalButton.backgroundColor = Colors.removalButtonBackgroundColor
+        removalButton.layer.borderColor = Colors.removalButtonBorderColor.cgColor
         removalButton.setTitleColor(UIColor.white, for: .normal)
     }
     
@@ -216,11 +211,10 @@ class TeamDataView: UIView {
 extension TeamDataView {
     
     func updateContent() {
-        Task.init {
             guard let team = self.team else { return }
             self.nameLabel.text = team.name
-            await updateMatchSection()
-        }
+             updateMatchSection()
+
     }
 
     func clearCollectionView() {
@@ -231,37 +225,13 @@ extension TeamDataView {
         dataSource.apply(snapShot, to: .match, animatingDifferences: true)
     }
     
-    func manualRefresh() async {
-        /// Called when a cell is selected.
-        /// This should call each "updateSection".
-        /// __NOTE: As of 8/4, only Matches are included
-        
-        print("Team Data Stack - Refreshing for \(team?.name ?? "UKNOWN TEAM")")
-        
-        // MARK: Setup snap shots
-        //guard let dataSource = dataSource, let teamID = team?.id  else { return }
-        
-        // Create a snapshot that define the current state of data source's data
-        //var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, TeamDataObject>()
-        //snapshot.appendSections([.match])
-
-        await updateMatchSection()
-    }
-    
-    func updateMatchSection() async {
+    func updateMatchSection() {
         /// Called when 1. the cell is selected or 2. when teamsView has called DataFetcher to retrieve info about a team, and that operation has completed
         /// Get all of the matches in the dictionary, create a TeamDataObject for each, then apply to datasource. (This triggers the creation of the matchCollectionCells)
         
         print("TeamDataStack - Update Match Section for \(team?.name ?? "UKNOWN TEAM")")
-        
-        /*
-        if matchLoading {
-            self.load(.match)
-            return
-        }
-         */
 
-        guard let dataSource = self.dataSource, let teamId = self.team?.id, let matchIDs = await Cached.data.matchesByTeamDictionary[teamId] else { return }
+        guard let dataSource = self.dataSource, let teamId = self.team?.id, let matchIDs = QuickCache.helper.matchesByTeamDictionary[teamId] else { return }
 
         var snapshot = dataSource.snapshot(for: .match)
 
@@ -281,138 +251,13 @@ extension TeamDataView {
         }
 
         snapshot.applyDifferences(newItems: matches)
-        
-        
-        print(snapshot.items)
-        print(matches)
 
-        
-        await dataSource.apply(snapshot, to: .match, animatingDifferences: false)
+        dataSource.apply(snapshot, to: .match, animatingDifferences: false)
         
         let indexPath = IndexPath(item: position, section: 0)
         collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
     }
-    
-    /*
-    func load(_ sectionType: TeamDataObjectType) {
-        /// Called by teamsView before it calls DataFetcher to retrieve data about the team for a given section. "Loading" is cancelled once this is complete.
-        /// Create a "loading" cell of the given section type, remove everything else in the section, and then apply it
-        
-        print("TeamDataStack - Loading Section for \(team)")
-        guard let dataSource = self.dataSource else { return }
-        
-        switch sectionType {
-        case .match:
-            self.matchLoading = true
-        case .injury:
-            self.injuryLoading = true
-        case .transfer:
-            self.transferLoading = true
-        case .player:
-            self.playerLoading = true
-        }
-        
-        var snapshot = NSDiffableDataSourceSectionSnapshot<TeamDataObject>()
-        let loading = TeamDataObject(type: sectionType, loading: true)
-        snapshot.append([loading])
-        dataSource.apply(snapshot, to: sectionType, animatingDifferences: false)
-    }
-     */
 }
-
-extension TeamDataView {
-    
-    // VERSION 2
-    
-    func updateTransferSection() {
-        
-        print("TeamDataStack - Update Transfer Section for \(team)")
-        
-        /*
-        if transferLoading {
-            self.load(.transfer)
-            return
-        }
-         */
-        
-        Task.init {
-            
-            guard let dataSource = self.dataSource, let teamId = self.team?.id, let transferIDs = await Cached.data.transfersByTeamDictionary[teamId] else { return }
-
-            var snapshot = dataSource.snapshot(for: .transfer)
-
-            var transfers = [ObjectContainer]()
-            
-            for transferId in transferIDs.sorted(by: { $0 > $1 } ) {
-                transfers.append(ObjectContainer(transferId: transferId))
-            }
-            
-            snapshot.deleteAll()
-            snapshot.append(transfers)
-            await dataSource.apply(snapshot, to: .transfer, animatingDifferences: false)
-        }
-    }
-    
-    
-    func updateInjurySection() {
-
-        print("TeamDataStack - Update Injury Section for \(team?.name ?? "UKNOWN TEAM")")
-        
-        /*
-        if injuryLoading {
-            self.load(.injury)
-            return
-        }
-         */
-        
-        Task.init {
-
-            guard let dataSource = self.dataSource, let teamId = self.team?.id, let injuryIDs = await Cached.data.injuriesByTeamDictionary[teamId] else { return }
-
-            var snapshot = dataSource.snapshot(for: .injury)
-
-            var injuries = [ObjectContainer]()
-            
-            for injuryId in injuryIDs.sorted(by: { $0 > $1 } ) {
-                injuries.append(ObjectContainer(injuryId: injuryId))
-            }
-
-            snapshot.deleteAll()
-            snapshot.append(injuries)
-            await dataSource.apply(snapshot, to: .injury, animatingDifferences: false)
-        }
-    }
-    
-    func updatePlayerSection() {
-
-        print("TeamDataStack - Update Player Section for \(team?.name ?? "UKNOWN TEAM")")
-        
-        /*
-        if playerLoading {
-            self.load(.player)
-            return
-        }
-         */
-        
-        Task.init {
-
-            guard let dataSource = self.dataSource, let teamId = self.team?.id, let playerIDs = await Cached.data.playersByTeamDictionary[teamId] else { return }
-
-            var snapshot = dataSource.snapshot(for: .player)
-
-            var players = [ObjectContainer]()
-            
-            for playerId in playerIDs.sorted(by: { $0 < $1 } ) {
-                players.append(ObjectContainer(playerId: playerId))
-            }
-            
-            snapshot.deleteAll()
-            snapshot.append(players)
-            await dataSource.apply(snapshot, to: .player, animatingDifferences: false)
-        }
-    }
-}
-
 
 extension TeamDataView {
     @objc func removeTeam() {

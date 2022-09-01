@@ -99,20 +99,20 @@ class LeagueHeaderCell: UICollectionViewCell {
     // 4
     func setUpColors() {
         self.backgroundColor = UIColor.clear
-        self.layer.borderColor = Colors.teamDataStackCellTextColor.cgColor
+        self.layer.borderColor = Colors.cellTextGreen.cgColor
         self.layer.borderWidth = 1
-        nameLabel.textColor = Colors.teamDataStackCellTextColor
+        nameLabel.textColor = Colors.cellTextGreen
     }
     
     // MARK: Externally Triggered
     
     func updateAppearance() {
         if isSelected {
-            self.backgroundColor = Colors.teamDataStackCellBackgroundColor
+            self.backgroundColor = Colors.cellBackgroundGray
             nameLabel.textColor = .white
         } else {
             self.backgroundColor = UIColor.clear
-            nameLabel.textColor = Colors.teamDataStackCellTextColor
+            nameLabel.textColor = Colors.cellTextGreen
         }
     }
     
@@ -133,7 +133,7 @@ class LeagueHeaderCell: UICollectionViewCell {
             
             if let league = objectContainer.league {
                 nameLabel.text = league.name
-                await loadImage(for: league)
+                loadImage(for: league)
             }
             
             if objectContainer.favoriteLeague {
@@ -154,11 +154,11 @@ class LeagueHeaderCell: UICollectionViewCell {
         }
     }
     
-    func loadImage(for league: LeagueObject) async {
+    func loadImage(for league: LeagueObject) {
         
         let imageName = "\(league.name) - \(league.id).png"
         
-        if let image = await Cached.data.retrieveImage(from: imageName) {
+        if let image = QuickCache.helper.retrieveImage(from: imageName) {
             
             self.leagueLogo.image = image
             

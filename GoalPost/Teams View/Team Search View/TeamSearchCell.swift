@@ -96,13 +96,13 @@ class TeamSearchCell: UICollectionViewCell {
             
             let favorites = QuickCache.helper.favoriteTeamsDictionary
             
-            if favorites.contains { $0.key == teamInformation.id } {
+            if favorites.contains(where: { $0.key == teamInformation.id }) {
                 checkmarkLabel.isHidden = false
             } else {
                 checkmarkLabel.isHidden = true
             }
             
-            await loadImage(for: teamInformation)
+             loadImage(for: teamInformation)
         }
     }
     
@@ -116,11 +116,11 @@ class TeamSearchCell: UICollectionViewCell {
         }
     }
     
-    private func loadImage(for team: TeamObject) async {
+    private func loadImage(for team: TeamObject) {
         
         let imageName = "\(team.name) - \(team.id).png"
         
-        if let image = await Cached.data.retrieveImage(from: imageName) {
+        if let image = QuickCache.helper.retrieveImage(from: imageName) {
             
             self.teamLogo.image = image
             

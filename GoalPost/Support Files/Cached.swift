@@ -262,11 +262,11 @@ actor Cached {
         case .favoriteTeamsDictionary:
             guard let object = object as? TeamObject, let key = key as? TeamID else { fatalError() }
             self.favoriteTeamsDictionary[key] = object
-            QuickCache.helper.set(.favoriteTeamsDictionary, dictionary: teamDictionary)
+            QuickCache.helper.set(.favoriteTeamsDictionary, dictionary: favoriteTeamsDictionary)
         case .favoriteLeaguesDictionary:
             guard let object = object as? LeagueObject, let key = key as? LeagueID else { fatalError() }
             self.favoriteLeaguesDictionary[key] = object
-            QuickCache.helper.set(.favoriteLeaguesDictionary, dictionary: leagueDictionary)
+            QuickCache.helper.set(.favoriteLeaguesDictionary, dictionary: favoriteLeaguesDictionary)
         }
     }
 
@@ -403,20 +403,6 @@ actor Cached {
         }
     }
     
-    func retrieveImage(from string: String) -> UIImage? {
-        
-        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let url = documents.appendingPathComponent(string)
-        
-        // If a value exists, return it as Data, else return nil
-        guard let data = try? Data(contentsOf: url) else {
-            return nil
-        }
-        
-        // Convert it from Data to whatever type it is
-        return UIImage(data: data)
-    }
-    
     func save(image: UIImage, uniqueName: String) {
         
         guard let data = image.pngData() else { return }
@@ -546,5 +532,20 @@ class QuickCache {
     func updateFavorites() async {
         favoriteLeaguesDictionary = await Cached.data.favoriteLeaguesDictionary
         favoriteTeamsDictionary = await Cached.data.favoriteTeamsDictionary
+    }
+    
+    
+    func retrieveImage(from string: String) -> UIImage? {
+        
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = documents.appendingPathComponent(string)
+        
+        // If a value exists, return it as Data, else return nil
+        guard let data = try? Data(contentsOf: url) else {
+            return nil
+        }
+        
+        // Convert it from Data to whatever type it is
+        return UIImage(data: data)
     }
 }

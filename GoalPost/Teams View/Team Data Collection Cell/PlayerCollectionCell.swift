@@ -98,22 +98,21 @@ class PlayerCollectionCell: TeamDataStackCellModel {
     }
     
     func setUpColors() {
-        self.backgroundColor = Colors.teamDataStackCellBackgroundColor
-        allLabels.forEach { $0.textColor = Colors.teamDataStackCellTextColor }
-        greenLine.backgroundColor = Colors.teamDataStackCellTextColor
+        self.backgroundColor = Colors.cellBackgroundGray
+        allLabels.forEach { $0.textColor = Colors.cellTextGreen }
+        greenLine.backgroundColor = Colors.cellTextGreen
     }
     
     private func loadImage(for player: PlayerObject) {
         
         let imageName = "Player - \(player.id).png"
         
-        Task.init {
-            if let image = await Cached.data.retrieveImage(from: imageName) {
-                
-                self.playerImage.image = image
-                
-                return
-            }
+        if let image = QuickCache.helper.retrieveImage(from: imageName) {
+            
+            self.playerImage.image = image
+            
+            return
+            
         }
         
         guard let photo = player.photo, let url = URL(string: photo)  else { return }

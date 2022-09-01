@@ -33,9 +33,7 @@ class LeagueCollectionCell: UICollectionViewCell {
     let leagueLogo = UIImageView()
     
     // Stacks
-    var mainStack = UIStackView(.vertical)
-    
-    var titleStack = UIStackView(.horizontal)
+    var mainStack = UIStackView(.horizontal)
     
     // MARK: - Init
     
@@ -56,7 +54,6 @@ class LeagueCollectionCell: UICollectionViewCell {
         layer.cornerRadius = 8
         
         setUpMainStack()
-        setUpTitleStack()
         setUpColors()
     }
     
@@ -64,13 +61,9 @@ class LeagueCollectionCell: UICollectionViewCell {
     func setUpMainStack() {
         let padding: CGFloat = 5
         contentView.constrain(mainStack, using: .edges, padding: padding, debugName: "Main Stack to Content View - League Collection Cell")
-        mainStack.add([titleStack])
-    }
-    
-    // 2
-    func setUpTitleStack() {
-        titleStack.add(children: [(UIView(), 0.05), (nameArea, 0.8), (UIView(), nil), (logoArea, nil), (UIView(), 0.05)])
-        titleStack.alignment = .center
+            
+        mainStack.add(children: [(UIView(), 0.05), (nameArea, 0.8), (UIView(), nil), (logoArea, nil), (UIView(), 0.05)])
+        mainStack.alignment = .center
         
         nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - League Collection Cell")
         
@@ -88,9 +81,9 @@ class LeagueCollectionCell: UICollectionViewCell {
     // 4
     func setUpColors() {
         self.backgroundColor = UIColor.clear
-        self.layer.borderColor = Colors.teamDataStackCellTextColor.cgColor
+        self.layer.borderColor = Colors.cellTextGreen.cgColor
         self.layer.borderWidth = 1
-        nameLabel.textColor = Colors.teamDataStackCellTextColor
+        nameLabel.textColor = Colors.cellTextGreen
     }
     
     // MARK: Externally Triggered
@@ -103,26 +96,22 @@ class LeagueCollectionCell: UICollectionViewCell {
                 viewController.leagueDataView.league = self.leagueInformation
                 viewController.leaguesViewDelegate = self.leaguesViewDelegate
             }
-        } else {
-            print("Not selected")
         }
     }
     
     func updateContent() {
         
         guard let leagueInfo = leagueInformation else { return }
-        Task.init {
             nameLabel.text = leagueInfo.name
-            await loadImage(for: leagueInfo)
-        }
+             loadImage(for: leagueInfo)
     }
     
-    func loadImage(for league: LeagueObject) async {
+    func loadImage(for league: LeagueObject) {
         
         let imageName = "\(league.name) - \(league.id).png"
         
         
-        if let image = await Cached.data.retrieveImage(from: imageName) {
+        if let image =  QuickCache.helper.retrieveImage(from: imageName) {
             
             self.leagueLogo.image = image
             

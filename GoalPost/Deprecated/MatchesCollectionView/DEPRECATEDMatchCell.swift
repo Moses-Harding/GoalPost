@@ -270,8 +270,7 @@ class MatchCellContentView: UIView, UIContentView {
         
         let imageName = "\(team.name) - \(team.id).png"
         
-        Task.init {
-            if let image = await Cached.data.retrieveImage(from: imageName) {
+            if let image = QuickCache.helper.retrieveImage(from: imageName) {
                 
                 if teamType == .home {
                     self.homeImageView.image = image
@@ -280,7 +279,6 @@ class MatchCellContentView: UIView, UIContentView {
                 }
                 
                 return
-            }
         }
         
         guard let logo = team.logo, let url = URL(string: logo)  else { return }
