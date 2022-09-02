@@ -24,8 +24,6 @@ class TeamDataView: UIView {
     // Labels
     var nameLabel = UILabel()
     
-    //var totalHeight: CGFloat = 1200
-    var totalHeight: CGFloat = 300
     
     // Data
     var team: TeamObject? { didSet { updateContent() } }
@@ -58,16 +56,14 @@ class TeamDataView: UIView {
         
         mainStack.add(children: [(UIView(), 0.05), (nameArea, 0.05), (UIView(), 0.05), (removalButtonStack, 0.1), (UIView(), 0.05), (collectionViewArea, nil), (UIView(), 0.05)])
         
-        collectionViewArea.constrain(collectionView, using: .edges, padding: 5, debugName: "CollectionView to CollectionViewArea - InjuryTeamDataStack")
-        nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - Team Collection Cell")
+        collectionViewArea.constrain(collectionView, using: .edges, padding: 5, debugName: "CollectionView to CollectionViewArea - TeamDataView")
+        nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - TeamDataView")
         
         nameLabel.font = UIFont.boldSystemFont(ofSize: 24)
         
         removalButtonStack.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         removalButtonStack.add(children: [(UIView(), 0.2), (removalButton, nil), (UIView(), 0.2)])
-        
-        self.heightAnchor.constraint(greaterThanOrEqualToConstant: totalHeight).isActive = true
     }
     
     // 1.5 - Called when collectionView is accessed for the first time
@@ -213,16 +209,7 @@ extension TeamDataView {
     func updateContent() {
             guard let team = self.team else { return }
             self.nameLabel.text = team.name
-             updateMatchSection()
-
-    }
-
-    func clearCollectionView() {
-        guard let dataSource = self.dataSource else { return }
-        
-        var snapShot = dataSource.snapshot(for: .match)
-        snapShot.deleteAll()
-        dataSource.apply(snapShot, to: .match, animatingDifferences: true)
+            updateMatchSection()
     }
     
     func updateMatchSection() {

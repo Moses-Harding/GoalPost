@@ -10,11 +10,9 @@ import UIKit
 
 class LeagueDataView: UIView {
     
-    
-    /*
-    var dataSource: UICollectionViewDiffableDataSource<LeagueDataObjectType, ObjectContainer>?
+
+    var dataSource: UICollectionViewDiffableDataSource<TeamDataObjectType, LeagueDateObject>?
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCollectionViewLayout())
-    */
      
     let mainStack = UIStackView(.vertical)
     
@@ -25,9 +23,6 @@ class LeagueDataView: UIView {
 
     // Labels
     var nameLabel = UILabel()
-    
-    //var totalHeight: CGFloat = 1200
-    var totalHeight: CGFloat = 300
     
     // Data
     var league: LeagueObject? { didSet { updateContent() } }
@@ -60,16 +55,14 @@ class LeagueDataView: UIView {
         
         mainStack.add(children: [(UIView(), 0.05), (nameArea, 0.05), (UIView(), 0.05), (removalButtonStack, nil), (UIView(), 0.05), (collectionViewArea, nil), (UIView(), 0.05)])
         
-        //collectionViewArea.constrain(collectionView, using: .edges, padding: 5, debugName: "CollectionView to CollectionViewArea - InjuryLeagueDataStack")
-        nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - League Collection Cell")
+        collectionViewArea.constrain(collectionView, using: .edges, padding: 5, debugName: "CollectionView to CollectionViewArea - LeagueDataView")
+        nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - LeagueDataView")
         
         nameLabel.font = UIFont.boldSystemFont(ofSize: 24)
         
         removalButtonStack.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         removalButtonStack.add(children: [(UIView(), 0.2), (removalButton, nil), (UIView(), 0.2)])
-        
-        self.heightAnchor.constraint(greaterThanOrEqualToConstant: totalHeight).isActive = true
     }
     
     // 1.5 - Called when collectionView is accessed for the first time
@@ -123,6 +116,40 @@ class LeagueDataView: UIView {
     
     // 2
     func setUpCollectionView() {
+        collectionView.register(LeagueDateCardCell.self, forCellWithReuseIdentifier: String(describing: LeagueDateCardCell.self))
+        
+        dataSource = UICollectionViewDiffableDataSource<TeamDataObjectType, LeagueDateObject>(collectionView: collectionView) {
+            (collectionView, indexPath, leagueDateObject) -> UICollectionViewCell? in
+            
+                guard let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: String(describing: LeagueDateCardCell.self),
+                    for: indexPath) as? LeagueDateCardCell else {
+                    fatalError("Could not cast cell as \(LeagueDateCardCell.self)")
+                }
+                
+                cell.leagueDateObject = leagueDateObject
+                return cell
+
+        }
+        collectionView.dataSource = dataSource
+        
+        // 3. Create a supplementary view registration. Generate a TitleSupplemenatryView, get the sectionIdentifier (e.g. .match), and set the label in the supplementaryView to the rawValue (in that case, "Matches"). Then provide this registration to the dataSource
+        let supplementaryRegistration = UICollectionView.SupplementaryRegistration<TitleSupplementaryView>(elementKind: ElementKind.titleElementKind.rawValue) {
+            (supplementaryView, elementKind, indexPath) in
+            if let snapshot = self.dataSource?.snapshot() {
+                let category = snapshot.sectionIdentifiers[indexPath.section]
+                supplementaryView.label.text = category.rawValue
+            }
+        }
+        
+        dataSource?.supplementaryViewProvider = { (view, kind, index) in
+            return self.collectionView.dequeueConfiguredReusableSupplementary(
+                using: supplementaryRegistration, for: index)
+        }
+        
+        var snapshot = NSDiffableDataSourceSnapshot<TeamDataObjectType, LeagueDateObject>()
+        snapshot.appendSections([.match])
+        dataSource?.apply(snapshot)
         
     }
     
@@ -141,16 +168,56 @@ class LeagueDataView: UIView {
 
 extension LeagueDataView {
     
+    
     func updateContent() {
-
-    }
-
-    func clearCollectionView() {
-
+            guard let league = self.league else { return }
+            self.nameLabel.text = league.name
+            updateMatchSection()
     }
     
-    func manualRefresh() async {
+    func updateMatchSection() {
+        /// Called when 1. the cell is selected or 2. when teamsView has called DataFetcher to retrieve info about a team, and that operation has completed
+        /// Get all of the matches in the dictionary, create a TeamDataObject for each, then apply to datasource. (This triggers the creation of the matchCollectionCells)
+        ///
+        
+        print("LeagueDataStack - Update Match Section for \(league?.name ?? "UKNOWN LEAGUE")")
 
+        guard let dataSource = self.dataSource, let leagueId = self.league?.id, let matchIDs = QuickCache.helper.matchesByLeagueDictionary[leagueId] else { return }
+
+        var snapshot = dataSource.snapshot(for: .match)
+
+        var leagueDates = [LeagueDateObject]()
+        
+        var leagueDateDictionary = [Date:LeagueDateObject]()
+        
+        for matchId in matchIDs {
+            guard let matchDate = Double(String(matchId.split(separator: "|")[0]))  else {
+                print("LeagueDataView - Could not get date in updateMatchSection")
+                continue
+            }
+            let date = Date(timeIntervalSince1970: matchDate)
+            var leagueDateObject = leagueDateDictionary[date] ?? LeagueDateObject(date: date)
+            leagueDateObject.matchIds.insert(matchId)
+            leagueDateDictionary[date] = leagueDateObject
+        }
+        
+        var position: Int = 0
+        var index: Int = 0
+        
+        for (date, leagueDateObject) in leagueDateDictionary.sorted(by: { $0.key > $1.key }) {
+            leagueDates.append(leagueDateObject)
+                if date > Date.now {
+                    position = index
+                }
+            index += 1
+        }
+
+        snapshot.applyDifferences(newItems: leagueDates)
+
+        dataSource.apply(snapshot, to: .match, animatingDifferences: false)
+        
+        let indexPath = IndexPath(item: position, section: 0)
+        collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
     }
     
 }

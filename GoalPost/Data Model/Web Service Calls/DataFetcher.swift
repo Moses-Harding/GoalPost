@@ -168,7 +168,7 @@ extension DataFetcher {
         
         await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true)
         //await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: matchesByTeamDictionary)
-        //await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary)
+        await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary)
         //await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: matchesByLeagueDictionary)
         print("DataFetcher - UpdateMatches - Integration Complete")
     }
@@ -254,7 +254,7 @@ extension DataFetcher {
         await completion()
     }
     
-    private func getDataFor(league: LeagueObject)  {
+    func getDataFor(league: LeagueObject)  {
         DispatchQueue(label: "Match Queue", attributes: .concurrent).async {
             Task.init {
                 let (matchesDictionary, matchesByTeamDictionary, matchesByDateDictionary, matchesByLeagueDictionary) = try await GetMatches.helper.getMatchesFor(league: league)

@@ -66,6 +66,8 @@
 		15A74168283DF6490054BAD4 /* League.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A74167283DF6490054BAD4 /* League.swift */; };
 		15A7416A283DF6540054BAD4 /* Ad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A74169283DF6540054BAD4 /* Ad.swift */; };
 		15A7416D283DF71E0054BAD4 /* Web Service Call Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A7416C283DF71E0054BAD4 /* Web Service Call Object.swift */; };
+		15A99FF028C1ACAD00BC6D85 /* LeagueDateCardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A99FEF28C1ACAD00BC6D85 /* LeagueDateCardCell.swift */; };
+		15A99FF228C1B9EA00BC6D85 /* LeagueDateObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A99FF128C1B9EA00BC6D85 /* LeagueDateObject.swift */; };
 		15C01FED28AE93F50046501B /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C01FEC28AE93F50046501B /* UIImage.swift */; };
 		15C621372814592D005A13E7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C621362814592D005A13E7 /* AppDelegate.swift */; };
 		15C621392814592D005A13E7 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C621382814592D005A13E7 /* SceneDelegate.swift */; };
@@ -148,6 +150,8 @@
 		15A74167283DF6490054BAD4 /* League.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = League.swift; sourceTree = "<group>"; };
 		15A74169283DF6540054BAD4 /* Ad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ad.swift; sourceTree = "<group>"; };
 		15A7416C283DF71E0054BAD4 /* Web Service Call Object.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Web Service Call Object.swift"; sourceTree = "<group>"; };
+		15A99FEF28C1ACAD00BC6D85 /* LeagueDateCardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeagueDateCardCell.swift; sourceTree = "<group>"; };
+		15A99FF128C1B9EA00BC6D85 /* LeagueDateObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeagueDateObject.swift; sourceTree = "<group>"; };
 		15C01FEC28AE93F50046501B /* UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
 		15C621332814592D005A13E7 /* GoalPost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GoalPost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		15C621362814592D005A13E7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -212,6 +216,7 @@
 			children = (
 				1521B01228BF1279003EC91D /* LeagueDataViewController.swift */,
 				1521B01428BF12A1003EC91D /* LeagueDataView.swift */,
+				15A99FEF28C1ACAD00BC6D85 /* LeagueDateCardCell.swift */,
 			);
 			path = LeagueDataView;
 			sourceTree = "<group>";
@@ -328,6 +333,7 @@
 				15A74163283DF5F30054BAD4 /* Team.swift */,
 				1533429E2846AB48006EC083 /* Transfer.swift */,
 				155CD97228458FBF00F5C4CE /* ObjectContainer.swift */,
+				15A99FF128C1B9EA00BC6D85 /* LeagueDateObject.swift */,
 			);
 			path = "Data Structures";
 			sourceTree = "<group>";
@@ -546,6 +552,8 @@
 				15FE14672833213000DAB2A0 /* DEPRECATEDTeamCollectionCell.swift in Sources */,
 				1521B37528566C8C007C0BF3 /* TeamDataStackCellModel.swift in Sources */,
 				1548A15328236F3A00741179 /* Colors.swift in Sources */,
+				15A99FF028C1ACAD00BC6D85 /* LeagueDateCardCell.swift in Sources */,
+				15A99FF228C1B9EA00BC6D85 /* LeagueDateObject.swift in Sources */,
 				15175B7028AAC21E0039994A /* NSDiffableDataSourceSectionSnapshot.swift in Sources */,
 				1521B01528BF12A1003EC91D /* LeagueDataView.swift in Sources */,
 				15DAA8E428285260005492F0 /* String.swift in Sources */,

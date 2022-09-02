@@ -22,8 +22,8 @@ class UpdateTimer {
         }
         
         if rootController.selectedIndex == 0 {
-            completion()
             DispatchQueue.main.asyncAfter(deadline: .now() + 60.0) { [weak self] in
+                completion()
                 self?.executeTimer(completion)
             }
         } else {

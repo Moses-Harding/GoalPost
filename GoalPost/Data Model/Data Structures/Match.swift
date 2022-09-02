@@ -53,6 +53,10 @@ class MatchObject: Codable {
         return "\(homeTeam?.name ?? "NAME UNKNOWN"): \(String(homeTeamScore) ?? "") vs \(awayTeam?.name ?? "NAME UNKNOWN"): \(String(awayTeamScore) ?? "")\n\(timeElapsed) - \(status)\n"
     }
     
+    var marquee: String {
+        return "\(homeTeam?.name ?? "NAME UNKNOWN") vs \(awayTeam?.name ?? "NAME UNKNOWN")"
+    }
+    
     var leagueId: LeagueID?
     
     init(id: MatchID, favoriteTeam: Bool = false, timeStamp: Date, timeElapsed: Int? = nil, status: MatchStatusCode? = nil, leagueId: LeagueID? = nil, homeTeamId: TeamID, awayTeamId: TeamID, homeTeamScore: Int? = nil, awayTeamScore: Int? = nil) {
