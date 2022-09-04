@@ -68,20 +68,44 @@ class GetMatches {
         let searchDate = formatter.string(from: date)
         
         let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?date=\(searchDate)"
-        
-        note(fileName: "Get Matches", "About to call")
         let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
-        note(fileName: "Get Matches", "Data retrieved")
         let (matchesDictionary, matchesByDateSet) = try await convertDate(data: data)
-        note(fileName: "Get Matches", "Data converted")
         
         return (matchesDictionary, matchesByDateSet)
     }
     
+    func getMatchesFor(matchIds: [Int]) async throws -> ([MatchUniqueID:MatchObject], [DateString: Set<MatchUniqueID>]) {
+
+        var searchString = ""
+        
+        for x in 0 ..< matchIds.count {
+            if x != 0 {
+                searchString += "-"
+            }
+            searchString += "\(String(matchIds[x]))"
+        }
+        
+        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?ids=\(searchString)"
+        
+        let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
+        let (matchesDictionary, matchesByDateSet) = try await convertDate(data: data)
+        
+        return (matchesDictionary, matchesByDateSet)
+    }
+    
+    func getLiveMatches() async throws -> ([MatchUniqueID:MatchObject], [DateString: Set<MatchUniqueID>]) {
+        
+        let requestURL = "https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all"
+        
+        let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
+        let (matchesDictionary, matchesByDateSet) = try await convertDate(data: data)
+        
+        return (matchesDictionary, matchesByDateSet)
+    }
+    
+    
     func convert(data: Data?) async throws -> ([MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>]) {
-        
-        // Task.init {
-        
+
         var matchesDictionary = [MatchUniqueID:MatchObject]()
         var matchesByTeam = [TeamID:Set<MatchUniqueID>]()
         var matchesByDateSet = [DateString: Set<MatchUniqueID>]()
@@ -106,7 +130,8 @@ class GetMatches {
             let homeTeamId = result.teams.home.id
             let awayTeamId = result.teams.away.id
             
-            if favoriteLeagues.keys.contains(leagueId) || favoriteTeams.keys.contains(homeTeamId) || favoriteTeams.keys.contains(awayTeamId) || matchDictionary.keys.contains(matchUniqueId) {
+            if favoriteLeagues.keys.contains(leagueId) || favoriteTeams.keys.contains(homeTeamId) ||
+                favoriteTeams.keys.contains(awayTeamId) || matchDictionary.keys.contains(matchUniqueId) {
                 
                 let matchDate = Date(timeIntervalSince1970: TimeInterval(result.fixture.timestamp))
 
@@ -131,7 +156,6 @@ class GetMatches {
         
         note(fileName: "Get Matches", "Data Converted")
         return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet)
-        //}
     }
     
     func convertDate(data: Data?) async throws -> ([MatchUniqueID:MatchObject], [DateString: Set<MatchUniqueID>]) {
@@ -142,7 +166,7 @@ class GetMatches {
         guard let data = data else { throw WebServiceCallErrors.dataNotPassedToConversionFunction }
         let results: GetMatchesStructure = try JSONDecoder().decode(GetMatchesStructure.self, from: data)
         
-        note(fileName: "Get Matches", "Number of results - \(results.response.count)")
+        print("Get Matches - Number of results - \(results.response.count) - \(Date.now.timeStamp)")
         
         let favoriteLeagues = await Cached.data.favoriteLeaguesDictionary
         let favoriteTeams = await Cached.data.favoriteTeamsDictionary
@@ -163,6 +187,9 @@ class GetMatches {
                 let matchDate = Date(timeIntervalSince1970: TimeInterval(result.fixture.timestamp))
 
                 let matchData = MatchObject(getMatchesStructure: result, favoriteTeam: false)
+                
+                
+                // print("GetMatches - Adding \(matchData.marquee) - \(Date.now.timeStamp)")
 
                 // Add if it's in a favorite league
                 if favoriteLeagues.keys.contains(leagueId) {
@@ -176,7 +203,7 @@ class GetMatches {
             }
         }
         
-        note(fileName: "Get Matches", "Convert Date - Data Converted")
+        print("Get Matches - Convert Date - Data Converted - \(results.response.count) - \(Date.now.timeStamp)")
         return (matchesDictionary, matchesByDateSet)
     }
 }

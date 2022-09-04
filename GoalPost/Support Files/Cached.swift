@@ -232,7 +232,10 @@ actor Cached {
         self.transferDictionary = [:]
     }
     
-    func set(_ type: CacheDictionary, with key: Any, to object: Any) {
+    func set(_ type: CacheDictionary, with key: Any, to object: Any, calledBy: String) {
+        
+        print("Cached.data - Set - Called By \(calledBy) - \(Date.now.timeStamp)")
+        
         switch type {
             
         case .injuryDictionary:
@@ -274,11 +277,13 @@ actor Cached {
     //
     
     func favoriteTeamsRemoveValue(forKey key: TeamID) {
+        //print("Cached.data - Favorite Teams Remove Value - Called By \(calledBy) - \(Date.now.timeStamp)")
         favoriteTeamsDictionary.removeValue(forKey: key)
         QuickCache.helper.set(.favoriteTeamsDictionary, dictionary: self.favoriteTeamsDictionary)
     }
     
     func favoriteLeaguesRemoveValue(forKey key: LeagueID) {
+        //print("Cached.data - Favorite Leagues Remove Value - Called By \(calledBy) - \(Date.now.timeStamp)")
         favoriteLeaguesDictionary.removeValue(forKey: key)
         QuickCache.helper.set(.favoriteLeaguesDictionary, dictionary: self.favoriteLeaguesDictionary)
     }
@@ -286,19 +291,25 @@ actor Cached {
     //
     
     func playerDictionary(_ id: PlayerID) -> PlayerObject? {
+        //print("Cached.data - PlayerDictionary - Called By \(calledBy) - \(Date.now.timeStamp)")
         return self.playerDictionary[id]
     }
     
     func injuryDictionary(_ id: InjuryID) -> InjuryObject? {
+        //print("Cached.data - Injury Dictionary - Called By \(calledBy) - \(Date.now.timeStamp)")
         return self.injuryDictionary[id]
     }
     
     func transferDictionary(_ id: TransferID) -> TransferObject? {
+        //print("Cached.data - TransferDictionary - Called By \(calledBy) - \(Date.now.timeStamp)")
         return self.transferDictionary[id]
     }
     
     
-    func addIfNoneExists(_ type: CacheDictionary, _ object: Any, key: Any) {
+    func addIfNoneExists(_ type: CacheDictionary, _ object: Any, key: Any, calledBy: String) {
+        
+        //print("Cached.data - AddIfNoneExists - Called By \(calledBy) - \(Date.now.timeStamp)")
+        
         switch type {
             
         case .injuryDictionary:
@@ -337,7 +348,10 @@ actor Cached {
     }
 
     
-    func integrateSet<T, U>(type: CacheSetDictionary, dictionary: Dictionary<T, Set<U>>) {
+    func integrateSet<T, U>(type: CacheSetDictionary, dictionary: Dictionary<T, Set<U>>, calledBy: String) {
+        
+        print("Cached.data - IntegrateSet - Called By \(calledBy) - \(Date.now.timeStamp)")
+        
         switch type {
         case .matchesByDateDictionary:
             guard let dictionary = dictionary as? MatchesByDateDictionary else { fatalError() }
@@ -366,11 +380,14 @@ actor Cached {
         }
     }
     
-    func integrate<T, U>(type: CacheDictionary, dictionary: Dictionary<T, U>, replaceExistingValue replace: Bool) {
+    func integrate<T, U>(type: CacheDictionary, dictionary: Dictionary<T, U>, replaceExistingValue replace: Bool, calledBy: String) {
+        
+        print("Cached.data - Integrate - Called By \(calledBy) - \(Date.now.timeStamp)")
+        
         switch type {
         case .injuryDictionary:
             guard let dictionary = dictionary as? InjuryDictionary else { fatalError() }
-            self.injuryDictionary.integrate(dictionary, replaceExistingValue: replace)
+            injuryDictionary.integrate(dictionary, replaceExistingValue: replace)
             print("WARNING: Cached - integrate - QuickCache not implemented for \(type.rawValue)")
         case .leagueDictionary:
             guard let dictionary = dictionary as? LeagueDictionary else { fatalError() }

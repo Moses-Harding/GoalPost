@@ -11,9 +11,8 @@ struct Testing {
     static var manager = Testing()
     
     var verboseWebServiceCalls = false
-    
-    var getMatchesForFavoriteLeagues = true
-    var getLiveTestData = true
+
+    var getLiveData = false
     
     var disableAds = true
 }

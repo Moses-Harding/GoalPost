@@ -45,8 +45,9 @@ class MatchCell: UICollectionViewCell {
     
     var imageStack = UIStackView(.horizontal)
     var labelStack = UIStackView(.vertical)
-    var statusStack = UIStackView(.horizontal)
+    //var statusStack = UIStackView(.vertical)
     var statusArea = UIView()
+    var statusBackgroundStack = UIStackView(.horizontal)
     var separator = UIView()
     
     var homeImage = UIView()
@@ -80,12 +81,35 @@ class MatchCell: UICollectionViewCell {
         
         addSubview(mainStack)
         mainStack.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            mainStack.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
-            mainStack.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            mainStack.topAnchor.constraint(equalTo: contentView.topAnchor),
-            mainStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-        ])
+        
+        let layoutMarginsGuide = layoutMarginsGuide
+        
+        let leadingMain = mainStack.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor)
+        let trailingMain = mainStack.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
+        let topMain = mainStack.topAnchor.constraint(equalTo: contentView.topAnchor)
+        let bottomMain = mainStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        NSLayoutConstraint.activate([ leadingMain, trailingMain, topMain, bottomMain ])
+        
+        leadingMain.identifier = "MatchCell - MainStack To ContentView - Leading"
+        trailingMain.identifier = "MatchCell - MainStack To ContentView - Trailing"
+        topMain.identifier = "MatchCell - MainStack To ContentView - Top"
+        bottomMain.identifier = "MatchCell - MainStack To ContentView - Bottom"
+        
+        layoutMarginsGuide.identifier = "MatchCell - LayoutMarginsGuide"
+        
+        mainStack.accessibilityIdentifier = "MainStack"
+        topStack.accessibilityIdentifier = "TopStack"
+        bottomStack.accessibilityIdentifier = "BottomStack"
+        contentView.accessibilityIdentifier = "ContentView"
+        homeTeamStack.accessibilityIdentifier = "HomeTeamStack"
+        awayTeamStack.accessibilityIdentifier = "AwayTemStack"
+        statusBackgroundStack.accessibilityIdentifier = "StatusBackgroundArea"
+        statusArea.accessibilityIdentifier = "StatusArea"
+        imageStack.accessibilityIdentifier = "ImageStack"
+        startTimeLabel.accessibilityIdentifier = "StartTimeLabel"
+        homeImage.accessibilityIdentifier = "HomeImage"
+        awayImage.accessibilityIdentifier = "AwayImage"
+        timeElapsedLabel.accessibilityIdentifier = "TimeElapsedLabel"
 
         mainStack.add([separator, topStack, bottomStack])
         
@@ -94,7 +118,7 @@ class MatchCell: UICollectionViewCell {
         separator.heightAnchor.constraint(equalToConstant: 1).isActive = true
 
         topStack.add(children: [(homeTeamStack, 0.75), (startTimeLabel, nil)])
-        bottomStack.add(children: [(awayTeamStack, 0.75), (statusStack, nil)])
+        bottomStack.add(children: [(awayTeamStack, 0.75), (statusArea, nil)])
         
         homeTeamStack.add(children: [(homeImage, nil), (homeTeamLabel, 0.8), (homeTeamScore, nil)])
         awayTeamStack.add(children: [(awayImage, nil), (awayTeamLabel, 0.8), (awayTeamScore, nil)])
@@ -105,20 +129,23 @@ class MatchCell: UICollectionViewCell {
         // MARK: Format labels
         
         allLabels.forEach { $0.textColor = Colors.cellBodyTextColor }
-        timeElapsedLabel.font = UIFont.systemFont(ofSize: 12)
+        
         startTimeLabel.textAlignment = .center
         
         // MARK: Format Individual Views
+
+        statusArea.constrain(statusBackgroundStack, using: .scale, widthScale: 0.5, heightScale: 0.8, debugName: "StatusBackgroundArea -> StatusArea")
+        statusBackgroundStack.constrain(timeElapsedLabel, using: .scale, debugName: "TimeElapsedLabel -> StatusArea")
+        statusBackgroundStack.layer.borderColor = Colors.titleAreaTextColor.cgColor
+        statusBackgroundStack.layer.borderWidth = 1
+        statusBackgroundStack.layer.cornerRadius = 10
+
+        timeElapsedLabel.font = UIFont.systemFont(ofSize: 12)
+        timeElapsedLabel.textAlignment = .center
+        timeElapsedLabel.adjustsFontSizeToFitWidth = true
+        timeElapsedLabel.minimumScaleFactor = 0.2
         
-        statusStack.add(children: [(UIView(), nil), (statusArea, nil), (UIView(), nil)])
-        statusStack.distribution = .equalCentering
-        statusArea.constrain(timeElapsedLabel, using: .scale, heightScale: 1.0, padding: 0, except: [.width], safeAreaLayout: false, debugName: "Time Elapsed Outline Constraining TIme Elapsed Label")
-        statusArea.heightAnchor.constraint(equalTo: statusStack.heightAnchor, multiplier: 0.8).isActive = true
-        statusArea.layer.borderColor = Colors.titleAreaTextColor.cgColor
-        statusArea.layer.borderWidth = 1
-        statusArea.layer.cornerRadius = 10
-        statusArea.widthAnchor.constraint(equalTo: timeElapsedLabel.widthAnchor, multiplier: 2).isActive = true
-        
+
         // MARK: Set up image stack
         
         homeImage.constrain(homeImageView, using: .scale, widthScale: 1, heightScale: 1, padding: 1, except: [.height], safeAreaLayout: false, debugName: "Home Image View")
@@ -128,10 +155,10 @@ class MatchCell: UICollectionViewCell {
         
         imageStack.alignment = .center
         
-        refreshCell()
+        refreshCellConstraints()
     }
     
-    func refreshCell() {
+    func refreshCellConstraints() {
         
         if let container = objectContainer {
             separator.backgroundColor = container.showSeperator ? Colors.gray.hex282B28 : .clear
@@ -156,7 +183,8 @@ class MatchCell: UICollectionViewCell {
         let status = match.status
         let time = match.timeElapsed
 
-        var backgroundColor = UIColor.clear
+        var cellBackgroundColor = UIColor.clear
+        var statusBackgroundColor = UIColor.clear
         var borderColor = UIColor.clear
         var borderWidth: CGFloat = 0
         var timeElapsed = ""
@@ -189,24 +217,26 @@ class MatchCell: UICollectionViewCell {
             borderWidth = 1
             borderColor = Colors.statusRed
         case .finished:
-            backgroundColor = Colors.titleAreaColor
+            statusBackgroundColor = Colors.titleAreaColor
             timeElapsed = "FT"
         case .finishedAfterPenalties:
-            backgroundColor = Colors.titleAreaColor
+            statusBackgroundColor = Colors.titleAreaColor
             timeElapsed = "FT"
         case .finishedAfterExtraTime:
-            backgroundColor = Colors.titleAreaColor
+            statusBackgroundColor = Colors.titleAreaColor
             timeElapsed = "FT"
         default:
-            timeElapsed = " " + String(time) + " "
+            timeElapsed = String(time) + "'"
             borderWidth = 1
             borderColor = Colors.cellSecondaryTextColor
+            cellBackgroundColor = Colors.cellHighlightedBackgroundColor
         }
         
-        statusArea.backgroundColor = backgroundColor
-        statusArea.layer.borderWidth = borderWidth
-        statusArea.layer.borderColor = borderColor.cgColor
+        statusBackgroundStack.backgroundColor = statusBackgroundColor
+        statusBackgroundStack.layer.borderWidth = borderWidth
+        statusBackgroundStack.layer.borderColor = borderColor.cgColor
         timeElapsedLabel.text = timeElapsed
+        backgroundColor = cellBackgroundColor
     }
     
     func updateData() {
@@ -217,7 +247,6 @@ class MatchCell: UICollectionViewCell {
         
         
         if let oldObjectContainer = oldObjectContainer, let newObjectContainer = objectContainer, oldObjectContainer == newObjectContainer {
-                print("MatchCell - Cell is the same")
             newMatch = false
         } else {
             newMatch = true
@@ -225,7 +254,7 @@ class MatchCell: UICollectionViewCell {
         
         oldObjectContainer = objectContainer
         
-        refreshCell()
+        refreshCellConstraints()
         
         homeTeamScore.text = String(match.homeTeamScore)
         awayTeamScore.text = String(match.awayTeamScore)

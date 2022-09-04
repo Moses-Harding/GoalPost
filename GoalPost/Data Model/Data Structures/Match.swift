@@ -15,7 +15,7 @@ class MatchObject: Codable {
     var timeStamp: Date
     var timezone: String?
     var timeElapsed: Int?
-
+    
     var homeTeam: TeamObject? {
         return QuickCache.helper.teamDictionary[homeTeamId]
     }
@@ -26,7 +26,7 @@ class MatchObject: Codable {
     var awayTeam: TeamObject? {
         return QuickCache.helper.teamDictionary[awayTeamId]
     }
-
+    
     var awayTeamId: TeamID
     var awayTeamScore: Int?
     
@@ -40,13 +40,13 @@ class MatchObject: Codable {
     }
     
     /*
-    func league() async -> LeagueObject? {
-        if let id = leagueId {
-            return await Cached.data.leagueDictionary(id)
-        } else {
-            return nil
-        }
-    }
+     func league() async -> LeagueObject? {
+     if let id = leagueId {
+     return await Cached.data.leagueDictionary(id)
+     } else {
+     return nil
+     }
+     }
      */
     
     var details: String {
@@ -88,11 +88,14 @@ class MatchObject: Codable {
         let homeTeam = TeamObject(getMatchInfoTeam: getMatchesStructure.teams.home)
         let awayTeam = TeamObject(getMatchInfoTeam: getMatchesStructure.teams.away)
         
-        Task.init {
-           await Cached.data.addIfNoneExists(.teamDictionary, homeTeam, key: getMatchesStructure.teams.home.id)
-           await Cached.data.addIfNoneExists(.teamDictionary, awayTeam, key: getMatchesStructure.teams.away.id)
-            
-           await Cached.data.addIfNoneExists(.leagueDictionary, LeagueObject(getMatchInformationLeague: getMatchesStructure.league), key: getMatchesStructure.league.id)
+        DispatchQueue.global(qos: .background).async {
+            Task.init {
+                
+                await Cached.data.addIfNoneExists(.teamDictionary, homeTeam, key: getMatchesStructure.teams.home.id, calledBy: "MatchObject")
+                await Cached.data.addIfNoneExists(.teamDictionary, awayTeam, key: getMatchesStructure.teams.away.id, calledBy: "MatchObject")
+                
+                await Cached.data.addIfNoneExists(.leagueDictionary, LeagueObject(getMatchInformationLeague: getMatchesStructure.league), key: getMatchesStructure.league.id, calledBy: "MatchObject")
+            }
         }
     }
 }

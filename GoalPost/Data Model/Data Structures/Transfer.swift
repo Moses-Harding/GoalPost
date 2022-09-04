@@ -53,9 +53,9 @@ class TransferObject: Codable {
         self.id = "\(year)\(month)\(day) - \(playerId) - \(teamToId) - \(teamFromId)"
          
         Task.init{
-           await Cached.data.addIfNoneExists(.teamDictionary, TeamObject(id: teamToId, name: teamToName, logo: teamsIn.logo), key: teamToId)
-           await Cached.data.addIfNoneExists(.teamDictionary, TeamObject(id: teamFromId, name: teamFromName, logo: teamsOut.logo), key: teamFromId)
-           await Cached.data.addIfNoneExists(.playerDictionary, PlayerObject(id: player.id, name: playerName, photo: nil), key: player.id)
+           await Cached.data.addIfNoneExists(.teamDictionary, TeamObject(id: teamToId, name: teamToName, logo: teamsIn.logo), key: teamToId, calledBy: "GetTransferInformation")
+           await Cached.data.addIfNoneExists(.teamDictionary, TeamObject(id: teamFromId, name: teamFromName, logo: teamsOut.logo), key: teamFromId, calledBy: "GetTransferInformation")
+           await Cached.data.addIfNoneExists(.playerDictionary, PlayerObject(id: player.id, name: playerName, photo: nil), key: player.id, calledBy: "GetTransferInformation")
         }
     }
 }

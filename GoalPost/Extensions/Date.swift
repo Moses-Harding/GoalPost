@@ -9,6 +9,17 @@ import Foundation
 
 extension Date {
     
+    public var removeTimeStamp: Date? {
+       guard let date = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month, .day], from: self)) else {
+        return nil
+       }
+       return date
+   }
+    
+    var timeStamp: String {
+        return self.formatted(date: .omitted, time: .complete)
+    }
+    
     var asKey: String {
         return self.formatted(date: .numeric, time: .omitted)
     }
@@ -22,4 +33,6 @@ extension Date {
     func dayOfWeekFormat() -> String {
         return self.formatted(Date.FormatStyle().weekday(.wide).month(.defaultDigits).day(.defaultDigits).year(.twoDigits))
     }
+    
+
 }

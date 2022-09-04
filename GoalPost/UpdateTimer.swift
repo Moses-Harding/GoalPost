@@ -17,13 +17,17 @@ class UpdateTimer {
     
     func executeTimer(_ completion: @escaping (() -> ())) {
         
+        //guard Testing.manager.getLiveData else { return }
+        
         guard let rootController = rootController else {
             fatalError("Update Timer - RootController not passed")
         }
         
         if rootController.selectedIndex == 0 {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 60.0) { [weak self] in
-                completion()
+            
+            completion()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 30.0) { [weak self] in
                 self?.executeTimer(completion)
             }
         } else {

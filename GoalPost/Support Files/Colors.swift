@@ -38,6 +38,7 @@ struct Colors {
     
     static var cellBackgroundGray = gray.hex1C1F1C
     static var cellSecondaryTextColor = green.hex5C996C
+    static var cellHighlightedBackgroundColor = gray.hex4A5759Alpha//green.hex5C996CAlpha
 
     static var removalButtonBackgroundColor = red.hexFC7168
     static var removalButtonBorderColor = red.hexFE5F55
@@ -59,6 +60,7 @@ struct Colors {
 struct GreenColors {
     var hex18EE88 = UIColor(red: 0.09, green: 0.93, blue: 0.53, alpha: 1.00)
     var hex5C996C = UIColor(red: 0.36, green: 0.60, blue: 0.42, alpha: 1.00)
+    var hex5C996CAlpha = UIColor(red: 0.36, green: 0.60, blue: 0.42, alpha: 0.2)
     var hexD9FCEB = UIColor(red: 0.85, green: 0.99, blue: 0.92, alpha: 1.00)
     //var hexECFDF5 = UIColor(red: 0.93, green: 0.99, blue: 0.96, alpha: 1.00)
     //var hex99EDCC = UIColor(red: 0.60, green: 0.93, blue: 0.80, alpha: 1.00)
@@ -82,6 +84,7 @@ struct GrayColors {
     var hex313531 = UIColor(red: 0.19, green: 0.21, blue: 0.19, alpha: 1.00)
     //var hexCACECA = UIColor(red: 0.79, green: 0.81, blue: 0.79, alpha: 1.00)
     var hex4A5759 = UIColor(red: 0.29, green: 0.34, blue: 0.35, alpha: 1.00)
+    var hex4A5759Alpha = UIColor(red: 0.29, green: 0.34, blue: 0.35, alpha: 0.35)
     //var hexF7F5F5 = UIColor(red: 0.97, green: 0.96, blue: 0.96, alpha: 1.00)
 }
 

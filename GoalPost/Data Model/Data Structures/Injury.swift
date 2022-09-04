@@ -63,8 +63,8 @@ class InjuryObject: Codable {
         
         
         Task.init {
-           await Cached.data.addIfNoneExists(.playerDictionary, PlayerObject(getInjuriesInformationPlayer: info.player), key: playerId)
-           await Cached.data.addIfNoneExists(.leagueDictionary, LeagueObject(getInjuriesInformationLeague: info.league), key: leagueId)
+           await Cached.data.addIfNoneExists(.playerDictionary, PlayerObject(getInjuriesInformationPlayer: info.player), key: playerId, calledBy: "InjuryObject")
+           await Cached.data.addIfNoneExists(.leagueDictionary, LeagueObject(getInjuriesInformationLeague: info.league), key: leagueId, calledBy: "InjuryObject")
         }
     }
 }

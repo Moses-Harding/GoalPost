@@ -292,18 +292,15 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
     @objc func updateMatches() {
         Task.init {
             
-            print("MatchesView - Update matches")
-            
             let startTime = Date.now.formatted(date: .omitted, time: .complete)
+            
+            print("MatchesView - Update matches - \(startTime)")
             
             try await DataFetcher.helper.updateMatches()
             
-            let numberOfSections = collectionView.numberOfSections
-            for sectionIndex in 0 ..< numberOfSections {
-                let numberOfItems = collectionView.numberOfItems(inSection: sectionIndex)
-                for itemIndex in 0 ..< numberOfItems {
-                    let item = collectionView.cellForItem(at: IndexPath(item: itemIndex, section: sectionIndex))
-                    if let cell = item as? MatchCell {
+            for sectionIndex in 0 ..< collectionView.numberOfSections {
+                for itemIndex in 0 ..< collectionView.numberOfItems(inSection: sectionIndex) {
+                    if let cell = collectionView.cellForItem(at: IndexPath(item: itemIndex, section: sectionIndex)) as? MatchCell {
                         cell.updateData()
                     }
                 }

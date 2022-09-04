@@ -67,8 +67,18 @@ class LeagueHeaderCell: UICollectionViewCell {
     
     // 1
     func setUpMainStack() {
-        let padding: CGFloat = 0
-        contentView.constrain(mainStack, using: .edges, padding: padding, debugName: "Main Stack to Content View - Team Collection Cell")
+        
+        addSubview(mainStack)
+        mainStack.translatesAutoresizingMaskIntoConstraints = false
+        
+        let layoutMarginsGuide = layoutMarginsGuide
+        
+        let leadingMain = mainStack.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor)
+        let trailingMain = mainStack.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
+        let topMain = mainStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 15)
+        let bottomMain = mainStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -15)
+        NSLayoutConstraint.activate([ leadingMain, trailingMain, topMain, bottomMain ])
+        
         mainStack.add([titleStack])
     }
     
@@ -82,9 +92,6 @@ class LeagueHeaderCell: UICollectionViewCell {
         nameLabel.font = UIFont.boldSystemFont(ofSize: 24)
         
         logoArea.constrain(leagueLogo, except: [.height], debugName: "TeamLogo to Logo Area - Team Collection Cell")
-        
-        cellHeightConstraint = titleStack.heightAnchor.constraint(greaterThanOrEqualToConstant: 50)
-        cellHeightConstraint?.isActive = true
     }
     
     // 3
@@ -118,16 +125,6 @@ class LeagueHeaderCell: UICollectionViewCell {
     
     func updateContent() {
         
-        // Absolute constraints are updated here because this cell might reused by a different view model
-        
-        if cellHeightConstraint?.isActive == false {
-            cellHeightConstraint = titleStack.heightAnchor.constraint(greaterThanOrEqualToConstant: 50)
-            cellHeightConstraint?.isActive = true
-        }
-        
-
-
-        
         Task.init {
             guard let objectContainer = objectContainer else { return }
             
@@ -144,13 +141,11 @@ class LeagueHeaderCell: UICollectionViewCell {
             if let imageWidth = imageWidthConstraint{ imageWidth.isActive = false }
             if let imageHeight = imageHeightConstraint { imageHeight.isActive = false }
             
-            cellHeightConstraint?.isActive = false
-            cellHeightConstraint = titleStack.heightAnchor.constraint(greaterThanOrEqualToConstant: 50)
             cellHeightConstraint?.isActive = true
-            imageWidthConstraint = leagueLogo.heightAnchor.constraint(equalToConstant: 30)
-            imageWidthConstraint?.isActive = true
-            imageHeightConstraint = leagueLogo.widthAnchor.constraint(equalToConstant: leagueLogo.image?.resize(.width, proportionalTo: 30).width ?? 30)
+            imageHeightConstraint = leagueLogo.widthAnchor.constraint(equalToConstant: 30)
             imageHeightConstraint?.isActive = true
+            imageWidthConstraint = leagueLogo.heightAnchor.constraint(equalToConstant: leagueLogo.image?.resize(.height, proportionalTo: 30).height ?? 30)
+            imageWidthConstraint?.isActive = true
         }
     }
     

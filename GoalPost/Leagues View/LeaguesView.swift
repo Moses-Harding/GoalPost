@@ -173,7 +173,7 @@ extension LeaguesView: LeaguesViewDelegate { // Called externally
         DataFetcher.helper.getDataFor(league: league)
         
         Task.init {
-            await Cached.data.set(.favoriteLeaguesDictionary, with: league.id, to: league)
+            await Cached.data.set(.favoriteLeaguesDictionary, with: league.id, to: league, calledBy: "LeaguesView - Add")
         }
     }
     
