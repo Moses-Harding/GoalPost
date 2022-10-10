@@ -10,6 +10,7 @@ import UIKit
 
 class LeaguesViewController: UIViewController {
     
+    var rootController: RootController?
     var leaguesView = LeaguesView()
     var adView = UIView()
 

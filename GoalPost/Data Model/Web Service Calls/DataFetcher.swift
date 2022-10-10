@@ -13,10 +13,13 @@ struct DataFetcher {
     var suppressDataRetrieval = false
     
     func fetchDataIfValid() {
-        
-        guard Testing.manager.getLiveData else { return }
+    
+        guard Testing.manager.getLiveData else {
+            print("DataFetcher - FetchDataIfValid - Live data retrieval disabled")
+            return }
         
         let queue = DispatchQueue(label: "Get favorite data queue")
+
         
         if Saved.firstRun {
             
@@ -245,8 +248,6 @@ extension DataFetcher {
             await Cached.data.set(.favoriteLeaguesDictionary, with: key, to: league, calledBy: "DataFetcher - AddFavoriteTeam")
         }
         
-        await completion()
-        
         return team
     }
     
@@ -290,7 +291,7 @@ extension DataFetcher {
         await completion()
     }
     
-    func getDataFor(league: LeagueObject)  {
+    func getDataFor(league: LeagueObject, completion: (() -> ())? = nil)  {
         DispatchQueue(label: "Match Queue", attributes: .concurrent).async {
             Task.init {
                 let (matchesDictionary, matchesByTeamDictionary, matchesByDateDictionary, matchesByLeagueDictionary) = try await GetMatches.helper.getMatchesFor(league: league)
@@ -299,6 +300,8 @@ extension DataFetcher {
                 await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: matchesByTeamDictionary, calledBy: "DataFetcher - Get Data For")
                 await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary, calledBy: "DataFetcher - Get Data For")
                 await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: matchesByLeagueDictionary, calledBy: "DataFetcher - Get Data For")
+                
+                if let completion = completion { completion() }
             }
         }
     }

@@ -216,6 +216,9 @@ class MatchCell: UICollectionViewCell {
             timeElapsed = status.rawValue
             borderWidth = 1
             borderColor = Colors.statusRed
+        case .tbd:
+            statusBackgroundColor = Colors.titleAreaColor
+            timeElapsed = "TBD"
         case .finished:
             statusBackgroundColor = Colors.titleAreaColor
             timeElapsed = "FT"
@@ -231,7 +234,7 @@ class MatchCell: UICollectionViewCell {
             borderColor = Colors.cellSecondaryTextColor
             cellBackgroundColor = Colors.cellHighlightedBackgroundColor
         }
-        
+
         statusBackgroundStack.backgroundColor = statusBackgroundColor
         statusBackgroundStack.layer.borderWidth = borderWidth
         statusBackgroundStack.layer.borderColor = borderColor.cgColor

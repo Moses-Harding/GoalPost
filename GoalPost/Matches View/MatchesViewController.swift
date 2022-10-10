@@ -9,8 +9,8 @@ import UIKit
 
 class MatchesViewController: UIViewController {
     
+    var rootController: RootController?
     var matchesView = MatchesView()
-
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,9 +26,7 @@ class MatchesViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         matchesView.refresh()
-        UpdateTimer.helper.executeTimer {
-            self.matchesView.updateMatches()
-        }
+        UpdateTimer.helper.updateMatches(refreshClosure: { self.matchesView.refresh() }, updateClosure: { self.matchesView.updateMatches() })
     }
 }
 

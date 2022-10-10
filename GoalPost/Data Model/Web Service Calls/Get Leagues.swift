@@ -63,7 +63,14 @@ class GetLeagues {
             guard currentSeason > 0 else { print ("Get Leagues - \(response.league?.name ?? "UNKNOWN LEAGUE") could not locate season")
                 continue }
             
-            let leagueSearchData = LeagueObject(id: league.id, name: league.name, logo: league.logo, type: league.type, country: response.country?.name ?? "N/A", countryLogo: response.country?.flag, currentSeason: currentSeason, seasonStart: seasonStart, seasonEnd: seasonEnd)
+            var flagFileName: String?
+            
+            if let url = response.country?.flag {
+                flagFileName = String(url.split(separator: "/")[3])
+                print(flagFileName)
+            }
+            
+            let leagueSearchData = LeagueObject(id: league.id, name: league.name, logo: league.logo, type: league.type, country: response.country?.name ?? "N/A", countryLogo: flagFileName, currentSeason: currentSeason, seasonStart: seasonStart, seasonEnd: seasonEnd)
             leagueDictionary[leagueSearchData.id] = leagueSearchData
             team.leagueSet.insert(league.id)
         }
@@ -94,7 +101,13 @@ class GetLeagues {
             
             guard let league = response.league else { continue }
             
-            let leagueSearchData = LeagueObject(id: league.id, name: league.name, logo: league.logo, type: league.type, country: response.country?.name ?? "N/A", countryLogo: response.country?.flag, currentSeason: currentSeason, seasonStart: seasonStart, seasonEnd: seasonEnd)
+            var flagFileName: String?
+            
+            if let url = response.country?.flag {
+                flagFileName = String(url.split(separator: "/")[3])
+            }
+            
+            let leagueSearchData = LeagueObject(id: league.id, name: league.name, logo: league.logo, type: league.type, country: response.country?.name ?? "N/A", countryLogo: flagFileName, currentSeason: currentSeason, seasonStart: seasonStart, seasonEnd: seasonEnd)
             leagueDictionary[leagueSearchData.id] = leagueSearchData
         }
         

@@ -19,6 +19,11 @@ class LeagueObject: Codable {
     var seasonStart: String?
     var seasonEnd: String?
     var round: String?
+    
+    var details: String {
+        var details = "Name: \(name) - Country: \(country)\n\(countryLogo)"
+        return details
+    }
 
     init(id: Int, name: String, logo: String? = nil, type: LeagueSearchInformation_League_Type? = nil, country: String, countryLogo: String? = nil, currentSeason: Int? = nil, seasonStart: String? = nil, seasonEnd: String? = nil, round: String? = nil) {
         self.id = id
@@ -59,3 +64,35 @@ extension LeagueObject: CustomStringConvertible {
         return "\(self.name) - \(self.id)"
     }
 }
+
+/* NOTE: Country logos are downloaded via a web service call that only gets countries. They're then saved in the assets folder because they're SVGs. This is done via applescript - listed below:
+ 
+ tell application "Numbers"
+     
+     set filenames to value of every cell of range "A1:A163" of table 1 of sheet 1 of document 1
+     
+     set URLs to value of every cell of range "B1:B163" of table 1 of sheet 1 of document 1
+     
+ end tell
+
+
+
+ repeat with i from 1 to count URLs
+     
+     if (item i of filenames is not missing value) and (item i of URLs is not missing value) then
+         
+         set thisFname to quoted form of (POSIX path of ((path to desktop) as text) & item i of filenames)
+         
+         set thisUrl to quoted form of item i of URLs
+         
+         
+         
+         do shell script "curl -s -o " & thisFname & space & thisUrl
+         
+         
+         
+     end if
+     
+ end repeat
+ 
+ */

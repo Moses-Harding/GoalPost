@@ -57,9 +57,10 @@ class TeamDataView: UIView {
         mainStack.add(children: [(UIView(), 0.05), (nameArea, 0.05), (UIView(), 0.05), (removalButtonStack, 0.1), (UIView(), 0.05), (collectionViewArea, nil), (UIView(), 0.05)])
         
         collectionViewArea.constrain(collectionView, using: .edges, padding: 5, debugName: "CollectionView to CollectionViewArea - TeamDataView")
-        nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - TeamDataView")
+        nameArea.constrain(nameLabel, using: .scale, widthScale: 0.8, debugName: "Name label to name area - TeamDataView")
         
         nameLabel.font = UIFont.boldSystemFont(ofSize: 24)
+        nameLabel.textAlignment = .center
         
         removalButtonStack.heightAnchor.constraint(equalToConstant: 50).isActive = true
         

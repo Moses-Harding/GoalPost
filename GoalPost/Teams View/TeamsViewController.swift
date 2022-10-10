@@ -19,6 +19,7 @@ import UIKit
 
 class TeamsViewController: UIViewController {
     
+    var rootController: RootController?
     var teamsView = TeamsView()
     var adView = UIView()
 

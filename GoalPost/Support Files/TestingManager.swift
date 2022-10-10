@@ -12,7 +12,7 @@ struct Testing {
     
     var verboseWebServiceCalls = false
 
-    var getLiveData = false
+    var getLiveData = true
     
     var disableAds = true
 }

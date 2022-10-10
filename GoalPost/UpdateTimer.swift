@@ -15,7 +15,9 @@ class UpdateTimer {
     
     unowned var rootController: UITabBarController?
     
-    func executeTimer(_ completion: @escaping (() -> ())) {
+    var refreshMatchesView = false
+    
+    func updateMatches(refreshClosure: @escaping (() -> ()), updateClosure: @escaping (() -> ())) {
         
         //guard Testing.manager.getLiveData else { return }
         
@@ -25,10 +27,15 @@ class UpdateTimer {
         
         if rootController.selectedIndex == 0 {
             
-            completion()
+            if refreshMatchesView {
+                refreshClosure()
+                refreshMatchesView = false
+            } else {
+                updateClosure()
+            }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 30.0) { [weak self] in
-                self?.executeTimer(completion)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 60.0) { [weak self] in
+                self?.updateMatches(refreshClosure: refreshClosure, updateClosure: updateClosure)
             }
         } else {
             print("UpdateTimer - executeTimer Terminated")

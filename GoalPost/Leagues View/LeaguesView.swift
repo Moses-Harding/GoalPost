@@ -170,7 +170,19 @@ extension LeaguesView: LeaguesViewDelegate { // Called externally
         
         self.refreshSnapshotWith(newItems)
         
-        DataFetcher.helper.getDataFor(league: league)
+        DataFetcher.helper.getDataFor(league: league) {
+            guard let rootController = self.viewController?.rootController else {
+                fatalError("LeaguesView - Add - Parent Viewcontroller not added")
+            }
+            
+            DispatchQueue.main.async {
+            if rootController.selectedIndex == 0 {
+
+                    print("LeaguesView - Add - Calling MatchesView Refresh")
+                    rootController.matchesViewController.matchesView.refresh()
+                }
+            }
+        }
         
         Task.init {
             await Cached.data.set(.favoriteLeaguesDictionary, with: league.id, to: league, calledBy: "LeaguesView - Add")

@@ -234,7 +234,7 @@ actor Cached {
     
     func set(_ type: CacheDictionary, with key: Any, to object: Any, calledBy: String) {
         
-        print("Cached.data - Set - Called By \(calledBy) - \(Date.now.timeStamp)")
+        //print("Cached.data - Set - Called By \(calledBy) - \(Date.now.timeStamp)")
         
         switch type {
             
@@ -350,7 +350,7 @@ actor Cached {
     
     func integrateSet<T, U>(type: CacheSetDictionary, dictionary: Dictionary<T, Set<U>>, calledBy: String) {
         
-        print("Cached.data - IntegrateSet - Called By \(calledBy) - \(Date.now.timeStamp)")
+        //print("Cached.data - IntegrateSet - Called By \(calledBy) - \(Date.now.timeStamp)")
         
         switch type {
         case .matchesByDateDictionary:
@@ -382,7 +382,7 @@ actor Cached {
     
     func integrate<T, U>(type: CacheDictionary, dictionary: Dictionary<T, U>, replaceExistingValue replace: Bool, calledBy: String) {
         
-        print("Cached.data - Integrate - Called By \(calledBy) - \(Date.now.timeStamp)")
+        //print("Cached.data - Integrate - Called By \(calledBy) - \(Date.now.timeStamp)")
         
         switch type {
         case .injuryDictionary:

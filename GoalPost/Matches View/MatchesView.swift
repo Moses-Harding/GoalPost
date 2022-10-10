@@ -230,10 +230,9 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
         
         // Get favorite leagues and sort
         var leagues = [ObjectContainer]()
-        leagues.append(ObjectContainer(favoriteLeague: true))
-        var favoriteLeagues = QuickCache.helper.favoriteLeaguesDictionary
-        for (leagueID, leagueObject) in favoriteLeagues.sorted(by: {$0.value.name < $1.value.name}) {
-            let leagueObjectContainer = ObjectContainer(leagueId: leagueID, name: leagueObject.name)
+        //leagues.append(ObjectContainer(favoriteLeague: true))
+        var favoriteLeagues: [(LeagueID, ObjectContainer)] = [(DefaultIdentifier.favoriteTeam.rawValue, ObjectContainer(favoriteLeague: true))] + (QuickCache.helper.favoriteLeaguesDictionary.sorted(by: {$0.value.name < $1.value.name})).map( { ($0.key, ObjectContainer(leagueId: $0.key, name: $0.value.name)) } )
+        for (leagueID, leagueObjectContainer) in favoriteLeagues {
             
             // Get matches for current day + current league
             var matches = [ObjectContainer]()
@@ -277,7 +276,11 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
             
             var sectionSnapShot = dataSource.snapshot(for: league)
             
-            guard let matches = leagueMatchDict[league] else { continue }
+            guard let matches = leagueMatchDict[league] else {
+                sectionSnapShot.applyDifferences(newItems: [league])
+                sectionSnapShot.expand([league])
+                dataSource.apply(sectionSnapShot, to: league, animatingDifferences: true)
+                continue }
             
             matches[0].showSeperator = false
 
@@ -294,8 +297,6 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
             
             let startTime = Date.now.formatted(date: .omitted, time: .complete)
             
-            print("MatchesView - Update matches - \(startTime)")
-            
             try await DataFetcher.helper.updateMatches()
             
             for sectionIndex in 0 ..< collectionView.numberOfSections {
@@ -305,7 +306,7 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
                     }
                 }
             }
-            print("MatchesView - End refresh matches complete. Start: \(startTime) - End: \(Date.now.formatted(date: .omitted, time: .complete))")
+            print("MatchesView - Refresh matches. Start: \(startTime) - End: \(Date.now.formatted(date: .omitted, time: .complete))")
             self.refreshControl.endRefreshing()
         }
     }
@@ -347,6 +348,10 @@ extension MatchesView {
 
 extension MatchesView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        if let cell = collectionView.cellForItem(at: indexPath) as? LeagueHeaderCell, let league = cell.objectContainer {
+            print(league.league?.details)
+        }
         
         guard let cell = collectionView.cellForItem(at: indexPath) as? MatchCell, let match = cell.objectContainer else { return }
         

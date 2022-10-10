@@ -23,6 +23,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization before application launch.
         
+         
+        let clearData = {
+            Saved.firstRun = true
+            await Cached.data.clearData()
+            DataFetcher.helper.fetchDataIfValid()
+        }
+        
+        Task.init {
+            //await clearData()
+            //let leagueDictionary = try await GetLeagues.helper.getAllLeagues()
+        }
+        
+        
+        
         QuickCache.helper.getInitialData()
         
         Task.init {

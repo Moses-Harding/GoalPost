@@ -30,6 +30,9 @@ class RootController: UITabBarController {
 
         self.selectedIndex = 0
         
+        matchesViewController.rootController = self
+        teamsViewController.rootController = self
+        leaguesViewController.rootController = self
         UpdateTimer.helper.rootController = self
         
         gatherData()

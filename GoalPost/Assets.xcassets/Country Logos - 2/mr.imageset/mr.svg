@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 640 480" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <rect x="0" y="0" width="640" height="480" style="fill:rgb(0,98,51);fill-rule:nonzero;"/>
+    <circle cx="320" cy="180" r="155" style="fill:rgb(255,196,0);"/>
+    <path d="M243.425,11.216C198.019,38.173 170.07,87.194 170,140C170,222.288 237.712,290 320,290C402.288,290 470,222.288 470,140C469.929,87.193 441.976,38.171 396.567,11.216L243.425,11.216Z" style="fill:rgb(0,98,51);fill-rule:nonzero;"/>
+    <g id="b" transform="matrix(5,0,0,5,320,140)">
+        <path id="a" d="M0,-12L-3.708,-0.587L1.998,1.267" style="fill:rgb(255,196,0);fill-rule:nonzero;"/>
+        <g id="a1" serif:id="a" transform="matrix(-1,0,0,1,0,0)">
+            <path d="M0,-12L-3.708,-0.587L1.998,1.267" style="fill:rgb(255,196,0);fill-rule:nonzero;"/>
+        </g>
+    </g>
+    <g id="b1" serif:id="b" transform="matrix(1.54508,4.75528,-4.75528,1.54508,320,140)">
+        <path id="a2" serif:id="a" d="M0,-12L-3.708,-0.587L1.998,1.267" style="fill:rgb(255,196,0);fill-rule:nonzero;"/>
+        <g id="a3" serif:id="a" transform="matrix(-1,0,0,1,0,0)">
+            <path d="M0,-12L-3.708,-0.587L1.998,1.267" style="fill:rgb(255,196,0);fill-rule:nonzero;"/>
+        </g>
+    </g>
+    <g id="b2" serif:id="b" transform="matrix(-4.04508,2.93893,-2.93893,-4.04508,320,140)">
+        <path id="a4" serif:id="a" d="M0,-12L-3.708,-0.587L1.998,1.267" style="fill:rgb(255,196,0);fill-rule:nonzero;"/>
+        <g id="a5" serif:id="a" transform="matrix(-1,0,0,1,0,0)">
+            <path d="M0,-12L-3.708,-0.587L1.998,1.267" style="fill:rgb(255,196,0);fill-rule:nonzero;"/>
+        </g>
+    </g>
+    <g id="b3" serif:id="b" transform="matrix(-4.04508,-2.93893,2.93893,-4.04508,320,140)">
+        <path id="a6" serif:id="a" d="M0,-12L-3.708,-0.587L1.998,1.267" style="fill:rgb(255,196,0);fill-rule:nonzero;"/>
+        <g id="a7" serif:id="a" transform="matrix(-1,0,0,1,0,0)">
+            <path d="M0,-12L-3.708,-0.587L1.998,1.267" style="fill:rgb(255,196,0);fill-rule:nonzero;"/>
+        </g>
+    </g>
+    <g id="b4" serif:id="b" transform="matrix(1.54508,-4.75528,4.75528,1.54508,320,140)">
+        <path id="a8" serif:id="a" d="M0,-12L-3.708,-0.587L1.998,1.267" style="fill:rgb(255,196,0);fill-rule:nonzero;"/>
+        <g id="a9" serif:id="a" transform="matrix(-1,0,0,1,0,0)">
+            <path d="M0,-12L-3.708,-0.587L1.998,1.267" style="fill:rgb(255,196,0);fill-rule:nonzero;"/>
+        </g>
+    </g>
+</svg>
