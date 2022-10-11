@@ -137,87 +137,37 @@ extension DataFetcher {
     
     func getMatchesForCurrentDay(completion: @escaping () -> ()) {
         Task.init {
-            let (matchesDictionary, matchesByDateDictionary) = try await GetMatches.helper.getMatchesFor(date: Date())
+            let (matchesDictionary, matchesByDateDictionary, matchIdDictionary) = try await GetMatches.helper.getMatchesFor(date: Date())
             
             await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true, calledBy: "DataFetcher - GetMatchesForCurrentDay")
             
             await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary, calledBy: "DataFetcher - GetMatchesForCurrentDay")
             
+            await Cached.data.integrate(type: .matchIdDictionary, dictionary: matchIdDictionary, replaceExistingValue: true, calledBy: "DataFetcher - GetMatchesForCurrentDay")
+            
             completion()
         }
     }
     
-/*
-    func updateMatches() async throws -> [MatchUniqueID:MatchObject] {
-        let (matchesDictionary, matchesByTeamDictionary, matchesByDateDictionary, matchesByLeagueDictionary) = try await GetMatches.helper.getMatchesFor(date: Date())
-        print("Dictionaries retrieved")
-        
-        defer {
-            Task.init {
-                await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true)
-                
-                await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: matchesByTeamDictionary)
-                await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary)
-                await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: matchesByLeagueDictionary)
-            }
-        }
-        
-        return matchesDictionary
-    }
- */
-    
 
     func updateMatches() async throws {
-        let (matchesDictionary, matchesByDateDictionary) = try await GetMatches.helper.getMatchesFor(date: Date())
+        let (matchesDictionary, matchesByDateDictionary, matchIdDictionary) = try await GetMatches.helper.getMatchesFor(date: Date())
         await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true, calledBy: "DataFetcher - UpdateMatches")
         await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary, calledBy: "DataFetcher - UpdateMatches")
+        await Cached.data.integrate(type: .matchIdDictionary, dictionary: matchIdDictionary, replaceExistingValue: true, calledBy: "DataFetcher - UpdateMatches")
     }
     
-    /*
-    func updateMatches() async throws {
-        
-        var matchIds = [Int]()
-        guard let uniqueIds = QuickCache.helper.matchesByDateDictionary[Date.now.asKey] else {
-            print("MatchesView - No IDs retrieved for \(Date.now.asKey)")
-            return
-        }
-        
-        for uniqueId in uniqueIds {
-            if let id = Int(uniqueId.split(separator: "|")[1]) {
-                matchIds.append(id)
-            }
-        }
-        
-        print("DataFetcher - UpdateMatches - Initiate")
-        let (matchesDictionary, matchesByDateDictionary) = try await GetMatches.helper.getMatchesFor(matchIds: matchIds)
-        
-        await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true)
-        //await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: matchesByTeamDictionary)
-        await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary)
-        //await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: matchesByLeagueDictionary)
-        print("DataFetcher - UpdateMatches - Integration Complete")
-    }
-
-     
-    func updateMatches() async throws {
-
-        print("DataFetcher - UpdateMatches - Initiate")
-        let (matchesDictionary, matchesByDateDictionary) = try await GetMatches.helper.getLiveMatches()
-        
-        await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true)
-        //await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: matchesByTeamDictionary)
-        await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary)
-        //await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: matchesByLeagueDictionary)
-        print("DataFetcher - UpdateMatches - Integration Complete")
-    }
-     */
-    
-    private func getDataFor(team teamObject: TeamObject) async throws -> ([MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>], [MatchUniqueID:MatchObject], [TeamID:Set<MatchUniqueID>], [DateString: Set<MatchUniqueID>], [LeagueID: Set<MatchUniqueID>], [InjuryID:InjuryObject], [TeamID:Set<InjuryID>], [PlayerID:PlayerObject], [TeamID:Set<PlayerID>], [TransferID:TransferObject], [TeamID:Set<TransferID>]) {
+    private func getDataFor(team teamObject: TeamObject) async throws ->
+    (MatchesDictionary, MatchesByTeamDictionary, MatchesByDateDictionary, MatchesByLeagueDictionary, MatchIdDictionary,
+     MatchesDictionary, MatchesByTeamDictionary, MatchesByDateDictionary, MatchesByLeagueDictionary, MatchIdDictionary,
+     InjuryDictionary, InjuriesByTeamDictionary,
+     PlayerDictionary, PlayersByTeamDictionary,
+     TransferDictionary, TransfersByTeamDictionary) {
         
         let team = try await DataFetcher.helper.addFavorite(team: teamObject) {}
         
-        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
-        let (lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
+        let (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, matchIdDictionary) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
+        let (lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, lastMatchIdDictionary) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
         
         let (injuryDictionary, injuriesByTeam) = try await GetInjuries.helper.getInjuriesFor(team: team)
         
@@ -225,7 +175,7 @@ extension DataFetcher {
         
         let (transferDictionary, transfersByTeam) = try await GetTransfers.helper.getTransfersFor(team: team)
         
-        return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, injuryDictionary, injuriesByTeam, playerDictionary, playersByTeam, transferDictionary, transfersByTeam)
+        return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, matchIdDictionary, lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, lastMatchIdDictionary, injuryDictionary, injuriesByTeam, playerDictionary, playersByTeam, transferDictionary, transfersByTeam)
     }
     
     /* Functions for adding Team */
@@ -276,17 +226,19 @@ extension DataFetcher {
     }
     
     func addMatchesFor(team: TeamObject, completion: @escaping () async -> ()) async throws  {
-        let (matchesDictionary, matchesByTeamDictionary, matchesByDateDictionary, matchesByLeagueDictionary) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
-        let (lastMatchesDictionary, lastMatchesByTeamDictionary, lastMatchesByDateDictionary, lastMatchesByLeagueDictionary) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
+        let (matchesDictionary, matchesByTeamDictionary, matchesByDateDictionary, matchesByLeagueDictionary, matchIdDictionary) = try await GetMatches.helper.getNextMatchesFor(team: team, numberOfMatches: 30)
+        let (lastMatchesDictionary, lastMatchesByTeamDictionary, lastMatchesByDateDictionary, lastMatchesByLeagueDictionary, lastMatchIdDictionary) = try await GetMatches.helper.getLastMatchesFor(team: team, numberOfMatches: 30)
         await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true, calledBy: "DataFetcher - Add Matches For")
         await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: matchesByTeamDictionary, calledBy: "DataFetcher - Add Matches For")
         await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary, calledBy: "DataFetcher - Add Matches For")
         await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: matchesByLeagueDictionary, calledBy: "DataFetcher - Add Matches For")
+        await Cached.data.integrate(type: .matchIdDictionary, dictionary: matchIdDictionary, replaceExistingValue: true, calledBy: "DataFetcher - Add Matches For")
         
         await Cached.data.integrate(type: .matchesDictionary, dictionary: lastMatchesDictionary, replaceExistingValue: true, calledBy: "DataFetcher - Add Matches For")
         await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: lastMatchesByTeamDictionary, calledBy: "DataFetcher - Add Matches For")
         await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: lastMatchesByDateDictionary, calledBy: "DataFetcher - Add Matches For")
         await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: lastMatchesByLeagueDictionary, calledBy: "DataFetcher - Add Matches For")
+        await Cached.data.integrate(type: .matchIdDictionary, dictionary: lastMatchIdDictionary, replaceExistingValue: true, calledBy: "DataFetcher - Add Matches For")
         
         await completion()
     }
@@ -294,12 +246,13 @@ extension DataFetcher {
     func getDataFor(league: LeagueObject, completion: (() -> ())? = nil)  {
         DispatchQueue(label: "Match Queue", attributes: .concurrent).async {
             Task.init {
-                let (matchesDictionary, matchesByTeamDictionary, matchesByDateDictionary, matchesByLeagueDictionary) = try await GetMatches.helper.getMatchesFor(league: league)
+                let (matchesDictionary, matchesByTeamDictionary, matchesByDateDictionary, matchesByLeagueDictionary, matchIdDictionary) = try await GetMatches.helper.getMatchesFor(league: league)
                 
                 await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true, calledBy: "DataFetcher - Get Data For")
                 await Cached.data.integrateSet(type: .matchesByTeamDictionary, dictionary: matchesByTeamDictionary, calledBy: "DataFetcher - Get Data For")
                 await Cached.data.integrateSet(type: .matchesByDateDictionary, dictionary: matchesByDateDictionary, calledBy: "DataFetcher - Get Data For")
                 await Cached.data.integrateSet(type: .matchesByLeagueDictionary, dictionary: matchesByLeagueDictionary, calledBy: "DataFetcher - Get Data For")
+                await Cached.data.integrate(type: .matchIdDictionary, dictionary: matchIdDictionary, replaceExistingValue: true, calledBy: "DataFetcher - Get Data For")
                 
                 if let completion = completion { completion() }
             }

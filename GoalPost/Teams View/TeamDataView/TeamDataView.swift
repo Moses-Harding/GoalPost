@@ -125,6 +125,8 @@ class TeamDataView: UIView {
         collectionView.register(TransferCollectionCell.self, forCellWithReuseIdentifier: String(describing: TransferCollectionCell.self))
         collectionView.register(PlayerCollectionCell.self, forCellWithReuseIdentifier: String(describing: PlayerCollectionCell.self))
         
+        collectionView.delegate = self
+        
         
         // 2. Create the datasource, which expects a collectionview, indexpath, and teamdataobject. If the type is match, for example, the datasource dequeues a matchCollectionCell, assigns the teamDataObject to it (triggering 'updateAppearance') and returns the cell
         dataSource = UICollectionViewDiffableDataSource<TeamDataObjectType, ObjectContainer>(collectionView: collectionView) {
@@ -257,3 +259,15 @@ extension TeamDataView {
     }
 }
 
+extension TeamDataView: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        guard let cell = collectionView.cellForItem(at: indexPath) as? MatchCollectionCell, let match = cell.teamDataObject else { return }
+        
+        print("MatchesView - Cell selected - details below below:")
+        guard let selectedMatch = QuickCache.helper.matchesDictionary[match.id] else { return }
+        let matchDataViewController = MatchDataViewController()
+        matchDataViewController.matchDataView.match = selectedMatch
+        self.viewController.present(matchDataViewController, animated: true)
+    }
+}

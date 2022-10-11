@@ -21,6 +21,10 @@ protocol TeamsViewDelegate {
     func present(_ viewController: UIViewController, completion: (() -> Void)?)
 }
 
+protocol MatchDataViewDelegate {
+    
+}
+
 protocol LeaguesViewDelegate {
     var collectionView: UICollectionView { get set }
     

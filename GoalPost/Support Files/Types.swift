@@ -33,3 +33,5 @@ typealias MatchesDictionary = [MatchUniqueID:MatchObject]
 typealias PlayerDictionary = [PlayerID:PlayerObject]
 typealias TeamDictionary = [TeamID:TeamObject]
 typealias TransferDictionary = [TransferID:TransferObject]
+
+typealias MatchIdDictionary = [MatchID:MatchUniqueID]

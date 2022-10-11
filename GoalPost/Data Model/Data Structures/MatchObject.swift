@@ -39,16 +39,6 @@ class MatchObject: Codable {
         return QuickCache.helper.leagueDictionary[id]
     }
     
-    /*
-     func league() async -> LeagueObject? {
-     if let id = leagueId {
-     return await Cached.data.leagueDictionary(id)
-     } else {
-     return nil
-     }
-     }
-     */
-    
     var details: String {
         return "\(homeTeam?.name ?? "NAME UNKNOWN"): \(String(homeTeamScore) ?? "") vs \(awayTeam?.name ?? "NAME UNKNOWN"): \(String(awayTeamScore) ?? "")\n\(timeElapsed) - \(status)\n"
     }
