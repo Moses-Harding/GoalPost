@@ -24,7 +24,7 @@ class TeamDataStackCellModel: UICollectionViewCell {
     
     // MARK: Data
     
-    var teamDataObject: ObjectContainer? { didSet { checkForContent() } }
+    var objectContainer: ObjectContainer? { didSet { checkForContent() } }
     
     // MARK: Indicator
     
@@ -76,7 +76,7 @@ class TeamDataStackCellModel: UICollectionViewCell {
     
     func checkForContent() {
         
-        guard let teamDataObject = teamDataObject else { return }
+        guard let teamDataObject = objectContainer else { return }
         
         if teamDataObject.loading {
             loadingView.isHidden = false

@@ -35,10 +35,6 @@ class LeagueHeaderCell: UICollectionViewCell {
     
     var titleStack = UIStackView(.horizontal)
     
-    var bodyStack = UIStackView(.vertical)
-    var matchesContainerBodyStack: MatchesContainerBodyStack!
-    
-    var cellHeightConstraint: NSLayoutConstraint?
     var logoWidthConstraint: NSLayoutConstraint?
     var logoHeightConstraint: NSLayoutConstraint?
     var countryWidthConstraint: NSLayoutConstraint?
@@ -70,7 +66,6 @@ class LeagueHeaderCell: UICollectionViewCell {
         
         setUpMainStack()
         setUpTitleStack()
-        setUpBodyStack()
         setUpColors()
     }
     
@@ -105,15 +100,6 @@ class LeagueHeaderCell: UICollectionViewCell {
         
         logoArea.constrain(leagueLogo, except: [.height], debugName: "League Logo to Logo Area - League Header Cell")
         countryImageArea.constrain(countryImage, except: [.height], debugName: "Country Image to Country Image Area - League Header Cell")
-    }
-    
-    // 3
-    func setUpBodyStack() {
-        
-        matchesContainerBodyStack = MatchesContainerBodyStack(objectContainer: objectContainer)
-        
-        bodyStack.add(children: [(UIView(), 0.05), (matchesContainerBodyStack, nil), (UIView(), 0.05)])
-        bodyStack.isHidden = true
     }
     
     // 4
@@ -156,7 +142,6 @@ class LeagueHeaderCell: UICollectionViewCell {
             if let countryWidth = countryWidthConstraint{ countryWidth.isActive = false }
             if let countryHeight = countryHeightConstraint { countryHeight.isActive = false }
             
-            cellHeightConstraint?.isActive = true
             logoHeightConstraint = leagueLogo.widthAnchor.constraint(equalToConstant: 30)
             logoHeightConstraint?.isActive = true
             logoWidthConstraint = leagueLogo.heightAnchor.constraint(equalToConstant: leagueLogo.image?.resize(.height, proportionalTo: 30).height ?? 30)

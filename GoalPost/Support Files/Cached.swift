@@ -244,7 +244,7 @@ actor Cached {
             self.leagueDictionary[key] = object
             QuickCache.helper.set(.leagueDictionary, dictionary: leagueDictionary)
         case .matchesDictionary:
-            guard let object = object as? MatchObject, let key = key as? MatchUniqueID else { fatalError() }
+            guard let object = object as? MatchObject, let key = key as? MatchID else { fatalError() }
             self.matchesDictionary[key] = object
             QuickCache.helper.set(.matchesDictionary, dictionary: matchesDictionary)
         case .matchIdDictionary:
@@ -322,7 +322,7 @@ actor Cached {
             self.leagueDictionary.addIfNoneExists(object, key: key)
             QuickCache.helper.set(.leagueDictionary, dictionary: leagueDictionary)
         case .matchesDictionary:
-            guard let object = object as? MatchObject, let key = key as? MatchUniqueID else { fatalError() }
+            guard let object = object as? MatchObject, let key = key as? MatchID else { fatalError() }
             self.matchesDictionary.addIfNoneExists(object, key: key)
             QuickCache.helper.set(.matchesDictionary, dictionary: matchesDictionary)
         case .matchIdDictionary:

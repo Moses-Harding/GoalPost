@@ -87,19 +87,19 @@ class LeaguesView: UIView {
     private func createCollectionViewLayout() -> UICollectionViewLayout {
         // The item and group will share this size to allow for automatic sizing of the cell's height
         
+        
         let padding: CGFloat = 0
         
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                              heightDimension: .estimated(50))
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(70))
         
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: itemSize,
                                                        subitems: [item])
+        group.interItemSpacing = NSCollectionLayoutSpacing.flexible(10)
+        group.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: NSCollectionLayoutSpacing.flexible(0), top: NSCollectionLayoutSpacing.flexible(5), trailing: NSCollectionLayoutSpacing.flexible(0), bottom: NSCollectionLayoutSpacing.flexible(0))
         
         let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = 20
-        section.contentInsets = .init(top: 20, leading: padding, bottom: padding, trailing: padding)
         
         return UICollectionViewCompositionalLayout(section: section)
     }
@@ -108,14 +108,14 @@ class LeaguesView: UIView {
     private func setUpDataSource() {
         
         dataSource = UICollectionViewDiffableDataSource<Section, LeagueObject>(collectionView: collectionView) {
-            (collectionView, indexPath, leagueInformation) -> UICollectionViewCell? in
+            (collectionView, indexPath, league) -> UICollectionViewCell? in
             
             guard let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: String(describing: LeagueCollectionCell.self),
                 for: indexPath) as? LeagueCollectionCell else {
                 fatalError("Could not cast cell as \(LeagueCollectionCell.self)")
             }
-            cell.leagueInformation = leagueInformation
+            cell.league = league
             cell.leaguesViewDelegate = self
             return cell
         }

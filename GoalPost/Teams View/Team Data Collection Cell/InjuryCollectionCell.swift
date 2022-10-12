@@ -78,7 +78,7 @@ class InjuryCollectionCell: TeamDataStackCellModel {
     override func updateContent() {
         
         Task.init {
-        guard let teamDataObject = teamDataObject else { return }
+        guard let teamDataObject = objectContainer else { return }
         guard let injuryInfo = await teamDataObject.injury() else { return }
             
             reasonLabel.text = "\(injuryInfo.reason)"

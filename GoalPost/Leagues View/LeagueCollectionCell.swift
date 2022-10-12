@@ -12,7 +12,7 @@ class LeagueCollectionCell: UICollectionViewCell {
     
     // MARK: - Public Properties
     
-    var leagueInformation: LeagueObject? { didSet { updateContent() } }
+    var league: LeagueObject? { didSet { updateContent() } }
     var leaguesViewDelegate: LeaguesViewDelegate?
     override var isSelected: Bool { didSet { updateAppearance() } }
     
@@ -20,20 +20,28 @@ class LeagueCollectionCell: UICollectionViewCell {
     
     // Views
     let logoArea = UIView()
+    let countryImageArea = UIView()
     let nameArea = UIView()
     
     // Labels
     let nameLabel = UILabel()
-    let foundedLabel = UILabel()
-    let countryLabel = UILabel()
-    let codeLabel = UILabel()
-    let nationalLabel = UILabel()
     
-    // Image
+    let countryImage = UIImageView()
     let leagueLogo = UIImageView()
     
     // Stacks
-    var mainStack = UIStackView(.horizontal)
+    var mainStack = UIStackView(.vertical)
+    
+    var titleStack = UIStackView(.horizontal)
+    
+    var logoWidthConstraint: NSLayoutConstraint?
+    var logoHeightConstraint: NSLayoutConstraint?
+    var countryWidthConstraint: NSLayoutConstraint?
+    var countryHeightConstraint: NSLayoutConstraint?
+
+    // Data
+    
+    var hasCountryLogo = false
     
     // MARK: - Init
     
@@ -54,29 +62,43 @@ class LeagueCollectionCell: UICollectionViewCell {
         layer.cornerRadius = 8
         
         setUpMainStack()
+        setUpTitleStack()
         setUpColors()
     }
     
     // 1
     func setUpMainStack() {
-        let padding: CGFloat = 5
-        contentView.constrain(mainStack, using: .edges, padding: padding, debugName: "Main Stack to Content View - League Collection Cell")
-            
-        mainStack.add(children: [(UIView(), 0.05), (nameArea, 0.8), (UIView(), nil), (logoArea, nil), (UIView(), 0.05)])
-        mainStack.alignment = .center
         
-        nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - League Collection Cell")
+        addSubview(mainStack)
+        mainStack.translatesAutoresizingMaskIntoConstraints = false
         
-        nameLabel.font = UIFont.boldSystemFont(ofSize: 24)
+        let layoutMarginsGuide = layoutMarginsGuide
         
-        logoArea.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        logoArea.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        let leadingMain = mainStack.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor)
+        let trailingMain = mainStack.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
+        let topMain = mainStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 15)
+        let bottomMain = mainStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -15)
+        NSLayoutConstraint.activate([ leadingMain, trailingMain, topMain, bottomMain ])
         
-        logoArea.constrain(leagueLogo, except: [.height, .width], debugName: "LeagueLogo to Logo Area - League Collection Cell")
-        leagueLogo.heightAnchor.constraint(equalToConstant: 25).isActive = true
-        leagueLogo.widthAnchor.constraint(equalToConstant: 25).isActive = true
+        mainStack.add([titleStack])
     }
 
+    // 2
+    func setUpTitleStack() {
+
+        titleStack.add(children: [(UIView(), 0.05), (countryImageArea, nil), (UIView(), 0.05), (nameArea, 0.7), (UIView(), nil), (logoArea, nil), (UIView(), 0.05)])
+        titleStack.alignment = .center
+        
+        nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - Team Collection Cell")
+        
+        nameLabel.font = UIFont.systemFont(ofSize: 18, weight: .regular)
+        nameLabel.numberOfLines = -1
+        nameLabel.textAlignment = .left
+        
+        logoArea.constrain(leagueLogo, except: [.height], debugName: "League Logo to Logo Area - League Header Cell")
+        countryImageArea.constrain(countryImage, except: [.height], debugName: "Country Image to Country Image Area - League Header Cell")
+    }
+    
     
     // 4
     func setUpColors() {
@@ -91,48 +113,95 @@ class LeagueCollectionCell: UICollectionViewCell {
     func updateAppearance() {
         
         if isSelected {
+            self.backgroundColor = Colors.cellBackgroundGray
+            nameLabel.textColor = .white
+            
             let viewController = LeagueDataViewController()
+            
             leaguesViewDelegate?.present(viewController) {
-                viewController.leagueDataView.league = self.leagueInformation
+                viewController.leagueDataView.league = self.league
                 viewController.leaguesViewDelegate = self.leaguesViewDelegate
             }
+        } else {
+            self.backgroundColor = UIColor.clear
+            nameLabel.textColor = Colors.cellTextGreen
         }
     }
     
     func updateContent() {
         
-        guard let leagueInfo = leagueInformation else { return }
-            nameLabel.text = leagueInfo.name
-             loadImage(for: leagueInfo)
+        Task.init {
+            guard let league = self.league else { return }
+            nameLabel.text = league.name
+            loadImage(for: league)
+            
+            if let logoWidth = logoWidthConstraint{ logoWidth.isActive = false }
+            if let logoHeight = logoHeightConstraint { logoHeight.isActive = false }
+            if let countryWidth = countryWidthConstraint{ countryWidth.isActive = false }
+            if let countryHeight = countryHeightConstraint { countryHeight.isActive = false }
+            
+            logoHeightConstraint = leagueLogo.widthAnchor.constraint(equalToConstant: 30)
+            logoHeightConstraint?.isActive = true
+            logoWidthConstraint = leagueLogo.heightAnchor.constraint(equalToConstant: leagueLogo.image?.resize(.height, proportionalTo: 30).height ?? 30)
+            logoWidthConstraint?.isActive = true
+
+            if !hasCountryLogo {
+                countryImage.image = UIImage(named: "GoalPostIcon - Transparent")
+                countryHeightConstraint = countryImage.widthAnchor.constraint(equalToConstant: 30)
+                countryHeightConstraint?.isActive = true
+                countryWidthConstraint = countryImage.heightAnchor.constraint(equalToConstant: 30)
+                countryWidthConstraint?.isActive = true
+            } else {
+                countryHeightConstraint = countryImage.widthAnchor.constraint(equalToConstant: 30)
+                countryHeightConstraint?.isActive = true
+                countryWidthConstraint = countryImage.heightAnchor.constraint(equalToConstant: 20)
+                countryWidthConstraint?.isActive = true
+            }
+            
+            countryImage.layer.cornerRadius = 4
+            countryImage.clipsToBounds = true
+        }
     }
     
     func loadImage(for league: LeagueObject) {
         
         let imageName = "\(league.name) - \(league.id).png"
         
-        
-        if let image =  QuickCache.helper.retrieveImage(from: imageName) {
-            
+        if let image = QuickCache.helper.retrieveImage(from: imageName) {
             self.leagueLogo.image = image
+        } else {
+            guard let url = URL(string: league.logo!) else { return }
             
-            return
-        }
-        
-        guard let url = URL(string: league.logo!) else { return }
-        
-        DispatchQueue.global().async {
-            if let data = try? Data(contentsOf: url) {
-                DispatchQueue.main.async {
-                    
-                    guard let image = UIImage(data: data) else { return }
-                    
-                    self.leagueLogo.image = image
-                    
-                    Task.init {
-                        await Cached.data.save(image: image, uniqueName: imageName)
+            DispatchQueue.global().async {
+                if let data = try? Data(contentsOf: url) {
+                    DispatchQueue.main.async {
+                        
+                        guard let image = UIImage(data: data) else { return }
+                        
+                        self.leagueLogo.image = image
+                        
+                        Task.init {
+                            await Cached.data.save(image: image, uniqueName: imageName)
+                        }
                     }
                 }
             }
+        }
+        
+        guard let countryLogoURL = league.countryLogo else {
+            print("LeagueHeaderCell - LoadImage - No logo for \(league)")
+            hasCountryLogo = false
+            return
+        }
+        
+        hasCountryLogo = true
+
+        if let image = UIImage(named: countryLogoURL) {
+            
+            self.countryImage.image = image
+            return
+        } else {
+            print("LeagueHeaderCell - loadImage - No country logo retrieved for \(league.name)")
         }
     }
     

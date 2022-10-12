@@ -41,7 +41,7 @@ class ObjectContainer {
 
     var injuryId: InjuryID?
     var leagueId: LeagueID?
-    var matchId: MatchUniqueID?
+    var matchId: MatchID?
     var transferId: TransferID?
     var playerId: PlayerID?
     
@@ -58,11 +58,11 @@ class ObjectContainer {
         self.type = type
     }
     
-    convenience init(matchId: MatchUniqueID) {
+    convenience init(matchId: MatchID) {
         self.init(type: .match)
         self.name = String(matchId)
         self.matchId = matchId
-        self.id = matchId
+        self.id = String(matchId)
     }
     
     convenience init(injuryId: InjuryID) {

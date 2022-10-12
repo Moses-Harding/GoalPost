@@ -137,7 +137,7 @@ class DEPRECATEDTeamDataStack: UIStackView {
                     fatalError("Could not cast cell as \(MatchCollectionCell.self)")
                 }
                 
-                cell.teamDataObject = teamDataObject
+                cell.objectContainer = teamDataObject
                 return cell
             case .injury:
                 guard let cell = collectionView.dequeueReusableCell(
@@ -146,7 +146,7 @@ class DEPRECATEDTeamDataStack: UIStackView {
                     fatalError("Could not cast cell as \(InjuryCollectionCell.self)")
                 }
                 
-                cell.teamDataObject = teamDataObject
+                cell.objectContainer = teamDataObject
                 return cell
             case .transfer:
                 guard let cell = collectionView.dequeueReusableCell(
@@ -155,7 +155,7 @@ class DEPRECATEDTeamDataStack: UIStackView {
                     fatalError("Could not cast cell as \(TransferCollectionCell.self)")
                 }
                 
-                cell.teamDataObject = teamDataObject
+                cell.objectContainer = teamDataObject
                 return cell
             case .player:
                 guard let cell = collectionView.dequeueReusableCell(
@@ -164,7 +164,7 @@ class DEPRECATEDTeamDataStack: UIStackView {
                     fatalError("Could not cast cell as \(PlayerCollectionCell.self)")
                 }
                 
-                cell.teamDataObject = teamDataObject
+                cell.objectContainer = teamDataObject
                 return cell
             case .league:
                 fatalError()
@@ -253,11 +253,13 @@ extension DEPRECATEDTeamDataStack {
         
         for matchId in matchIDs.sorted(by: < ) {
             matches.append(ObjectContainer(matchId: matchId))
+            /*
             if let matchDate = Double(String(matchId.split(separator: "|")[0])) {
                 if matchDate < Date.now.timeIntervalSince1970 {
                     position = index
                 }
             }
+             */
             index += 1
         }
 

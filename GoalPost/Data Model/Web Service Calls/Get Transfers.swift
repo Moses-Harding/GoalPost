@@ -11,7 +11,7 @@ class GetTransfers {
     
     static var helper = GetTransfers()
     
-    func getTransfersFor(team: TeamObject) async throws -> ([TransferID:TransferObject], [TeamID:Set<TransferID>]) {
+    func getTransfersFor(team: TeamObject) async throws -> (TransferDictionary, TransfersByTeamDictionary) {
         
         let requestURL = "https://api-football-v1.p.rapidapi.com/v3/transfers?team=\(team.id)"
         let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
@@ -19,10 +19,10 @@ class GetTransfers {
         return (transferDictionary, transfersByTeam)
     }
     
-    func convert(data: Data?) throws -> ([TransferID:TransferObject], [TeamID:Set<TransferID>]) {
+    func convert(data: Data?) throws -> (TransferDictionary, TransfersByTeamDictionary) {
 
-        var transferDictionary = [TransferID:TransferObject]()
-        var transfersByTeam = [TeamID:Set<TransferID>]()
+        var transferDictionary: TransferDictionary = [:]
+        var transfersByTeamDictionary: TransfersByTeamDictionary = [:]
         
         guard let data = data else { throw WebServiceCallErrors.dataNotPassedToConversionFunction }
         
@@ -38,12 +38,12 @@ class GetTransfers {
                 
                 transferDictionary[transferData.id] = transferData
 
-                transfersByTeam.add(transferData.id, toSetWithKey: transferData.teamToId)
-                transfersByTeam.add(transferData.id, toSetWithKey: transferData.teamFromId)
+                transfersByTeamDictionary.add(transferData.id, toSetWithKey: transferData.teamToId)
+                transfersByTeamDictionary.add(transferData.id, toSetWithKey: transferData.teamFromId)
             }
 
         }
         
-        return (transferDictionary, transfersByTeam)
+        return (transferDictionary, transfersByTeamDictionary)
     }
 }

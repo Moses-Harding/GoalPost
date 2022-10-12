@@ -22,7 +22,7 @@ struct LeagueDateObject: Hashable {
         return "\(matchIds.count) match\(matchIds.count > 0 ? "es" : "")"
     }
     
-    var matchIds = Set<MatchUniqueID>()
+    var matchIds = Set<MatchID>()
     var matchIdsString: String {
         var string = ""
         for id in matchIds {

@@ -12,6 +12,7 @@ import UIKit
  A MatchesSectionDataContainer contains one of three types of cell (league, match, or ad). The actual object (LeagueObject, MatchObject, or AdObject) is stored via the SectionType enum. A unique name is constructed in each case for the sake of comparison in the DiffableDataSource. Appending "Favorite" to the name is needed to differentiate two different matchObjects.
  */
 
+/*
 struct MatchesSectionDataContainer: Codable, Hashable {
     
     static var countOfMatches = 0
@@ -40,3 +41,4 @@ extension MatchesSectionDataContainer: Equatable {
         return lhs.name == rhs.name && lhs.sectionType == rhs.sectionType && lhs.sectionId == rhs.sectionId
     }
 }
+*/

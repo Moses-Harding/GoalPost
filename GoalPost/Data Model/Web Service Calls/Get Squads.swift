@@ -11,7 +11,7 @@ class GetSquad {
     
     static var helper = GetSquad()
     
-    func getSquadFor(team: TeamObject) async throws -> ([PlayerID:PlayerObject], [TeamID:Set<PlayerID>]) {
+    func getSquadFor(team: TeamObject) async throws -> (PlayerDictionary, PlayersByTeamDictionary) {
         
         let requestURL = "https://api-football-v1.p.rapidapi.com/v3/players/squads?team=\(team.id)"
         let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
@@ -19,10 +19,10 @@ class GetSquad {
         return (playerDictionary, playersByTeam)
     }
     
-    func convert(data: Data?) throws -> ([PlayerID:PlayerObject], [TeamID:Set<PlayerID>]) {
+    func convert(data: Data?) throws -> (PlayerDictionary, PlayersByTeamDictionary) {
 
-        var playerDictionary = [PlayerID:PlayerObject]()
-        var playersByTeam = [TeamID:Set<PlayerID>]()
+        var playerDictionary: PlayerDictionary = [:]
+        var playersByTeamDictionary: PlayersByTeamDictionary = [:]
         
         guard let data = data else { throw WebServiceCallErrors.dataNotPassedToConversionFunction }
         
@@ -38,11 +38,11 @@ class GetSquad {
                 
                 playerDictionary[playerData.id] = playerData
 
-                playersByTeam.add(playerData.id, toSetWithKey: teamId)
+                playersByTeamDictionary.add(playerData.id, toSetWithKey: teamId)
             }
 
         }
         
-        return (playerDictionary, playersByTeam)
+        return (playerDictionary, playersByTeamDictionary)
     }
 }

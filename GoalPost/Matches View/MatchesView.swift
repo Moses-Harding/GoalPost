@@ -251,8 +251,12 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
             leagues.append(leagueObjectContainer)
             
             // Sort Matches
-            matches.sort { $0.matchId ?? "" < $1.matchId ?? "" }
-            leagueMatchDict[leagueObjectContainer] = matches
+            var allMatches: [(MatchUniqueID?, ObjectContainer)] = matches.compactMap { (QuickCache.helper.matchIdDictionary[$0.matchId ?? 0], $0) }
+            allMatches.sort { $0.0 ?? "" < $1.0 ?? "" }
+            
+            var sortedMatches = allMatches.map { $0.1 }
+            
+            leagueMatchDict[leagueObjectContainer] = sortedMatches
         }
         
         // Add favorite leagues as section headers to snapshot
@@ -353,10 +357,10 @@ extension MatchesView: UICollectionViewDelegate {
             print(league.league?.details)
         }
         
-        guard let cell = collectionView.cellForItem(at: indexPath) as? MatchCell, let match = cell.objectContainer else { return }
+        guard let cell = collectionView.cellForItem(at: indexPath) as? MatchCell, let match = cell.objectContainer, let id = match.matchId else { return }
         
         print("MatchesView - Cell selected - details below below:")
-        guard let updatedMatch = QuickCache.helper.matchesDictionary[match.id] else { return }
+        guard let updatedMatch = QuickCache.helper.matchesDictionary[id] else { return }
         print(updatedMatch.details)
     }
 }

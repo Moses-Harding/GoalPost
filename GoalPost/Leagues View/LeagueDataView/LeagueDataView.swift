@@ -189,9 +189,10 @@ extension LeagueDataView {
         var leagueDates = [LeagueDateObject]()
         
         var leagueDateDictionary = [Date:LeagueDateObject]()
-        
+
         for matchId in matchIDs {
-            guard let matchDate = Double(String(matchId.split(separator: "|")[0])), let date = Date(timeIntervalSince1970: matchDate).removeTimeStamp else {
+            
+            guard let uniqueId = QuickCache.helper.matchIdDictionary[matchId], let matchDate = Double(String(uniqueId.split(separator: "|")[0])), let date = Date(timeIntervalSince1970: matchDate).removeTimeStamp else {
                 print("LeagueDataView - Could not get date in updateMatchSection")
                 continue
             }

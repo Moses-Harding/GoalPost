@@ -140,7 +140,7 @@ class TeamDataView: UIView {
                     fatalError("Could not cast cell as \(MatchCollectionCell.self)")
                 }
                 
-                cell.teamDataObject = teamDataObject
+                cell.objectContainer = teamDataObject
                 return cell
             case .injury:
                 guard let cell = collectionView.dequeueReusableCell(
@@ -149,7 +149,7 @@ class TeamDataView: UIView {
                     fatalError("Could not cast cell as \(InjuryCollectionCell.self)")
                 }
                 
-                cell.teamDataObject = teamDataObject
+                cell.objectContainer = teamDataObject
                 return cell
             case .transfer:
                 guard let cell = collectionView.dequeueReusableCell(
@@ -158,7 +158,7 @@ class TeamDataView: UIView {
                     fatalError("Could not cast cell as \(TransferCollectionCell.self)")
                 }
                 
-                cell.teamDataObject = teamDataObject
+                cell.objectContainer = teamDataObject
                 return cell
             case .player:
                 guard let cell = collectionView.dequeueReusableCell(
@@ -167,7 +167,7 @@ class TeamDataView: UIView {
                     fatalError("Could not cast cell as \(PlayerCollectionCell.self)")
                 }
                 
-                cell.teamDataObject = teamDataObject
+                cell.objectContainer = teamDataObject
                 return cell
             case .league:
                 fatalError()
@@ -230,9 +230,11 @@ extension TeamDataView {
         var position: Int = 0
         var index: Int = 0
         
-        for matchId in matchIDs.sorted(by: { $0 > $1 } ) {
+        let uniqueIds = matchIDs.compactMap { (QuickCache.helper.matchIdDictionary[$0], $0) }
+        
+        for (uniqueId, matchId) in uniqueIds.sorted(by: { $0.0 ?? "" > $1.0 ?? ""  } ) {
             matches.append(ObjectContainer(matchId: matchId))
-            if let matchDate = Double(String(matchId.split(separator: "|")[0])) {
+            if let id = uniqueId, let matchDate = Double(String(id.split(separator: "|")[0])) {
                 if matchDate > Date.now.timeIntervalSince1970 {
                     position = index
                 }
@@ -262,10 +264,10 @@ extension TeamDataView {
 extension TeamDataView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        guard let cell = collectionView.cellForItem(at: indexPath) as? MatchCollectionCell, let match = cell.teamDataObject else { return }
+        guard let cell = collectionView.cellForItem(at: indexPath) as? MatchCollectionCell, let match = cell.objectContainer else { return }
         
         print("MatchesView - Cell selected - details below below:")
-        guard let selectedMatch = QuickCache.helper.matchesDictionary[match.id] else { return }
+        guard let id = match.matchId, let selectedMatch = QuickCache.helper.matchesDictionary[id] else { return }
         let matchDataViewController = MatchDataViewController()
         matchDataViewController.matchDataView.match = selectedMatch
         self.viewController.present(matchDataViewController, animated: true)

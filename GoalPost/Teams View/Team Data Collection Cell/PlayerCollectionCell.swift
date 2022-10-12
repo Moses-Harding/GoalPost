@@ -82,7 +82,7 @@ class PlayerCollectionCell: TeamDataStackCellModel {
         
         Task.init {
             
-            guard let teamDataObject = teamDataObject else {
+            guard let teamDataObject = objectContainer else {
                 print("no team data object found")
                 return }
             guard let player = await teamDataObject.player() else {

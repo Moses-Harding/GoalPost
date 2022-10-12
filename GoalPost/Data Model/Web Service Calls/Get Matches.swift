@@ -106,10 +106,10 @@ class GetMatches {
     
     func convert(data: Data?) async throws -> (MatchesDictionary, MatchesByTeamDictionary, MatchesByDateDictionary, MatchesByLeagueDictionary, MatchIdDictionary) {
 
-        var matchesDictionary = [MatchUniqueID:MatchObject]()
-        var matchesByTeamDictionary = [TeamID:Set<MatchUniqueID>]()
-        var matchesByDateDictionary = [DateString: Set<MatchUniqueID>]()
-        var matchesByLeagueDictionary = [LeagueID: Set<MatchUniqueID>]()
+        var matchesDictionary: MatchesDictionary = [:]
+        var matchesByTeamDictionary: MatchesByTeamDictionary = [:]
+        var matchesByDateDictionary: MatchesByDateDictionary = [:]
+        var matchesByLeagueDictionary: MatchesByLeagueDictionary = [:]
         var matchIdDictionary: MatchIdDictionary = [:]
 
         guard let data = data else { throw WebServiceCallErrors.dataNotPassedToConversionFunction }
@@ -139,23 +139,23 @@ class GetMatches {
 
                 // Add if it's in a favorite league
                 
-                matchesByDateDictionary.add(matchUniqueId, toSetWithKey: matchDate.asKey)
+                matchesByDateDictionary.add(matchId, toSetWithKey: matchDate.asKey)
                 
                 if favoriteTeams.keys.contains(homeTeamId) || favoriteTeams.keys.contains(awayTeamId) {
                     print("Adding \(matchUniqueId)")
-                    matchesByLeagueDictionary.add(matchUniqueId, toSetWithKey: DefaultIdentifier.favoriteTeam.rawValue)
+                    matchesByLeagueDictionary.add(matchId, toSetWithKey: DefaultIdentifier.favoriteTeam.rawValue)
                 }
                 
                 // Add to dictionary of all matches
-                matchesDictionary[matchUniqueId] = matchData
+                matchesDictionary[matchId] = matchData
                 
                 // Update the matchIdDictionary (for sorting)
-                matchIdDictionary[matchData.id] = matchUniqueId
+                matchIdDictionary[matchId] = matchUniqueId
                 
                 // Add to set of matches
-                matchesByLeagueDictionary.add(matchUniqueId, toSetWithKey: leagueId)
-                matchesByTeamDictionary.add(matchUniqueId, toSetWithKey: homeTeamId)
-                matchesByTeamDictionary.add(matchUniqueId, toSetWithKey: awayTeamId)
+                matchesByLeagueDictionary.add(matchId, toSetWithKey: leagueId)
+                matchesByTeamDictionary.add(matchId, toSetWithKey: homeTeamId)
+                matchesByTeamDictionary.add(matchId, toSetWithKey: awayTeamId)
             } else {
                 continue
             }
@@ -197,13 +197,13 @@ class GetMatches {
                 // print("GetMatches - Adding \(matchData.marquee) - \(Date.now.timeStamp)")
 
                 // Add if it's in a favorite league
-                matchesByDateDictionary.add(matchUniqueId, toSetWithKey: matchDate.asKey)
+                matchesByDateDictionary.add(matchId, toSetWithKey: matchDate.asKey)
                 
                 // Add to dictionary of all matches
-                matchesDictionary[matchUniqueId] = matchData
+                matchesDictionary[matchId] = matchData
                 
                 // Update the matchIdDictionary (for sorting)
-                matchIdDictionary[matchData.id] = matchUniqueId
+                matchIdDictionary[matchId] = matchUniqueId
             } else {
                 continue
             }

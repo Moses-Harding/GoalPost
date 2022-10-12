@@ -26,7 +26,7 @@ class InjuryObject: Codable {
     
     var teamId: TeamID
     var playerId: PlayerID
-    var matchId: MatchUniqueID
+    var matchId: MatchID
     var leagueId: LeagueID
     
     var type: String
@@ -42,7 +42,7 @@ class InjuryObject: Codable {
         teamId = info.team.id
         playerId = info.player.id
         leagueId = info.league.id
-        matchId = MatchObject.getUniqueID(id: info.fixture.id, timestamp: info.fixture.timestamp)
+        matchId = info.fixture.id
         date = Date(timeIntervalSince1970: TimeInterval(info.fixture.timestamp))
 
          

@@ -11,7 +11,7 @@ class GetTeams {
     
     static var helper = GetTeams()
     
-    func search(for teamName: String, countryName: String?) async throws -> [TeamID:TeamObject] {
+    func search(for teamName: String, countryName: String?) async throws -> TeamDictionary {
         
         let encodedTeam = teamName.replacingOccurrences(of: " ", with: "+")
         var requestURL = "https://api-football-v1.p.rapidapi.com/v3/teams?search=\(encodedTeam)"
@@ -24,13 +24,13 @@ class GetTeams {
 
         
         let data = try await WebServiceCall().retrieveResults(requestURL: requestURL)
-        let teamDictionary: [TeamID:TeamObject] = try convert(data: data)
+        let teamDictionary: TeamDictionary = try convert(data: data)
         return teamDictionary
     }
     
-    func convert(data: Data?) throws -> [TeamID:TeamObject] {
+    func convert(data: Data?) throws -> TeamDictionary {
 
-        var teamDictionary = [TeamID:TeamObject]()
+        var teamDictionary: TeamDictionary = [:]
         
         guard let data = data else { throw WebServiceCallErrors.dataNotPassedToConversionFunction }
         

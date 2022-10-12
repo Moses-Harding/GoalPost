@@ -79,7 +79,7 @@ class TransferCollectionCell: TeamDataStackCellModel {
     override func updateContent() {
         
         Task.init {
-            guard let teamDataObject = teamDataObject, let transferInfo = await teamDataObject.transfer() else { return }
+            guard let teamDataObject = objectContainer, let transferInfo = await teamDataObject.transfer() else { return }
 
             transferFromTeam.text = "From: \(await transferInfo.teamFrom?.name ?? "-")"
             transferToTeam.text = "To: \(await transferInfo.teamTo?.name ?? "-")"

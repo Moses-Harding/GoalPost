@@ -112,7 +112,7 @@ class MatchCollectionCell: TeamDataStackCellModel {
         
         Task.init {
             
-            guard let teamDataObject = teamDataObject else { return }
+            guard let teamDataObject = objectContainer else { return }
             
             guard let match = teamDataObject.match, let homeTeam = match.homeTeam, let awayTeam = match.awayTeam else { print("Attempting to update content for match cell but matchInformation not found")
                 return
