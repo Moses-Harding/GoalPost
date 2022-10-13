@@ -21,25 +21,26 @@ class MatchDataView: UIView {
     var timeArea = UIView()
     
     // Name + Logo Area
-    var namesAndLogoStack = UIStackView(.vertical)
-
-    // - Name Stack
-    var nameStack = UIStackView(.horizontal)
+    
+    var teamMatchupArea = UIStackView(.horizontal)
+    
+    var homeTeamStack = UIStackView(.vertical)
+    
     var homeTeamNameArea = UIView()
-    var awayTeamNameArea = UIView()
-    
-    // - Logo Stack
-    var logoStack = UIStackView(.horizontal)
     var homeTeamLogoArea = UIView()
-    var awayTeamLogoArea = UIView()
-    var vsStack = UIStackView(.vertical)
-    
-    // Score Area
-    
-    var scoreStack = UIStackView(.horizontal)
     var homeTeamScoreView = UIView()
-    var awayTeamScoreView = UIView()
+    
+    var centerStack = UIStackView(.vertical)
+    
+    var vsStack = UIStackView(.vertical)
     var statusView = UIView()
+    
+
+    var awayTeamStack = UIStackView(.vertical)
+
+    var awayTeamNameArea = UIView()
+    var awayTeamLogoArea = UIView()
+    var awayTeamScoreView = UIView()
     
     
     // MARK: Labels
@@ -74,11 +75,15 @@ class MatchDataView: UIView {
         return view
     }
     
-    var greenVerticalLine: (() -> UIView) = {
-        let view = UIView()
-        view.backgroundColor = Colors.cellTextGreen
-        view.widthAnchor.constraint(equalToConstant: 2).isActive = true
-        return view
+    var greenVerticalLine: ((CGFloat) -> UIStackView) = {
+        var stackView = UIStackView(.horizontal)
+        let greenLine = UIView()
+        greenLine.backgroundColor = Colors.cellTextGreen
+        greenLine.widthAnchor.constraint(equalToConstant: $0).isActive = true
+        
+        stackView.add(children: [(UIView(), 0.4), (greenLine, nil), (UIView(), nil)])
+        
+        return stackView
     }
     
     var spacer: ((CGFloat?) -> (UIView, CGFloat?)) = {
@@ -104,16 +109,26 @@ class MatchDataView: UIView {
 
         self.constrain(mainStack)
         
-        mainStack.add(children: [(dateStack, 0.15), (namesAndLogoStack, 0.3), (scoreStack, 0.1), spacer(nil)])
+        mainStack.add(children: [(dateStack, 0.15), (teamMatchupArea, 0.5), spacer(nil)])
         
-        dateStack.add([UIView(), dateArea, timeArea, UIView(), greenHorizontalLine()])
+        dateStack.add(children: [spacer(0.05), (dateArea, nil), (timeArea, nil), spacer(0.05), (greenHorizontalLine(), nil)])
+        //dateStack.add([UIView(), dateArea, timeArea, UIView(), greenHorizontalLine()])
         
         dateArea.constrain(dateLabel)
         timeArea.constrain(timeLabel)
         
-        namesAndLogoStack.add(children: [(nameStack, 0.3), (logoStack, 0.5), spacer(nil)])
-        nameStack.add(children: [spacer(0.1), (homeTeamNameArea, 0.3), spacer(0.09), (greenVerticalLine(), 0.02), spacer(0.1), (awayTeamNameArea, 0.3), spacer(nil)])
-        logoStack.add(children: [spacer(0.1), (homeTeamLogoArea, 0.2), spacer(0.1), (vsStack, nil), spacer(0.1), (awayTeamLogoArea, 0.2), spacer(0.1)])
+        teamMatchupArea.add(children: [spacer(0.05), (homeTeamStack, 0.3), spacer(0.05), (centerStack, nil), spacer(0.05), (awayTeamStack, 0.3), spacer(0.05)])
+        
+        let topSacer = 0.05
+        let midSpacer = 0.1
+        let nameArea = 0.35
+        let logoArea = 0.25
+        let scoreAndStatusView = 0.25
+        
+        homeTeamStack.add(children: [spacer(topSacer), (homeTeamNameArea, nameArea), (homeTeamLogoArea, logoArea), spacer(midSpacer), (homeTeamScoreView, scoreAndStatusView), spacer(nil)])
+        awayTeamStack.add(children: [spacer(topSacer), (awayTeamNameArea, nameArea), (awayTeamLogoArea, logoArea), spacer(midSpacer), (awayTeamScoreView, scoreAndStatusView), spacer(nil)])
+        centerStack.add(children: [spacer(topSacer), (greenVerticalLine(2), 0.25), (vsStack, 0.15), (greenVerticalLine(2), 0.2), spacer(midSpacer + 0.05), (statusView, scoreAndStatusView - 0.05), spacer(nil)])
+        
         
         homeTeamNameArea.constrain(homeTeamLabel)
         awayTeamNameArea.constrain(awayTeamLabel)
@@ -124,11 +139,8 @@ class MatchDataView: UIView {
         homeTeamLogo.heightAnchor.constraint(equalTo: awayTeamLogo.widthAnchor).isActive = true
         awayTeamLogo.heightAnchor.constraint(equalTo: awayTeamLogo.widthAnchor).isActive = true
         
-        let lineStack = UIStackView(.horizontal)
-        lineStack.add(children: [spacer(0.4), (greenVerticalLine(), nil), spacer(nil)])
-        vsStack.add(children: [(vsLabel, 0.6), spacer(0.01), (lineStack, nil)])
+        vsStack.add([vsLabel])
         
-        scoreStack.add(children: [spacer(0.05), (homeTeamScoreView, 0.3), spacer(0.1), (statusView, nil), spacer(0.1), (awayTeamScoreView, 0.3), spacer(0.05)])
         homeTeamScoreView.constrain(homeTeamScoreLabel)
         awayTeamScoreView.constrain(awayTeamScoreLabel)
         statusView.constrain(statusLabel)
@@ -149,6 +161,7 @@ class MatchDataView: UIView {
         
         statusView.backgroundColor = Colors.cellBackgroundGray
         statusView.layer.cornerRadius = 15
+
     }
     
     // 4
@@ -163,18 +176,14 @@ class MatchDataView: UIView {
         homeTeamLabel.font = UIFont.systemFont(ofSize: 24)
         awayTeamLabel.font = UIFont.systemFont(ofSize: 24)
         
+        homeTeamLabel.numberOfLines = -1
+        awayTeamLabel.numberOfLines = -1
+        
         homeTeamScoreLabel.font = UIFont.systemFont(ofSize: 20)
         awayTeamScoreLabel.font = UIFont.systemFont(ofSize: 20)
         
         vsLabel.font = UIFont.systemFont(ofSize: 36)
         vsLabel.textAlignment = .left
-        
-        
-        /*
-        homeTeamNameArea.backgroundColor = .blue
-        awayTeamNameArea.backgroundColor = .blue
-        vsLabel.backgroundColor = .blue
-         */
     }
     
     required init(coder: NSCoder) {
