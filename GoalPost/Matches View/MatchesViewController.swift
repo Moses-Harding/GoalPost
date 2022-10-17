@@ -16,6 +16,8 @@ class MatchesViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the views
         
+        matchesView.viewController = self
+        
         self.view.constrain(matchesView)
 
         for matchAd in GAD.helper.matchAds {

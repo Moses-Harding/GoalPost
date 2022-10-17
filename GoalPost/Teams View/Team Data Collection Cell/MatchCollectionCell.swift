@@ -114,7 +114,11 @@ class MatchCollectionCell: TeamDataStackCellModel {
             
             guard let teamDataObject = objectContainer else { return }
             
-            guard let match = teamDataObject.match, let homeTeam = match.homeTeam, let awayTeam = match.awayTeam else { print("Attempting to update content for match cell but matchInformation not found")
+            guard let match = teamDataObject.match else { print("MatchCollectioNCell - UpdateContent - Attempting to update content for match cell but matchInformation not found")
+                return
+            }
+            
+            guard let homeTeam = match.homeTeam, let awayTeam = match.awayTeam else { print("MatchCollectioNCell - UpdateContent - Attempting to update content for match cell but home team / away team not found")
                 return
             }
             

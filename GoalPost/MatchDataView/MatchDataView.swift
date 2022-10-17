@@ -42,6 +42,14 @@ class MatchDataView: UIView {
     var awayTeamLogoArea = UIView()
     var awayTeamScoreView = UIView()
     
+    // Events Area
+    
+    var eventsArea = UIScrollView()
+    var eventsStack = UIStackView(.vertical)
+    
+    var homeTeamEventsStack = UIStackView(.horizontal)
+    var awayTeamEventsStack = UIStackView(.horizontal)
+    
     
     // MARK: Labels
     
@@ -109,10 +117,9 @@ class MatchDataView: UIView {
 
         self.constrain(mainStack)
         
-        mainStack.add(children: [(dateStack, 0.15), (teamMatchupArea, 0.5), spacer(nil)])
+        mainStack.add(children: [(dateStack, 0.15), (teamMatchupArea, 0.4), spacer(nil), (eventsArea, 0.4)])
         
         dateStack.add(children: [spacer(0.05), (dateArea, nil), (timeArea, nil), spacer(0.05), (greenHorizontalLine(), nil)])
-        //dateStack.add([UIView(), dateArea, timeArea, UIView(), greenHorizontalLine()])
         
         dateArea.constrain(dateLabel)
         timeArea.constrain(timeLabel)
@@ -144,6 +151,13 @@ class MatchDataView: UIView {
         homeTeamScoreView.constrain(homeTeamScoreLabel)
         awayTeamScoreView.constrain(awayTeamScoreLabel)
         statusView.constrain(statusLabel)
+
+
+        eventsArea.constrain(eventsStack, using: .edges)
+        eventsStack.widthAnchor.constraint(greaterThanOrEqualTo: eventsArea.widthAnchor).isActive = true
+        eventsStack.heightAnchor.constraint(equalTo: eventsArea.heightAnchor).isActive = true
+        
+        eventsStack.add(children: [(homeTeamEventsStack, 0.43), spacer(nil), (greenHorizontalLine(), 0.02), spacer(0.02), (awayTeamEventsStack, 0.43)])
     }
     
     
@@ -212,6 +226,32 @@ extension MatchDataView {
         
         loadImage(for: homeTeam, teamType: .home)
         loadImage(for: awayTeam, teamType: .away)
+        
+        Task.init {
+            try await DataFetcher.helper.getEvents(for: match.id, completion: { self.add(events: $0) })
+        }
+    }
+    
+    func add(events: [EventObject]) {
+        guard let match = self.match, let homeTeam = match.homeTeam, let awayTeam = match.awayTeam else { return }
+        
+        for event in events {
+            
+            DispatchQueue.main.async {
+                
+                let view = EventView(event)
+                
+                let secondView = EventView(nil)
+                
+                if event.teamId == homeTeam.id {
+                    self.homeTeamEventsStack.addArrangedSubview(view)
+                    self.awayTeamEventsStack.addArrangedSubview(secondView)
+                } else {
+                    self.awayTeamEventsStack.addArrangedSubview(view)
+                    self.homeTeamEventsStack.addArrangedSubview(secondView)
+                }
+            }
+        }
     }
     
     enum TeamType {

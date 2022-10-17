@@ -178,6 +178,16 @@ extension DataFetcher {
         return (matchesDictionary, matchesByTeam, matchesByDateSet, matchesByLeagueSet, matchIdDictionary, lastMatchesDictionary, lastMatchesByTeam, lastMatchesByDateSet, lastMatchesByLeagueSet, lastMatchIdDictionary, injuryDictionary, injuriesByTeam, playerDictionary, playersByTeam, transferDictionary, transfersByTeam)
     }
     
+    func getEvents(for matchId: MatchID, completion: @escaping ([EventObject]) -> ()) async throws {
+        
+        let matchesDictionary = try await GetEvents.helper.getEventsFor(match: matchId)
+        
+        guard let match = matchesDictionary[matchId] else { fatalError("DataFetcher - GetEvents - Match Not Retrieved") }
+        completion(match.events)
+        
+        await Cached.data.integrate(type: .matchesDictionary, dictionary: matchesDictionary, replaceExistingValue: true, calledBy: "DataFetcher - GetEvents")
+    }
+    
     /* Functions for adding Team */
     
     

@@ -49,6 +49,8 @@ class MatchObject: Codable {
     
     var leagueId: LeagueID?
     
+    var events: [EventObject] = []
+    
     init(id: MatchID, favoriteTeam: Bool = false, timeStamp: Date, timeElapsed: Int? = nil, status: MatchStatusCode? = nil, leagueId: LeagueID? = nil, homeTeamId: TeamID, awayTeamId: TeamID, homeTeamScore: Int? = nil, awayTeamScore: Int? = nil) {
         
         self.id = id

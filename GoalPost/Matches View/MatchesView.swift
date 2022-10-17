@@ -87,6 +87,10 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
     var swipeRight = UISwipeGestureRecognizer()
     var refreshControl: UIRefreshControl!
     
+    // MARK: Logic
+    
+    var viewController: MatchesViewController?
+    
     init() {
         super.init(frame: CGRect.zero)
         
@@ -357,10 +361,10 @@ extension MatchesView: UICollectionViewDelegate {
             print(league.league?.details)
         }
         
-        guard let cell = collectionView.cellForItem(at: indexPath) as? MatchCell, let match = cell.objectContainer, let id = match.matchId else { return }
-        
-        print("MatchesView - Cell selected - details below below:")
-        guard let updatedMatch = QuickCache.helper.matchesDictionary[id] else { return }
-        print(updatedMatch.details)
+        guard let viewController = self.viewController, let cell = collectionView.cellForItem(at: indexPath) as? MatchCell, let match = cell.objectContainer, let id = match.matchId, let selectedMatch = QuickCache.helper.matchesDictionary[id] else { return }
+
+        let matchDataViewController = MatchDataViewController()
+        matchDataViewController.matchDataView.match = selectedMatch
+        viewController.present(matchDataViewController, animated: true)
     }
 }
