@@ -40,13 +40,14 @@ class EventView: UIView {
         
         super.init(frame: CGRect.zero)
         
-        self.widthAnchor.constraint(equalToConstant: 175).isActive = true
+        self.widthAnchor.constraint(equalToConstant: 125).isActive = true
         
         
         guard event != nil else { return }
         
         setUpUI()
         setUpColors()
+        setUpLabels()
         updateContent()
     }
     
@@ -60,39 +61,77 @@ class EventView: UIView {
         contentView.constrain(internalStackView, using: .scale, widthScale: 0.9, heightScale: 0.9)
         
         let imageStack = UIStackView(.horizontal)
-        imageStack.add(children: [spacer(0.2), (detailIcon, nil), spacer(nil)])
+        imageStack.add(children: [spacer(0.35), (detailIcon, nil), spacer(nil)])
         
-        internalStackView.add([imageStack, timeAndDetailsLabel, playerNameLabel, assistingPlayerNameLabel, commentsLabel])
-        
-        internalStackView.add(children: [(imageStack, 0.2), (timeAndDetailsLabel, 0.2), (playerNameLabel, 0.2), (assistingPlayerNameLabel, 0.2), (commentsLabel, 0.2)])
+        internalStackView.add(children: [(imageStack, nil), (timeAndDetailsLabel, 0.2), (playerNameLabel, 0.2), (assistingPlayerNameLabel, 0.2), (commentsLabel, 0.2)])
         
     }
     
     func setUpColors() {
+        /*
         contentView.layer.borderColor = Colors.cellBorderGreen.cgColor
         contentView.layer.borderWidth = 1
         contentView.layer.cornerRadius = 5
+         */
     }
     
     func setUpLabels() {
         
         allLabels.forEach {
-            $0.font = UIFont.systemFont(ofSize: 10)
+            $0.font = UIFont.systemFont(ofSize: 12)
             $0.adjustsFontSizeToFitWidth = true
             $0.textColor = .white
+            $0.textAlignment = .center
+            $0.numberOfLines = -1
         }
     }
     
     func updateContent() {
         guard let event = event else { fatalError() }
         
-        timeAndDetailsLabel.text = "\(event.timeElapsed)'\(event.extraTimeElapsed != nil ? " (\(event.extraTimeElapsed!))" : " ")  \(event.eventDetail)"
-        playerNameLabel.text = "\(event.playerName ?? " ")"
-        assistingPlayerNameLabel.text = "\(event.assistingPlayerName ?? " ")"
-        commentsLabel.text = "\(event.comments ?? " ")"
+        timeAndDetailsLabel.text = "\(event.timeElapsed)'\(event.extraTimeElapsed != nil ? " +\(event.extraTimeElapsed!)" : "")  \(event.eventDetail)"
         
-        if let imageName = event.imageName {
-            self.detailIcon.image = UIImage(named: imageName)
+        if event.eventType == .subst {
+            playerNameLabel.text = "Out: \(event.playerName ?? "")"
+        } else {
+            playerNameLabel.text = "\(event.playerName ?? "")"
         }
+        
+        if let assist = event.assistingPlayerName {
+            if event.eventType == .goal {
+                assistingPlayerNameLabel.text = "\(assist) (asst)"
+            } else if event.eventType == .subst {
+                assistingPlayerNameLabel.text = "In: \(assist)"
+            }
+
+        } else {
+            assistingPlayerNameLabel.isHidden = true
+        }
+
+        if let comment = event.comments {
+            commentsLabel.text = comment
+        } else {
+            commentsLabel.isHidden = true
+        }
+
+        
+        
+        
+        guard let imageName = event.imageName else {
+            print("EventView - Cannot Get Image Name")
+            return
+        }
+        
+        print(imageName)
+        
+        guard let image = UIImage(named: imageName) else {
+            print("EventView - Cannot Get Image")
+            return
+        }
+        
+        detailIcon.widthAnchor.constraint(equalTo: detailIcon.heightAnchor).isActive = true
+        
+        self.detailIcon.image = image
+
     }
 }

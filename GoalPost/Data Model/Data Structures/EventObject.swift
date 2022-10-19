@@ -51,6 +51,8 @@ class EventObject: Codable {
         comments = event.comments
         
         id = "\(teamId)\(timeElapsed)\(eventDetail)"
+        
+        selectImage()
     }
     
     func selectImage() {
