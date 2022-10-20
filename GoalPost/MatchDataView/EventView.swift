@@ -34,13 +34,21 @@ class EventView: UIView {
     }
 
     
-    init(_ event: EventObject?) {
+    // MARK: Data
+    
+    var width: CGFloat
+    var logoWidth: CGFloat
+    
+    init(_ event: EventObject?, width: CGFloat, logoWidth: CGFloat) {
         
         self.event = event
         
+        self.width = width
+        self.logoWidth = logoWidth
+        
         super.init(frame: CGRect.zero)
         
-        self.widthAnchor.constraint(equalToConstant: 125).isActive = true
+        self.widthAnchor.constraint(equalToConstant: width).isActive = true
         
         
         guard event != nil else { return }
@@ -129,7 +137,8 @@ class EventView: UIView {
             return
         }
         
-        detailIcon.widthAnchor.constraint(equalTo: detailIcon.heightAnchor).isActive = true
+        detailIcon.widthAnchor.constraint(equalToConstant: logoWidth).isActive = true
+        detailIcon.heightAnchor.constraint(equalToConstant: logoWidth).isActive = true
         
         self.detailIcon.image = image
 

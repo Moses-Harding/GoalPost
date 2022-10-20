@@ -48,6 +48,7 @@ class MatchDataView: UIView {
     var eventsStack = UIStackView(.vertical)
     
     var homeTeamEventsStack = UIStackView(.horizontal)
+    var centerEventsStack = UIStackView(.horizontal)
     var awayTeamEventsStack = UIStackView(.horizontal)
     
     
@@ -76,11 +77,15 @@ class MatchDataView: UIView {
     
     // MARK: Closures
     
-    let greenHorizontalLine: (() -> UIView) = {
-        let view = UIView()
-        view.backgroundColor = Colors.cellTextGreen
-        view.heightAnchor.constraint(equalToConstant: 2).isActive = true
-        return view
+    var greenHorizontalLine: ((CGFloat) -> UIStackView) = {
+        var stackView = UIStackView(.vertical)
+        let greenLine = UIView()
+        greenLine.backgroundColor = Colors.cellTextGreen
+        greenLine.heightAnchor.constraint(equalToConstant: $0).isActive = true
+        
+        stackView.add(children: [(UIView(), 0.4), (greenLine, nil), (UIView(), nil)])
+        
+        return stackView
     }
     
     var greenVerticalLine: ((CGFloat) -> UIStackView) = {
@@ -98,10 +103,13 @@ class MatchDataView: UIView {
         return (UIView(), $0)
     }
     
-    // Data
+    // MARK: Data
     var match: MatchObject? { didSet { updateContent() } }
     
     var viewController: MatchDataViewController!
+    
+    // For Checking Membership
+    var allEvents = Set<EventObject>()
     
     init() {
         super.init(frame: .zero)
@@ -119,7 +127,7 @@ class MatchDataView: UIView {
         
         mainStack.add(children: [(dateStack, 0.15), (teamMatchupArea, 0.4), spacer(nil), (eventsArea, 0.4)])
         
-        dateStack.add(children: [spacer(0.05), (dateArea, nil), (timeArea, nil), spacer(0.05), (greenHorizontalLine(), nil)])
+        dateStack.add(children: [spacer(0.05), (dateArea, nil), (timeArea, nil), spacer(0.05), (greenHorizontalLine(2), nil)])
         
         dateArea.constrain(dateLabel)
         timeArea.constrain(timeLabel)
@@ -157,7 +165,7 @@ class MatchDataView: UIView {
         eventsStack.widthAnchor.constraint(greaterThanOrEqualTo: eventsArea.widthAnchor).isActive = true
         eventsStack.heightAnchor.constraint(equalTo: eventsArea.heightAnchor).isActive = true
         
-        eventsStack.add(children: [(homeTeamEventsStack, 0.43), spacer(nil), (greenHorizontalLine(), 0.02), spacer(0.02), (awayTeamEventsStack, 0.43)])
+        eventsStack.add(children: [(homeTeamEventsStack, 0.4), spacer(0.02), (centerEventsStack, nil), spacer(0.02), (awayTeamEventsStack, 0.4)])
     }
     
     
@@ -237,17 +245,39 @@ extension MatchDataView {
         
         for event in events {
             
+            guard !self.allEvents.contains(event) else {
+                return
+            }
+            
+            self.allEvents.insert(event)
+
             DispatchQueue.main.async {
                 
-                let view = EventView(event)
+                let width: CGFloat = 125
+                let logoWidth: CGFloat = 40
                 
-                let secondView = EventView(nil)
+                let view = EventView(event, width: width, logoWidth: logoWidth)
+                let secondView = EventView(nil, width: width, logoWidth: logoWidth)
+                
+                let timeView = UIView()
+                let timeLabel = UILabel()
+                timeView.constrain(timeLabel)
+                timeView.widthAnchor.constraint(equalToConstant: logoWidth).isActive = true
+                timeLabel.text = "\(event.timeElapsed)'\(event.extraTimeElapsed != nil ? " +\(event.extraTimeElapsed!)" : "")"
+                timeLabel.textAlignment = .center
+                
+                let centerSegment = UIStackView(.horizontal)
+                centerSegment.widthAnchor.constraint(equalToConstant: width).isActive = true
+                centerSegment.add([self.greenHorizontalLine(2), timeLabel, self.greenHorizontalLine(2)])
+                centerSegment.distribution = .fillEqually
                 
                 if event.teamId == homeTeam.id {
                     self.homeTeamEventsStack.addArrangedSubview(view)
+                    self.centerEventsStack.addArrangedSubview(centerSegment)
                     self.awayTeamEventsStack.addArrangedSubview(secondView)
                 } else {
                     self.awayTeamEventsStack.addArrangedSubview(view)
+                    self.centerEventsStack.addArrangedSubview(centerSegment)
                     self.homeTeamEventsStack.addArrangedSubview(secondView)
                 }
             }
