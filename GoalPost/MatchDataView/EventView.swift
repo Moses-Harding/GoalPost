@@ -27,28 +27,33 @@ class EventView: UIView {
     
     
     // MARK: Images
+    let iconView = UIView()
     let detailIcon = UIImageView()
     
     var spacer: ((CGFloat?) -> (UIView, CGFloat?)) = {
         return (UIView(), $0)
     }
+    
+    enum HomeOrAway {
+        case home, away
+    }
 
     
     // MARK: Data
     
-    var width: CGFloat
+
     var logoWidth: CGFloat
+    var homeOrAway: HomeOrAway
     
-    init(_ event: EventObject?, width: CGFloat, logoWidth: CGFloat) {
+    init(_ event: EventObject?, logoWidth: CGFloat, homeOrAway: HomeOrAway) {
         
         self.event = event
         
-        self.width = width
+        //self.viewWidth = width
         self.logoWidth = logoWidth
+        self.homeOrAway = homeOrAway
         
         super.init(frame: CGRect.zero)
-        
-        self.widthAnchor.constraint(equalToConstant: width).isActive = true
         
         
         guard event != nil else { return }
@@ -67,12 +72,7 @@ class EventView: UIView {
         
         self.constrain(contentView, using: .scale, widthScale: 0.9, heightScale: 0.9)
         contentView.constrain(internalStackView, using: .scale, widthScale: 0.9, heightScale: 0.9)
-        
-        let imageStack = UIStackView(.horizontal)
-        imageStack.add(children: [spacer(0.35), (detailIcon, nil), spacer(nil)])
-        
-        internalStackView.add(children: [(imageStack, nil), (timeAndDetailsLabel, 0.2), (playerNameLabel, 0.2), (assistingPlayerNameLabel, 0.2), (commentsLabel, 0.2)])
-        
+
     }
     
     func setUpColors() {
@@ -92,47 +92,55 @@ class EventView: UIView {
             $0.textAlignment = .center
             $0.numberOfLines = -1
         }
+        
+        playerNameLabel.font = UIFont.boldSystemFont(ofSize: 16)
     }
     
     func updateContent() {
         guard let event = event else { fatalError() }
         
-        timeAndDetailsLabel.text = "\(event.timeElapsed)'\(event.extraTimeElapsed != nil ? " +\(event.extraTimeElapsed!)" : "")  \(event.eventDetail)"
+        let imageStack = UIStackView(.horizontal)
+        imageStack.add(children: [spacer(0.35), (iconView, nil), spacer(nil)])
+        iconView.constrain(detailIcon, using: .scale, except: [.height])
         
-        if event.eventType == .subst {
-            playerNameLabel.text = "Out: \(event.playerName ?? "")"
-        } else {
-            playerNameLabel.text = "\(event.playerName ?? "")"
-        }
         
-        if let assist = event.assistingPlayerName {
-            if event.eventType == .goal {
-                assistingPlayerNameLabel.text = "\(assist) (asst)"
-            } else if event.eventType == .subst {
-                assistingPlayerNameLabel.text = "In: \(assist)"
+        let firstView = homeOrAway == .home ? spacer(nil) : (imageStack, 0.2)
+        let lastView = homeOrAway == .home ? (imageStack, 0.2) : spacer(nil)
+        
+        let smallSpacerSize = 0.1
+        let sectionSize = 0.18
+        let playerNameLabelSize = 0.23
+
+            switch event.eventType  {
+            case .card:
+                playerNameLabel.text = "\(event.playerName)"
+                timeAndDetailsLabel.text = event.comments == nil ? event.comments! : event.eventDetail
+                
+                internalStackView.add(children: [firstView, spacer(smallSpacerSize), (playerNameLabel, playerNameLabelSize), (timeAndDetailsLabel, sectionSize), spacer(smallSpacerSize), lastView])
+            case .goal:
+                playerNameLabel.text = "\(event.playerName)"
+                timeAndDetailsLabel.text = event.eventDetail == "Normal Goal" ? "GOAL!" : "\(event.eventDetail)"
+                if let assisting = event.assistingPlayerName {
+                    assistingPlayerNameLabel.text = "\(assisting) (asst)"
+                }
+                internalStackView.add(children: [firstView, spacer(smallSpacerSize), (playerNameLabel, playerNameLabelSize), (assistingPlayerNameLabel, sectionSize), (timeAndDetailsLabel, sectionSize), spacer(smallSpacerSize), lastView])
+            case .subst:
+                playerNameLabel.text = "In: \(event.assistingPlayerName ?? "")"
+                assistingPlayerNameLabel.text = "Out: \(event.playerName)"
+                internalStackView.add(children: [firstView, spacer(smallSpacerSize), (playerNameLabel, playerNameLabelSize), (assistingPlayerNameLabel, sectionSize), spacer(smallSpacerSize), lastView])
+            case .Var:
+                playerNameLabel.text = "\(event.playerName)"
+                timeAndDetailsLabel.text = event.comments != nil ? event.comments! : event.eventDetail
+                internalStackView.add(children: [firstView, spacer(smallSpacerSize), (playerNameLabel, playerNameLabelSize), (timeAndDetailsLabel, sectionSize), spacer(smallSpacerSize), lastView])
             }
-
-        } else {
-            assistingPlayerNameLabel.isHidden = true
-        }
-
-        if let comment = event.comments {
-            commentsLabel.text = comment
-        } else {
-            commentsLabel.isHidden = true
-        }
-
-        
-        
         
         guard let imageName = event.imageName else {
             print("EventView - Cannot Get Image Name")
             return
         }
         
-        print(imageName)
-        
         guard let image = UIImage(named: imageName) else {
+            print(imageName)
             print("EventView - Cannot Get Image")
             return
         }

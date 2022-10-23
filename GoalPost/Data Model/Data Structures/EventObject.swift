@@ -9,8 +9,8 @@ import Foundation
 
 class EventObject: Codable {
     
-    let playerId: Int?
-    let playerName: String?
+    let playerId: Int
+    let playerName: String
     
     let assistingPlayerId: Int?
     let assistingPlayerName: String?
@@ -27,6 +27,11 @@ class EventObject: Codable {
     let comments: String?
     
     var imageName: String?
+    
+    
+    var timeText: String {
+        return "\(self.timeElapsed)'\(self.extraTimeElapsed != nil ? " +\(self.extraTimeElapsed!)" : "")"
+    }
     
     var id: String
     
@@ -67,7 +72,7 @@ class EventObject: Codable {
         case .goal:
             imageName = "Goal"
         case .subst:
-            imageName = "Hublot Clock"
+            imageName = "Substitution"
         case .Var:
             imageName = "VAR"
         }

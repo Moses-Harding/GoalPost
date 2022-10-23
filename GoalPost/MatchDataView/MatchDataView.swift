@@ -83,6 +83,17 @@ class MatchDataView: UIView {
         greenLine.backgroundColor = Colors.cellTextGreen
         greenLine.heightAnchor.constraint(equalToConstant: $0).isActive = true
         
+        stackView.add(children: [(UIView(), 0.475), (greenLine, nil), (UIView(), nil)])
+        
+        return stackView
+    }
+    
+    var grayHorizontalLine: ((CGFloat) -> UIStackView) = {
+        var stackView = UIStackView(.vertical)
+        let greenLine = UIView()
+        greenLine.backgroundColor = Colors.cellBackgroundGray
+        greenLine.heightAnchor.constraint(equalToConstant: $0).isActive = true
+        
         stackView.add(children: [(UIView(), 0.4), (greenLine, nil), (UIView(), nil)])
         
         return stackView
@@ -107,9 +118,6 @@ class MatchDataView: UIView {
     var match: MatchObject? { didSet { updateContent() } }
     
     var viewController: MatchDataViewController!
-    
-    // For Checking Membership
-    var allEvents = Set<EventObject>()
     
     init() {
         super.init(frame: .zero)
@@ -230,7 +238,21 @@ extension MatchDataView {
         awayTeamLabel.text = "\(match.awayTeam?.name ?? "")"
         awayTeamScoreLabel.text = "\(String(match.awayTeamScore)) "
         
-        statusLabel.text = "\(match.timeElapsed ?? 0)'"
+        if match.status == .live || match.status == .extraTime || match.status == .firstHalf || match.status == .secondHalf || match.status == .penalties {
+            statusLabel.text = "\(match.timeElapsed ??  0)\(match)'"
+        } else {
+            statusLabel.text = "\(match.status)"
+        }
+        
+        if match.status == .notStarted || match.status == .postponed ||
+            match.status == .suspended {
+            homeTeamScoreView.isHidden = true
+            awayTeamScoreView.isHidden = true
+        } else {
+            homeTeamScoreView.isHidden = false
+            awayTeamScoreView.isHidden = false
+        }
+
         
         loadImage(for: homeTeam, teamType: .home)
         loadImage(for: awayTeam, teamType: .away)
@@ -241,45 +263,122 @@ extension MatchDataView {
     }
     
     func add(events: [EventObject]) {
-        guard let match = self.match, let homeTeam = match.homeTeam, let awayTeam = match.awayTeam else { return }
+        guard let match = self.match, let homeTeam = match.homeTeam else { return }
+        
+        let removeFrom: ((UIStackView) -> ()) = { stackView in
+            DispatchQueue.main.async {
+                for view in stackView.arrangedSubviews {
+                    stackView.removeArrangedSubview(view)
+                    view.removeFromSuperview()
+                }
+            }
+        }
+        
+        removeFrom(awayTeamEventsStack)
+        removeFrom(homeTeamEventsStack)
+        removeFrom(centerEventsStack)
+
+        
+        DispatchQueue.main.async {
+            if self.homeTeamLogo.image != nil && self.awayTeamLogo.image != nil {
+                
+                if let image = self.homeTeamLogo.image {
+                    let homeLogoView = UIImageView()
+                    homeLogoView.image = image
+                    homeLogoView.widthAnchor.constraint(equalToConstant: 70).isActive = true
+                    homeLogoView.heightAnchor.constraint(equalToConstant: 70).isActive = true
+                    let homeArea = UIView()
+                    homeArea.constrain(homeLogoView, using: .scale, except: [.height, .centerY])
+                    homeLogoView.bottomAnchor.constraint(equalTo: homeArea.bottomAnchor).isActive = true
+                    self.homeTeamEventsStack.addArrangedSubview(homeArea)
+                }
+                if let image = self.awayTeamLogo.image {
+                    let awayLogoView = UIImageView()
+                    awayLogoView.image = image
+                    awayLogoView.widthAnchor.constraint(equalToConstant: 70).isActive = true
+                    awayLogoView.heightAnchor.constraint(equalToConstant: 70).isActive = true
+                    let awayArea = UIView()
+                    awayArea.constrain(awayLogoView, using: .scale, except: [.height, .centerY])
+                    awayLogoView.topAnchor.constraint(equalTo: awayArea.topAnchor).isActive = true
+                    self.awayTeamEventsStack.addArrangedSubview(awayArea)
+                }
+                let grayView = self.grayHorizontalLine(2)
+                grayView.widthAnchor.constraint(equalToConstant: 70).isActive = true
+                self.centerEventsStack.addArrangedSubview(grayView)
+            }
+        }
+
+        
+        var i = 0
         
         for event in events {
-            
-            guard !self.allEvents.contains(event) else {
-                return
-            }
-            
-            self.allEvents.insert(event)
 
             DispatchQueue.main.async {
                 
-                let width: CGFloat = 125
-                let logoWidth: CGFloat = 40
+                let viewWidth: CGFloat = 125
+                let logoWidth: CGFloat = 30
+    
+                let homeView = EventView(event.teamId == homeTeam.id ? event : nil, logoWidth: logoWidth, homeOrAway: .home)
+                let awayView = EventView(event.teamId == homeTeam.id ? nil : event, logoWidth: logoWidth, homeOrAway: .away)
+                let centerSegment = UIStackView(.horizontal)
                 
-                let view = EventView(event, width: width, logoWidth: logoWidth)
-                let secondView = EventView(nil, width: width, logoWidth: logoWidth)
+                centerSegment.widthAnchor.constraint(equalToConstant: viewWidth).isActive = true
+                awayView.widthAnchor.constraint(equalToConstant: viewWidth).isActive = true
+                homeView.widthAnchor.constraint(equalToConstant: viewWidth).isActive = true
+                
+                let timeLabel = UILabel()
+                timeLabel.text = event.timeText
+                timeLabel.textAlignment = .center
+                timeLabel.adjustsFontSizeToFitWidth = true
                 
                 let timeView = UIView()
-                let timeLabel = UILabel()
-                timeView.constrain(timeLabel)
-                timeView.widthAnchor.constraint(equalToConstant: logoWidth).isActive = true
-                timeLabel.text = "\(event.timeElapsed)'\(event.extraTimeElapsed != nil ? " +\(event.extraTimeElapsed!)" : "")"
-                timeLabel.textAlignment = .center
+                timeView.constrain(timeLabel, using: .edges, widthScale: 0.9)
+                timeView.widthAnchor.constraint(equalToConstant: logoWidth * 2).isActive = true
+                timeView.layer.borderWidth = 1
+                timeView.layer.borderColor = Colors.cellBorderGreen.cgColor
+                timeView.layer.cornerRadius = 30
+
                 
-                let centerSegment = UIStackView(.horizontal)
-                centerSegment.widthAnchor.constraint(equalToConstant: width).isActive = true
-                centerSegment.add([self.greenHorizontalLine(2), timeLabel, self.greenHorizontalLine(2)])
-                centerSegment.distribution = .fillEqually
+                let nextTimeText = i != (events.count - 1) ? events[i + 1].timeText : "N/A"
+                let currentTimeText = events[i].timeText
+                let previousTimeText = i != 0 ? events[i - 1].timeText : "N/A"
                 
-                if event.teamId == homeTeam.id {
-                    self.homeTeamEventsStack.addArrangedSubview(view)
-                    self.centerEventsStack.addArrangedSubview(centerSegment)
-                    self.awayTeamEventsStack.addArrangedSubview(secondView)
+                var line1: UIStackView!
+                var line2: UIStackView!
+
+                if currentTimeText == nextTimeText && currentTimeText != previousTimeText && previousTimeText != "N/A" {
+                    line1 = self.greenHorizontalLine(2)
+                    line2 = self.grayHorizontalLine(2)
+                } else if currentTimeText == nextTimeText && currentTimeText == previousTimeText {
+                    line1 = self.grayHorizontalLine(2)
+                    line2 = self.grayHorizontalLine(2)
+                    timeView.isHidden = true
+                } else if currentTimeText != nextTimeText && currentTimeText == previousTimeText && nextTimeText != "N/A" {
+                    line1 = self.grayHorizontalLine(2)
+                    line2 = self.greenHorizontalLine(2)
                 } else {
-                    self.awayTeamEventsStack.addArrangedSubview(view)
-                    self.centerEventsStack.addArrangedSubview(centerSegment)
-                    self.homeTeamEventsStack.addArrangedSubview(secondView)
+                    line1 = self.greenHorizontalLine(2)
+                    line2 = self.greenHorizontalLine(2)
                 }
+                
+                if previousTimeText == "N/A" {
+                    line1 = UIStackView()
+                }
+                
+                if nextTimeText == "N/A" {
+                    line2 = UIStackView()
+                }
+            
+
+                centerSegment.add([line1, timeView, line2])
+                
+                line1.widthAnchor.constraint(equalTo: line2.widthAnchor).isActive = true
+                
+                self.homeTeamEventsStack.addArrangedSubview(homeView)
+                self.centerEventsStack.addArrangedSubview(centerSegment)
+                self.awayTeamEventsStack.addArrangedSubview(awayView)
+                
+                i += 1
             }
         }
     }

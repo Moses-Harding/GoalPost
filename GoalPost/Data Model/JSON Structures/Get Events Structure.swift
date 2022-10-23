@@ -33,8 +33,8 @@ struct EventInformation_Assist: Codable {
 
 // MARK: - Player
 struct EventInformation_Player: Codable {
-    let id: Int?
-    let name: String?
+    let id: Int
+    let name: String
 }
 
 // MARK: - Team
