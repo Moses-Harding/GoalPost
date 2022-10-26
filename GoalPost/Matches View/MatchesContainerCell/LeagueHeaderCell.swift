@@ -92,7 +92,7 @@ class LeagueHeaderCell: UICollectionViewCell {
         titleStack.add(children: [(UIView(), 0.05), (countryImageArea, nil), (UIView(), 0.05), (nameArea, 0.7), (UIView(), nil), (logoArea, nil), (UIView(), 0.05)])
         titleStack.alignment = .center
         
-        nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - Team Collection Cell")
+        nameArea.constrain(nameLabel, using: .scale, widthScale: 0.8, debugName: "Name label to name area - Team Collection Cell")
         
         nameLabel.font = UIFont.boldSystemFont(ofSize: 24)
         nameLabel.numberOfLines = -1

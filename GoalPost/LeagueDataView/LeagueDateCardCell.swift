@@ -99,7 +99,7 @@ class LeagueDateCardCell: UICollectionViewCell {
         
         gamesCountLabel.text = gamesCount
         leagueDateLabel.text = date
-        matchesListLabel.text = matches
+        matchesListLabel.text = "Tap to view"
         
     }
     

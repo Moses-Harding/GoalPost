@@ -114,16 +114,17 @@ class EventView: UIView {
             switch event.eventType  {
             case .card:
                 playerNameLabel.text = "\(event.playerName)"
-                timeAndDetailsLabel.text = event.comments == nil ? event.comments! : event.eventDetail
-                
+                timeAndDetailsLabel.text = event.comments != nil ? event.comments! : event.eventDetail
                 internalStackView.add(children: [firstView, spacer(smallSpacerSize), (playerNameLabel, playerNameLabelSize), (timeAndDetailsLabel, sectionSize), spacer(smallSpacerSize), lastView])
             case .goal:
                 playerNameLabel.text = "\(event.playerName)"
                 timeAndDetailsLabel.text = event.eventDetail == "Normal Goal" ? "GOAL!" : "\(event.eventDetail)"
                 if let assisting = event.assistingPlayerName {
                     assistingPlayerNameLabel.text = "\(assisting) (asst)"
+                    internalStackView.add(children: [firstView, spacer(smallSpacerSize), (playerNameLabel, playerNameLabelSize), (assistingPlayerNameLabel, sectionSize), (timeAndDetailsLabel, sectionSize), spacer(smallSpacerSize), lastView])
+                } else {
+                    internalStackView.add(children: [firstView, spacer(smallSpacerSize), (playerNameLabel, playerNameLabelSize), (timeAndDetailsLabel, sectionSize), spacer(smallSpacerSize), lastView])
                 }
-                internalStackView.add(children: [firstView, spacer(smallSpacerSize), (playerNameLabel, playerNameLabelSize), (assistingPlayerNameLabel, sectionSize), (timeAndDetailsLabel, sectionSize), spacer(smallSpacerSize), lastView])
             case .subst:
                 playerNameLabel.text = "In: \(event.assistingPlayerName ?? "")"
                 assistingPlayerNameLabel.text = "Out: \(event.playerName)"

@@ -18,6 +18,7 @@ struct GetMatchInformation: Codable {
     let teams: GetMatchInformation_Teams
     let goals: GetMatchInformation_Goals
     let score: GetMatchInformation_Score
+    let events: [EventInformation]?
 }
 
 // MARK: - Response -  Match
@@ -115,4 +116,44 @@ struct GetMatchInformation_Score: Codable {
 struct GetMatchInformation_Score_Goals: Codable {
     let home: Int?
     let away: Int?
+}
+
+// MARK: Response - Event
+
+struct GetMatchInformation_Event: Codable {
+    let time: GetMatchInformation_Event_Time
+    let team: GetMatchInformation_Event_Team
+    let player: GetMatchInformation_Event_Player
+    let assist: GetMatchInformation_Event_Assist
+    let type: GetMatchInformation_Event_Type
+    let detail: String
+    let comments: String?
+}
+
+struct GetMatchInformation_Event_Time: Codable {
+    let elapsed: Int
+    let extra: Int?
+}
+
+struct GetMatchInformation_Event_Team: Codable {
+    let id: Int
+    let name: String
+    let logo: String
+}
+
+struct GetMatchInformation_Event_Player: Codable {
+    let id: Int
+    let name: String
+}
+
+struct GetMatchInformation_Event_Assist: Codable {
+    let id: Int?
+    let name: String?
+}
+
+enum GetMatchInformation_Event_Type: String, Codable {
+    case card = "Card"
+    case goal = "Goal"
+    case subst = "subst"
+    case Var = "Var"
 }

@@ -49,7 +49,7 @@ class MatchObject: Codable {
     
     var leagueId: LeagueID?
     
-    var events: [EventObject] = []
+    var events: Set<EventObject> = []
     
     init(id: MatchID, favoriteTeam: Bool = false, timeStamp: Date, timeElapsed: Int? = nil, status: MatchStatusCode? = nil, leagueId: LeagueID? = nil, homeTeamId: TeamID, awayTeamId: TeamID, homeTeamScore: Int? = nil, awayTeamScore: Int? = nil) {
         
@@ -74,6 +74,13 @@ class MatchObject: Codable {
         let matchID = getMatchesStructure.fixture.id
         
         self.init(id: matchID, favoriteTeam: favoriteTeam, timeStamp: matchDate, timeElapsed: timeElapsed, status: status, leagueId: getMatchesStructure.league.id, homeTeamId: getMatchesStructure.teams.home.id, awayTeamId: getMatchesStructure.teams.away.id, homeTeamScore: getMatchesStructure.goals.home, awayTeamScore: getMatchesStructure.goals.away)
+        
+        /*
+        for event in getMatchesStructure.events {
+            let event = EventObject(event)
+            self.events.insert(event)
+        }
+         */
         
         // If there are no copies of the home / away teams in the dictionary, add them for each search
         

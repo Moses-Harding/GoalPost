@@ -161,7 +161,6 @@ class GetMatches {
             }
         }
         
-        //note(fileName: "Get Matches", "Data Converted")
         return (matchesDictionary, matchesByTeamDictionary, matchesByDateDictionary, matchesByLeagueDictionary, matchIdDictionary)
     }
     

@@ -78,7 +78,7 @@ class LeagueCollectionCell: UICollectionViewCell {
         let trailingMain = mainStack.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
         let topMain = mainStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 15)
         let bottomMain = mainStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -15)
-        NSLayoutConstraint.activate([ leadingMain, trailingMain, topMain, bottomMain ])
+        NSLayoutConstraint.activate([leadingMain, trailingMain, topMain, bottomMain])
         
         mainStack.add([titleStack])
     }
@@ -89,7 +89,7 @@ class LeagueCollectionCell: UICollectionViewCell {
         titleStack.add(children: [(UIView(), 0.05), (countryImageArea, nil), (UIView(), 0.05), (nameArea, 0.7), (UIView(), nil), (logoArea, nil), (UIView(), 0.05)])
         titleStack.alignment = .center
         
-        nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - Team Collection Cell")
+        nameArea.constrain(nameLabel, using: .scale, debugName: "Name label to name area - Team Collection Cell")
         
         nameLabel.font = UIFont.systemFont(ofSize: 18, weight: .regular)
         nameLabel.numberOfLines = -1

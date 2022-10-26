@@ -53,7 +53,7 @@ class TeamSearchCell: UICollectionViewCell {
     // 1
      func setUp() {
         
-         contentView.constrain(mainStack, using: .scale, padding: 10, except: [.height], debugName: "Main Stack to Content View - Team Search Cell")
+         contentView.constrain(mainStack, using: .scale, except: [.height], debugName: "Main Stack to Content View - Team Search Cell")
          
         mainStack.heightAnchor.constraint(equalToConstant: 100).isActive = true
         

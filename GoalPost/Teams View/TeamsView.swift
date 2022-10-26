@@ -104,7 +104,7 @@ class TeamsView: UIView {
         mainStack.add(children: [(titleArea, 0.075), (UIView(), 0.025), (addTeamStack, 0.1), (UIView(), 0.025), (collectionView, nil), (UIView(), 0.05)])
         
         // Might as well set up the title area as long as we're at it
-        titleArea.constrain(titleLabel, using: .scale, widthScale: 0.5, heightScale: 1, padding: 5, except: [], safeAreaLayout: true, debugName: "My Teams Title Label")
+        titleArea.constrain(titleLabel, using: .scale, widthScale: 0.5, heightScale: 1, except: [], safeAreaLayout: true, debugName: "My Teams Title Label")
         
         addTeamStack.add(children: [(UIView(), 0.25), (addTeamButton, nil), (UIView(), 0.25)])
     }

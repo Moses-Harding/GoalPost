@@ -73,7 +73,7 @@ class LeaguesView: UIView {
     private func setUpStacks() {
         self.constrain(mainStack, safeAreaLayout: true)
         mainStack.add(children: [(titleArea, 0.075), (UIView(), 0.025), (addLeagueStack, 0.1), (UIView(), 0.025), (collectionView, nil), (UIView(), 0.05)])
-        titleArea.constrain(titleLabel, using: .scale, widthScale: 0.5, heightScale: 1, padding: 5, except: [], safeAreaLayout: true, debugName: "My Leagues Title Label")
+        titleArea.constrain(titleLabel, using: .scale, widthScale: 0.5, safeAreaLayout: true, debugName: "My Leagues Title Label")
         
         addLeagueStack.add(children: [(UIView(), 0.25), (addLeagueButton, nil), (UIView(), 0.25)])
     }

@@ -47,7 +47,7 @@ class GetEvents {
             
             let event = EventObject(result)
             
-            match.events.append(event)
+            match.events.insert(event)
         }
         matchesDictionary[matchId] = match
 

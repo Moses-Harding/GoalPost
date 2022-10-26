@@ -24,6 +24,10 @@ extension UIView {
     @discardableResult
     func constrain(_ child: UIView, using constraintMethod: ConstraintMethod = .scale, widthScale: CGFloat = 1, heightScale: CGFloat = 1, padding: CGFloat = 0, except: [ConstraintType] = [], safeAreaLayout: Bool = false, debugName: String = "Unnamed View") -> (NSLayoutConstraint, NSLayoutConstraint, NSLayoutConstraint, NSLayoutConstraint) {
         
+        guard (constraintMethod == .edges && widthScale == 1 && heightScale == 1) || (constraintMethod == .scale && padding == 0 ) else {
+            fatalError("UIView - Constrain Extension - ConstraintMethod does not match parameters")
+        }
+        
         child.translatesAutoresizingMaskIntoConstraints = false
         
         self.addSubview(child)
@@ -123,5 +127,12 @@ extension UIView {
         
         return constraint
     }
+
+      func recognizeTaps(tapNumber: Int, target: UIView, action: Selector) {
+        let tap = UITapGestureRecognizer(target: target, action: action)
+        tap.numberOfTapsRequired = tapNumber
+        addGestureRecognizer(tap)
+        isUserInteractionEnabled = true
+      }
 }
 

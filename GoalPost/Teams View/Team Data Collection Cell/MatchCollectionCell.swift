@@ -67,8 +67,6 @@ class MatchCollectionCell: TeamDataStackCellModel {
     // 1
     private func setUp() {
         
-        //print("Set up for \(teamDataObject?.id)")
-        
         contentStack.add(children: [(UIView(), 0.05), (dateStack, 0.2), (UIView(), 0.05), (greenLine, 0.02), (UIView(), 0.05), (homeTeamStack, nil), (awayTeamStack, nil), (UIView(), 0.05),])
         
         mainStack.setCustomSpacing(10, after: dateStack)
@@ -87,10 +85,9 @@ class MatchCollectionCell: TeamDataStackCellModel {
         
         // MARK: Set up image stack
         
-        homeImage.constrain(homeImageView, using: .scale, widthScale: 1, heightScale: 1, padding: 1, except: [.height], safeAreaLayout: false, debugName: "Home Image View")
+        homeImage.constrain(homeImageView, using: .scale, except: [.height], safeAreaLayout: false, debugName: "Home Image View")
         
-        
-        awayImage.constrain(awayImageView, using: .scale, widthScale: 1, heightScale: 1, padding: 1, except: [.height], safeAreaLayout: false, debugName: "Away Image View")
+        awayImage.constrain(awayImageView, using: .scale, except: [.height], safeAreaLayout: false, debugName: "Away Image View")
         
         homeImageView.heightAnchor.constraint(equalToConstant: 20).isActive = true
         homeImageView.widthAnchor.constraint(equalToConstant: 20).isActive = true
@@ -147,20 +144,20 @@ class MatchCollectionCell: TeamDataStackCellModel {
             self.homeImageView.image = homeTeamImage
         } else {
             
-                guard let logo = homeTeam.logo, let url = URL(string: logo)  else { return }
-                
-                DispatchQueue.global().async {
-                    if let data = try? Data(contentsOf: url) {
-                        DispatchQueue.main.async {
-                            
-                            guard let image = UIImage(data: data) else { return }
-                            self.homeImageView.image = image
-
-                            Task.init {
-                                Saved.data.save(image: image, uniqueName: homeTeamName)
-                            }
+            guard let logo = homeTeam.logo, let url = URL(string: logo)  else { return }
+            
+            DispatchQueue.global().async {
+                if let data = try? Data(contentsOf: url) {
+                    DispatchQueue.main.async {
+                        
+                        guard let image = UIImage(data: data) else { return }
+                        self.homeImageView.image = image
+                        
+                        Task.init {
+                            Saved.data.save(image: image, uniqueName: homeTeamName)
                         }
                     }
+                }
             }
         }
         

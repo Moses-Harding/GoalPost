@@ -70,11 +70,13 @@ class MatchCell: UICollectionViewCell {
         super.init(frame: frame)
         
         setupAllViews()
+        setColors()
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         setupAllViews()
+        setColors()
     }
     
     private func setupAllViews() {
@@ -148,14 +150,16 @@ class MatchCell: UICollectionViewCell {
 
         // MARK: Set up image stack
         
-        homeImage.constrain(homeImageView, using: .scale, widthScale: 1, heightScale: 1, padding: 1, except: [.height], safeAreaLayout: false, debugName: "Home Image View")
-        
-        
-        awayImage.constrain(awayImageView, using: .scale, widthScale: 1, heightScale: 1, padding: 1, except: [.height], safeAreaLayout: false, debugName: "Away Image View")
+        homeImage.constrain(homeImageView, using: .scale, except: [.height], safeAreaLayout: false, debugName: "Home Image View")
+        awayImage.constrain(awayImageView, using: .scale, except: [.height], safeAreaLayout: false, debugName: "Away Image View")
         
         imageStack.alignment = .center
         
         refreshCellConstraints()
+    }
+    
+    func setColors() {
+        // self.contentView.backgroundColor = .black
     }
     
     func refreshCellConstraints() {

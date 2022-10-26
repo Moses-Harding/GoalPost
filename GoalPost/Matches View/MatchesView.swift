@@ -205,8 +205,6 @@ class MatchesView: UIView, UIGestureRecognizerDelegate {
         
         // Backgrounds
         dateArea.backgroundColor = Colors.titleAreaColor
-        
-        collectionArea.backgroundColor = .yellow
     }
     
     // 5

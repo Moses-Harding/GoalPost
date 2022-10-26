@@ -56,9 +56,10 @@ class LeagueDataView: UIView {
         mainStack.add(children: [(UIView(), 0.05), (nameArea, 0.05), (UIView(), 0.05), (removalButtonStack, nil), (UIView(), 0.05), (collectionViewArea, nil), (UIView(), 0.05)])
         
         collectionViewArea.constrain(collectionView, using: .edges, padding: 5, debugName: "CollectionView to CollectionViewArea - LeagueDataView")
-        nameArea.constrain(nameLabel, using: .edges, widthScale: 0.8, debugName: "Name label to name area - LeagueDataView")
+        nameArea.constrain(nameLabel, using: .scale, widthScale: 0.8, debugName: "Name label to name area - LeagueDataView")
         
         nameLabel.font = UIFont.boldSystemFont(ofSize: 24)
+        nameLabel.textAlignment = .center
         
         removalButtonStack.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
@@ -132,6 +133,7 @@ class LeagueDataView: UIView {
 
         }
         collectionView.dataSource = dataSource
+        collectionView.delegate = self
         
         // 3. Create a supplementary view registration. Generate a TitleSupplemenatryView, get the sectionIdentifier (e.g. .match), and set the label in the supplementaryView to the rawValue (in that case, "Matches"). Then provide this registration to the dataSource
         let supplementaryRegistration = UICollectionView.SupplementaryRegistration<TitleSupplementaryView>(elementKind: ElementKind.titleElementKind.rawValue) {
@@ -223,12 +225,28 @@ extension LeagueDataView {
     
 }
 
-extension LeagueDataView {
+extension LeagueDataView: UICollectionViewDelegate {
     @objc func removeLeague() {
         print("LeagueCollectionCell - Removing league")
         guard let delegate = viewController.leaguesViewDelegate, let league = self.league, let viewController = self.viewController else { fatalError("No delegate passed to league collection cell") }
 
         viewController.dismiss(animated: true)
         delegate.remove(league: league)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        guard let cell = collectionView.cellForItem(at: indexPath) as? LeagueDateCardCell, let leagueDateObject = cell.leagueDateObject else {
+            print("LeagueDataView - collectionView - didSelectItem - Could not locate cell")
+            return }
+
+        let view = LeagueDateMatchesView()
+        view.leagueDateObject = leagueDateObject
+        view.viewController = self.viewController
+        view.alpha = 0
+        self.constrain(view)
+        UIView.animate(withDuration: 0.25) {
+            view.alpha = 1
+        }
     }
 }
